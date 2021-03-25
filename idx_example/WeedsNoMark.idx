@@ -1,0 +1,16 @@
+(version)
+6
+(box)
+0 4031 0 3023
+(fields)
+myfield uint8[4] format(0) default_value(0) min(0 0 0 0) max(0 0 0 0) 
+(bits)
+V010101010101010101010101
+(bitsperblock)
+16
+(blocksperfile)
+128
+(interleave block)
+0
+(filename_template)
+./WeedsNoMark/%02x.bin
