@@ -19,10 +19,14 @@ import yagmail
 DEBUG = True
 FOR_WESTON = False
 
-GOOGLE_REFRESH_TOKEN ='1//0fu7G1kuCoEGlCgYIARAAGA8SNwF-L9Ir5B65_aDITdDVZX2uTK-OqbdimvYgxhsQN8LEsGu7vLnk8dPp3hi4uNG0_w4M1MRvwrg'
-GOOGLE_CLIENT_ID =  "1049418758773-uquddk7b9gag6i7pfsouio3c5mj3dl8l.apps.googleusercontent.com"
-GOOGLE_CLIENT_SECRET =   "BV_7TAFIP8VQiETt5LCgKgIx"
 
+REDIRECT_URI = ''
+
+GOOGLE_CLIENT_ID = ''
+GOOGLE_CLIENT_SECRET = ''
+GOOGLE_REFRESH_TOKEN = None
+#Fill in values from:
+import visus_google.py
 
 class VisoarImageMailer(QDialog):
 

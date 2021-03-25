@@ -55,12 +55,32 @@ class Utils:
 		log.print("GetUsbDrives...")
 		
 		def getInfo(key):
-			output,err = subprocess.Popen('wmic logicaldisk get {}'.format(key), shell=True, stdout=subprocess.PIPE).communicate()
-			output=output.decode("utf-8").strip()
-			ret=[]
-			for line in output.split('\n')[1:]:
-				ret.append(line.strip())
-			print(ret)
+			ret = []
+			if 'darwin' in sys.platform:
+				from os import listdir
+				err = ''
+				output = listdir('/Volumes')
+				for line in output:
+					if not 'Macintosh HD' in line:
+						ret.append('/Volumes/' + line.strip())
+			elif 'win' in sys.platform:
+				output,err = subprocess.Popen('wmic logicaldisk get {}'.format(key), shell=True, stdout=subprocess.PIPE).communicate()
+				output = output.decode("utf-8").strip()
+				for line in output.split('\n')[1:]:
+					ret.append(line.strip())
+				print(ret)
+			else:
+				log.print('Unhandeled OS: List drives')
+				#This code might work
+				# import usb
+				# busses = usb.busses()
+				# for bus in busses:
+				# 	devices = bus.devices
+				# 	for dev in devices:
+				# 		print("Device:", dev.filename)
+				# 		print("  idVendor: %d (0x%04x)" % (dev.idVendor, dev.idVendor))
+				# 		print("  idProduct: %d (0x%04x)" % (dev.idProduct, dev.idProduct))
+
 			return ret
 				
 		fixed,external=[],[]
@@ -389,6 +409,7 @@ class VisoarMoveDataFromCardWidget(QWidget):
 	def refreshButtons(self):
 		
 		self.buttons=[]
+		button=None
 		self.clearLayout(self.buttons_layout)
 		
 		for drive, id in Utils.GetUsbDrives():

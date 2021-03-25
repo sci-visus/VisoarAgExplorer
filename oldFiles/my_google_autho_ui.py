@@ -20,12 +20,15 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import lxml.html
 
-GOOGLE_ACCOUNTS_BASE_URL = 'https://accounts.google.com'
-REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
+REDIRECT_URI = ''
 
-GOOGLE_CLIENT_ID = '1049418758773-uquddk7b9gag6i7pfsouio3c5mj3dl8l.apps.googleusercontent.com'
-GOOGLE_CLIENT_SECRET = 'BV_7TAFIP8VQiETt5LCgKgIx'
+GOOGLE_CLIENT_ID = ''
+GOOGLE_CLIENT_SECRET = ''
 GOOGLE_REFRESH_TOKEN = None
+#Fill in values from:
+import visus_google.py
+
+
 
 """Auth module that uses a QT or GTK browser to prompt the user."""
 import signal
