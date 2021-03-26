@@ -43,7 +43,7 @@ class VisoarStartTabWidget(QWidget):
         self.choicelayoutTop.addStretch(True)
 
 
-        self.buttonBatchProcess = QPushButton('Batch Process', self)
+        self.buttonBatchProcess = QPushButton('Batch Process Stitching of Directories', self)
         self.buttonBatchProcess.resize(180, 40)
         self.buttonBatchProcess.clicked.connect(self.startBatchProcess)
         self.buttonBatchProcess.setStyleSheet(GREEN_PUSH_BUTTON)

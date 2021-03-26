@@ -31,13 +31,13 @@ from PyQt5.QtWidgets                  import QWidget, QMessageBox, QGroupBox, QS
 
 from lookAndFeel                import *
 
-GOOGLE_ACCOUNTS_BASE_URL = 'https://accounts.google.com'
-REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
+REDIRECT_URI = ''
 
-GOOGLE_CLIENT_ID =  "1049418758773-uquddk7b9gag6i7pfsouio3c5mj3dl8l.apps.googleusercontent.com"
-GOOGLE_CLIENT_SECRET =   "BV_7TAFIP8VQiETt5LCgKgIx"
+GOOGLE_CLIENT_ID = ''
+GOOGLE_CLIENT_SECRET = ''
 GOOGLE_REFRESH_TOKEN = None
-#SCOPES = ['https://www.googleapis.com/auth/gmail.send','https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/gmail.labels']
+#Fill in values from:
+import visus_google
 
 DEBUG = False
 FOR_WESTON = True
