@@ -404,11 +404,15 @@ class VisoarMoveDataFromCardWidget(QWidget):
 
 		import git
 		g = git.Git(os.path.join(ThisDir,".."))
-		xx=g.pull('origin','master')
-		print(xx)
-		#message="Software has been updated. You NEED TO RESTART"
-		#log.print(message)
-		#QMessageBox.about(self, "Error", message)
+		retcode=g.pull('origin','master')
+		if retcode.startswith('Already'): 
+			message="Software is already updated"
+			log.print(message)
+			QMessageBox.about(self, "Ok", message)
+		else:
+			message="Software has been updated. You NEED TO RESTART"
+			log.print(message)
+			QMessageBox.about(self, "Error", message)
 		
 		
 	def separator(self):
@@ -603,11 +607,7 @@ class VisoarMoveDataFromCardWidget(QWidget):
 	def dumpMemoryCard(self, drive, field_name, num_sensor):
 		log.print("*** Dumping usb drive")		
 		
-		dst_dir=LOCAL_DIR
-		dst_dir+='/{}'.format(T1.strftime("%Y%m%d-%H%M%S"))
-		dst_dir+='-{}'.format(field_name.text())
-		dst_dir+="/sensor{}".format(num_sensor)
-		dst_dir=Utils.NormalizePath(dst_dir) 	
+		dst_dir=Utils.NormalizePath("{}/{}-{}/sensor{}".format(LOCAL_DIR, T1.strftime("%Y%m%d-%H%M%S"),field_name,num_sensor))
 		
 		self.setRunning(True)
 		src_dir=drive
