@@ -37,7 +37,7 @@ GOOGLE_CLIENT_ID = ''
 GOOGLE_CLIENT_SECRET = ''
 GOOGLE_REFRESH_TOKEN = None
 #Fill in values from:
-import visus_google.py
+import visus_google
 
 DEBUG = False
 FOR_WESTON = True
