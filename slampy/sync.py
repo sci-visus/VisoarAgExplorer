@@ -90,50 +90,52 @@ class Utils:
 	@staticmethod
 	def GetUsbDrives():
 		log.print("GetUsbDrives...")
+		ret = []
 		
-		def getInfo(key):
-			ret = []
-			if 'darwin' in sys.platform:
-				from os import listdir
-				err = ''
-				output = listdir('/Volumes')
-				for line in output:
-					if not 'Macintosh HD' in line:
-						ret.append('/Volumes/' + line.strip())
-			elif 'win' in sys.platform:
+		if 'darwin' in sys.platform:
+			for line in os.listdir('/Volumes'):
+				if not 'Macintosh HD' in line:
+					ret.append('/Volumes/' + line.strip())			
+			
+		elif 'win' in sys.platform:
+			
+			def Win32Info(key):
+				ret = []
 				output,err = subprocess.Popen('wmic logicaldisk get {}'.format(key), shell=True, stdout=subprocess.PIPE).communicate()
 				output = output.decode("utf-8").strip()
 				for line in output.split('\n')[1:]:
 					ret.append(line.strip())
-				print(ret)
-			else:
-				log.print('Unhandeled OS: List drives')
-				#This code might work
-				# import usb
-				# busses = usb.busses()
-				# for bus in busses:
-				# 	devices = bus.devices
-				# 	for dev in devices:
-				# 		print("Device:", dev.filename)
-				# 		print("  idVendor: %d (0x%04x)" % (dev.idVendor, dev.idVendor))
-				# 		print("  idProduct: %d (0x%04x)" % (dev.idProduct, dev.idProduct))
-
-			return ret
+				return ret	
 				
-		ret=[]
-		names=getInfo("name")
-		descriptions=getInfo("description");descriptions=descriptions + ([''] * (len(names)-len(descriptions)))
-		ids=getInfo("VolumeSerialNumber");ids=ids + (['0'] * (len(names)-len(ids)))
-		print(names,descriptions,ids)
+			names=Win32Info("name")
+			descriptions=Win32Info("description")
+			ids=Win32Info("VolumeSerialNumber")
+			
+			descriptions=descriptions + ([''] * (len(names)-len(descriptions)))
+			ids=ids + (['0'] * (len(names)-len(ids)))
+			print("Win32", names,descriptions,ids)
+			for name,description,id in zip(names,descriptions,ids):
+				description=description.lower()
+				print(name,description,id)
+				if id=='0' or "local fixed" in description or "cd-rom" in description:
+					continue
+				ret.append((name,id))
+			
+		else:
+			log.print('Unhandeled OS: List drives')
+			#This code might work
+			# import usb
+			# busses = usb.busses()
+			# for bus in busses:
+			# 	devices = bus.devices
+			# 	for dev in devices:
+			# 		print("Device:", dev.filename)
+			# 		print("  idVendor: %d (0x%04x)" % (dev.idVendor, dev.idVendor))
+			# 		print("  idProduct: %d (0x%04x)" % (dev.idProduct, dev.idProduct))			
 		
-		for name,description,id in zip(names,descriptions,ids):
-			description=description.lower()
-			print(name,description,id)
-			if id=='0' or "local fixed" in description or "cd-rom" in description:
-				continue
-			ret.append((name,id))
 		log.print("External drives",ret)
-		return ret	
+		return ret
+		
 	
 	# EjectUSBDrive (BROKEN!
 	@staticmethod
