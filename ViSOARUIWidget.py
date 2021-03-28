@@ -21,7 +21,7 @@ from VisoarLoadTab			import *
 from VisoarStitchTab			import *
 from VisoarAnalyzeTab			import *
 from ViSOARUIWidget             import *
-from slampy.sync     import VisoarMoveDataFromCardWidget
+from slampy.sync     import VisoarMoveDataWidget
 
 from slam2dWidget 				import *
 from gmail_visoar				import *
@@ -398,7 +398,7 @@ class ViSOARUIWidget(QWidget):
         self.tabLoad = VisoarLoadTabWidget(self)  # QWidget()
 
         #self.tabBatchProcess = VisoarBatchProcessWidget(self)  # QWidget()
-        self.tabMoveDataFromCards = VisoarMoveDataFromCardWidget(self)  # QWidget()
+        self.tabMoveDataFromCards = VisoarMoveDataWidget(self)  # QWidget()
 
         if self.ADD_VIEWER:
             self.tabStitcher = VisoarStitchTabWidget(self)  # QWidget()
@@ -1729,7 +1729,7 @@ class ViSOARUIWidgetFull(ViSOARUIWidget):
         self.tabLoad = VisoarLoadTabWidget(self)  # QWidget()
 
         #self.tabBatchProcess = VisoarBatchProcessWidget(self)  # QWidget()
-        self.tabMoveDataFromCards = VisoarMoveDataFromCardWidget(self)  # QWidget()
+        self.tabMoveDataFromCards = VisoarMoveDataWidget(self)  # QWidget()
 
         if self.ADD_VIEWER:
             self.tabStitcher = VisoarStitchTabWidget(self)  # QWidget()

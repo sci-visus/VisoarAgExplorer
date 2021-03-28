@@ -88,14 +88,13 @@ class Utils:
 
 	# return a list of fixed and external drives
 	@staticmethod
-	def GetUsbDrives():
-		log.print("GetUsbDrives...")
+	def GetDrives():
+		log.print("GetDrives...")
 		ret = []
 		
 		if 'darwin' in sys.platform:
 			for line in os.listdir('/Volumes'):
-				if not 'Macintosh HD' in line:
-					ret.append('/Volumes/' + line.strip())			
+				ret.append('/Volumes/' + line.strip())
 			
 		elif 'win' in sys.platform:
 			
@@ -117,9 +116,8 @@ class Utils:
 			for name,description,id in zip(names,descriptions,ids):
 				description=description.lower()
 				print(name,description,id)
-				if id=='0' or "local fixed" in description or "cd-rom" in description:
-					continue
-				ret.append((name,id))
+				if id=='0' or "cd-rom" in description: continue
+				ret.append(name)
 			
 		else:
 			log.print('Unhandeled OS: List drives')
@@ -270,6 +268,15 @@ class CopyFilesToGoogleDrive:
 		log.print("CopyFilesToGoogleDrive: uploaded {} file to Google drive md5({}). MD5 check ok".format(src,l1))
 	
 # //////////////////////////////////////////////////////////
+class CleanFiles:
+	
+	# copyFile
+	def copyFile(self,src,dst):
+		if os.path.abspath(src)!=os.path.abspath(log.filename):
+			os.remove(src)
+
+	
+# //////////////////////////////////////////////////////////
 class CompoundCopyFiles:
 	
 	# ___init__
@@ -280,10 +287,6 @@ class CompoundCopyFiles:
 	def copyFile(self,src,dst):
 		for it in self.instances:
 			it.copyFile(src,dst)
-		
-		# no need to keep it around
-		if os.path.abspath(src)!=os.path.abspath(log.filename):
-			os.remove(src)
 	
 # //////////////////////////////////////////////////////////
 class SyncFiles:
@@ -348,6 +351,7 @@ class SyncFiles:
 		# try to remove all empty subdirectories 
 		for sub in [os.path.join(self.src_dir,it) for it in os.listdir(self.src_dir)]:
 			if os.path.isdir(sub) and not self.findFiles(sub):
+				print("Removing empty directory",sub)
 				shutil.rmtree(sub, ignore_errors=True)
 			
 		kb=int(tot_bytes/1024)
@@ -384,7 +388,7 @@ class MyWorker(QObject):
 		self.finished.emit()
 	
 # ////////////////////////////////////////////////////////////
-class VisoarMoveDataFromCardWidget(QWidget):
+class VisoarMoveDataWidget(QWidget):
 	
 	# constructor
 	def __init__(self,parent=None):
@@ -396,73 +400,194 @@ class VisoarMoveDataFromCardWidget(QWidget):
 			log.print("Got arguments", sys.argv)
 		
 		self.setWindowTitle("Sync files")
-		self.resize(400,200)
+		self.resize(600,200)
 		self.sensors={}
-		self.createGui()
+		self.main_layout = QVBoxLayout()
+		self.setLayout(self.main_layout)
+		self.refreshGui()
 		
-	# checkForUpdates
-	def checkForUpdates(self):
-		print("Checking for updates")	
+	# creatDumpMemoryCardWidget
+	def creatDumpMemoryCardWidget(self):
+		
+		widget = QWidget()
+		sub=QGridLayout()
+		widget.setLayout(sub)
+		
+		drives=Utils.GetDrives()
+		drives.reverse()		
+		
+		sub.addWidget(QLabel("Memory card"),0,0)
+		src_dir=self.createComboBox(drives)
+		src_dir.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)		
+		clean=QCheckBox("Clean")
+		clean.setChecked(True)			
+		sub.addLayout(self.hlayout([src_dir,clean]),0,1)
+		
+		sub.addWidget(QLabel("Destination"),1,0)
+		dst_dir=QLineEdit()
+		sub.addWidget(dst_dir,1,1)
+	
+		def guessDestinationDir(src_dir):
+			sensor_num=self.sensors[src_dir] if src_dir in self.sensors else len(self.sensors)
+			return "{}/{}-myfield/sensor{}".format(LOCAL_DIR, T1.strftime("%Y%m%d-%H%M%S"),sensor_num)
+		
+		src_dir.currentIndexChanged.connect(lambda: dst_dir.setText(guessDestinationDir(src_dir.currentText())))
+		dst_dir.setText(guessDestinationDir(src_dir.currentText()))
+		
+		def onRun(src_dir, dst_dir, clean):
+			
+			log.print("*** Dumping memory card","src_dir",src_dir, "dst_dir", dst_dir,"clean",clean)
+			
+			# assign sensor number if needed
+			if not src_dir in self.sensors:
+				self.sensors[src_dir]=len(self.sensors)
+				
+			self.setRunning(True)
+			copier=CompoundCopyFiles()
+			copier.instances.append(CopyLocalFiles(dst_dir))
+			if clean:
+				copier.instances.append(CleanFiles())
+			sync=SyncFiles(src_dir+"/",copier=copier)
+			self.runSyncInBackground(sync)
 
-		import git
-		g = git.Git(os.path.join(ThisDir,".."))
-		retcode=g.pull('origin','master')
-		if retcode.startswith('Already'): 
-			message="Software is already updated"
-			log.print(message)
-			QMessageBox.about(self, "Ok", message)
-		else:
-			message="Software has been updated. You NEED TO RESTART"
-			log.print(message)
-			QMessageBox.about(self, "Error", message)
+		button=self.createButton('Run',callback=lambda : onRun(
+			src_dir.currentText(),
+			dst_dir.text(), 
+			clean.isChecked()))
+			
+		filler=QLabel("")
+		filler.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+		sub.addLayout(self.hlayout([filler,button]),2,0,1,2)
+		self.buttons.append(button)		
+		
+		return widget
+		
+	# createCopyFilesToGoogleWidget
+	def createCopyFilesToGoogleWidget(self):
+		
+		drives=Utils.GetDrives()
+		
+		widget = QWidget()
+		sub=QGridLayout()
+		widget.setLayout(sub)
+		
+		sub.addWidget(QLabel("Local directory"),0,0)
+		src_dir=QLineEdit()
+		src_dir.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+		src_dir.setText(LOCAL_DIR)
+		clean=QCheckBox("Clean")
+		clean.setChecked(True)			
+		sub.addLayout(self.hlayout([src_dir,clean]),0,1)
+		
+		sub.addWidget(QLabel("Google Destination"),1,0)
+		bucket_name=QLineEdit()
+		bucket_name.setText(BUCKET_NAME)
+		sub.addWidget(bucket_name,1,1)
+		
+		sub.addWidget(QLabel("Backup"),2,0)
+		backup_dir=QLineEdit()
+		backup_dir.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+		backup_dir.setText(BACKUP_DIR.format(drives[-1]))
+		backup_enabled=QCheckBox("Enabled")
+		backup_enabled.setChecked(True)
+		backup_enabled.toggled.connect(lambda: backup_dir.setEnabled(backup_enabled.isChecked()))  
+		
+		sub.addLayout(self.hlayout([backup_dir,backup_enabled]),2,1)
+		
+		# createCopyFilesToGoogleWidget
+		def onRun(src_dir, bucket_name, backup_dir, clean):
+			
+			log.print("*** Copying", src_dir," to google drive bucket",bucket_name, "backup to",backup_dir, "clean",clean)
+			self.setRunning(True)
+			copier=CompoundCopyFiles()
+			
+			# first copy to google drive
+			if bucket_name:
+				copier.instances.append(CopyFilesToGoogleDrive(bucket_name)) 
+			
+			# eventually copy to external usb drive
+			if backup_dir:
+				copier.instances.append(CopyLocalFiles(backup_dir))
+				
+			if clean:
+				copier.instances.append(CleanFiles())
+			
+			sync=SyncFiles(src_dir,copier=copier)
+			self.runSyncInBackground(sync)	
+					
+		button=self.createButton('Run',callback=lambda : onRun(
+			src_dir.text(), 
+			bucket_name.text(), 
+			backup_dir.text() if backup_enabled.isChecked() else None,  
+			clean.isChecked()))
+			
+		filler=QLabel("")
+		filler.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+		sub.addLayout(self.hlayout([filler,button]),3,0,1,2)
+		self.buttons.append(button)		
+		
+		return widget
 		
 		
+	#  refreshGui
+	def refreshGui(self):
+		
+		self.buttons=[]
+		
+		self.clearLayout(self.main_layout)
+		
+		self.main_layout.addLayout(self.hlayout([
+			self.createButton('Refresh GUI',callback=self.refreshGui),
+			self.createButton('Check for updates',callback=self.checkForUpdates),
+		]))
+		
+		self.main_layout.addWidget(self.separator())
+		
+		self.prog=QLineEdit();self.prog.setEnabled(False)
+		self.main_layout.addWidget(QLabel('Current'))
+		self.main_layout.addWidget(self.prog)		
+		
+		self.src=QLineEdit();self.src.setEnabled(False)
+		self.main_layout.addWidget(QLabel('Source'))
+		self.main_layout.addWidget(self.src)
+				
+		self.dst=QLineEdit();self.dst.setEnabled(False)
+		self.kb_sec=QLineEdit();self.kb_sec.setEnabled(False)
+		self.main_layout.addWidget(QLabel('Destination'))
+		self.main_layout.addWidget(self.dst)		
+		
+		self.progress = QProgressBar(self)
+		self.progress.setValue(0)	
+		self.main_layout.addWidget(QLabel('KB/sec'))
+		self.main_layout.addWidget(self.kb_sec)		
+			
+		self.main_layout.addWidget(QLabel('Progression'))
+		self.main_layout.addWidget(self.progress)
+		
+		self.main_layout.addWidget(self.separator())
+
+		tabwidget = QTabWidget()
+		self.main_layout.addWidget(tabwidget)
+		tabwidget.addTab(self.creatDumpMemoryCardWidget(), "Dump memory card")
+		tabwidget.addTab(self.createCopyFilesToGoogleWidget(), "Upload data to Google")			
+
+
+
+	# createComboBox
+	def createComboBox(self,options=[],callback=None):
+		ret=QComboBox()
+		ret.addItems(options)
+		if callback:
+			ret.currentIndexChanged.connect(callback)
+		return ret
+		
+	# separator
 	def separator(self):
 		line = QLabel(" ")
 		#line.setFrameShape(QFrame.HLine)
 		#line.setFrameShadow(QFrame.Sunken)
 		return line
-		
-	#  createGui
-	def createGui(self):
-		
-		main_layout = QVBoxLayout()
-		self.setLayout(main_layout)
-		
-		main_layout.addLayout(self.hlayout([
-			self.createButton('Refresh GUI',callback=self.refreshButtons),
-			self.createButton('Check for updates',callback=self.checkForUpdates),
-		]))
-		
-		main_layout.addWidget(self.separator())
-		
-		self.prog=QLineEdit();self.prog.setEnabled(False)
-		main_layout.addWidget(QLabel('Current'))
-		main_layout.addWidget(self.prog)		
-		
-		self.src=QLineEdit();self.src.setEnabled(False)
-		main_layout.addWidget(QLabel('Source'))
-		main_layout.addWidget(self.src)
-				
-		self.dst=QLineEdit();self.dst.setEnabled(False)
-		self.kb_sec=QLineEdit();self.kb_sec.setEnabled(False)
-		main_layout.addWidget(QLabel('Destination'))
-		main_layout.addWidget(self.dst)		
-		
-		self.progress = QProgressBar(self)
-		self.progress.setValue(0)	
-		main_layout.addWidget(QLabel('KB/sec'))
-		main_layout.addWidget(self.kb_sec)		
-			
-		main_layout.addWidget(QLabel('Progression'))
-		main_layout.addWidget(self.progress)
-		
-		main_layout.addWidget(self.separator())
-		
-		main_layout.addLayout(self.refreshButtons())
 
-		
-		
 	# hlayout
 	def hlayout(self,items):
 		ret=QHBoxLayout()	
@@ -494,59 +619,21 @@ class VisoarMoveDataFromCardWidget(QWidget):
 			else:
 				self.clearLayout(item.layout())	
 		
-	# 	refreshButtons
-	def refreshButtons(self):
-		
-		if not "buttons_layout" in dir(self):
-			self.buttons_layout=QVBoxLayout()
-		
-		self.buttons=[]
-		button=None
-		self.clearLayout(self.buttons_layout)
-		
-		# assign unique usb IDs
-		usb_drives=Utils.GetUsbDrives()
-		for drive, id in usb_drives:
-			if not id in self.sensors:
-				self.sensors[id]=len(self.sensors)		
+	# checkForUpdates
+	def checkForUpdates(self):
+		print("Checking for updates")	
 
-			
-		if usb_drives:
-			
-			hlayout=QHBoxLayout()
-			self.buttons_layout.addLayout(hlayout)
-			
-			hlayout.addWidget(QLabel("Dump memory card"))
-			
-			field_name=QLineEdit()
-			field_name.setText("myfield")
-			hlayout.addWidget(QLabel('Field name'))
-			hlayout.addWidget(field_name)
-
-			for drive, id in usb_drives:
-				button=self.createButton('Dump USB {}'.format(drive),callback=lambda : self.dumpMemoryCard(drive, field_name.text(), self.sensors[id]))
-				hlayout.addWidget(button)
-				self.buttons.append(button)
-				
-		# google
-		if os.path.isfile(CopyFilesToGoogleDrive.settings_file):
-			
-			hlayout=QHBoxLayout()
-			self.buttons_layout.addLayout(hlayout)			
-			
-			hlayout.addWidget(QLabel("Google Drive"))
-			
-			button=self.createButton('Upload',callback=lambda: self.copyToCloud(drive=None))
-			hlayout.addWidget(button)
-			self.buttons.append(button)
-			
-			# also add the option to copy the data to external USB
-			for drive, id in usb_drives:
-				button=self.createButton('Upload and copy to {}'.format(drive),callback=lambda : self.copyToCloud(drive=drive))
-				hlayout.addWidget(button)
-				self.buttons.append(button)
-				
-		return self.buttons_layout
+		import git
+		g = git.Git(os.path.join(ThisDir,".."))
+		retcode=g.pull('origin','master')
+		if retcode.startswith('Already'): 
+			message="Software is already updated"
+			log.print(message)
+			QMessageBox.about(self, "Ok", message)
+		else:
+			message="Software has been updated. You NEED TO RESTART"
+			log.print(message)
+			QMessageBox.about(self, "Error", message)
 				
 	# createButton
 	def createButton(self,text,callback=None):
@@ -567,6 +654,7 @@ class VisoarMoveDataFromCardWidget(QWidget):
 	def setRunning(self,val):
 		
 		self.progress.setValue(0)
+		
 		if val:
 			self.prog.setText("")
 			self.dst.setText("")
@@ -604,52 +692,12 @@ class VisoarMoveDataFromCardWidget(QWidget):
 		self.worker.progress.connect(self.onProgress)
 		self.thread.start()
 
-	# dumpMemoryCard 
-	# NOTE: if you have two memory card for different sensors they will end up in the same directory
-	def dumpMemoryCard(self, drive, field_name, num_sensor):
-		log.print("*** Dumping usb drive")		
-		
-		dst_dir=Utils.NormalizePath("{}/{}-{}/sensor{}".format(LOCAL_DIR, T1.strftime("%Y%m%d-%H%M%S"),field_name,num_sensor))
-		
-		self.setRunning(True)
-		src_dir=drive
-		
-		copier=CompoundCopyFiles()
-		copier.instances.append(CopyLocalFiles(dst_dir))
-		
-		sync=SyncFiles(src_dir,copier=copier)
-		
-		def onFinished():
-			#Utils.EjectUSBDrive(drive)
-			#self.refreshButtons()	
-			pass
-		
-		self.runSyncInBackground(sync,finished=onFinished)
-
-	# copyToCloud
-	def copyToCloud(self,drive=None):
-		log.print("*** Copying file to google drive","and copying to drive {}".format(drive) if drive else "")	
-		
-		self.setRunning(True)
-		
-		copier=CompoundCopyFiles()
-		
-		# first copy to google drive
-		copier.instances.append(CopyFilesToGoogleDrive(BUCKET_NAME)) 
-		
-		# eventually copy to external usb drive
-		if drive:
-			copier.instances.append(CopyLocalFiles(BACKUP_DIR.format(drive)))
-		
-		src_dir=LOCAL_DIR
-		sync=SyncFiles(src_dir,copier=copier)
-		self.runSyncInBackground(sync)
 
 
 # //////////////////////////////////////////////////////////
 if __name__ == "__main__":
 	app=QApplication([])
-	gui=VisoarMoveDataFromCardWidget()
+	gui=VisoarMoveDataWidget()
 	gui.show()
 	sys.exit(app.exec_())
 	
