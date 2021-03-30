@@ -393,7 +393,7 @@ class VisoarMoveDataWidget(QWidget):
 	# constructor
 	def __init__(self,parent=None):
 		QMainWindow.__init__(self,parent)
-		
+		self.parent = parent
 		global log
 		if log is None:
 			log=LogFile()
@@ -533,10 +533,11 @@ class VisoarMoveDataWidget(QWidget):
 	def refreshGui(self):
 		
 		self.buttons=[]
-		
+
 		self.clearLayout(self.main_layout)
 		
 		self.main_layout.addLayout(self.hlayout([
+			self.createButton('Home', callback=self.parent.goHome),
 			self.createButton('Refresh GUI',callback=self.refreshGui),
 			self.createButton('Check for updates',callback=self.checkForUpdates),
 		]))
@@ -544,23 +545,39 @@ class VisoarMoveDataWidget(QWidget):
 		self.main_layout.addWidget(self.separator())
 		
 		self.prog=QLineEdit();self.prog.setEnabled(False)
-		self.main_layout.addWidget(QLabel('Current'))
-		self.main_layout.addWidget(self.prog)		
+		# self.main_layout.addWidget(QLabel('Current'))
+		# self.main_layout.addWidget(self.prog)
+
+		self.main_layout.addLayout(self.hlayout([
+			QLabel('      Current'),
+			self.prog,
+		]))
 		
 		self.src=QLineEdit();self.src.setEnabled(False)
-		self.main_layout.addWidget(QLabel('Source'))
-		self.main_layout.addWidget(self.src)
+		# self.main_layout.addWidget(QLabel('Source'))
+		# self.main_layout.addWidget(self.src)
+
+		self.main_layout.addLayout(self.hlayout([
+			QLabel('       Source'),
+			self.src,
+		]))
 				
 		self.dst=QLineEdit();self.dst.setEnabled(False)
 		self.kb_sec=QLineEdit();self.kb_sec.setEnabled(False)
-		self.main_layout.addWidget(QLabel('Destination'))
-		self.main_layout.addWidget(self.dst)		
-		
+		# self.main_layout.addWidget(QLabel('Destination'))
+		# self.main_layout.addWidget(self.dst)
+		self.main_layout.addLayout(self.hlayout([
+			QLabel('Destination'),
+			self.dst,
+		]))
 		self.progress = QProgressBar(self)
 		self.progress.setValue(0)	
-		self.main_layout.addWidget(QLabel('KB/sec'))
-		self.main_layout.addWidget(self.kb_sec)		
-			
+		#self.main_layout.addWidget(QLabel('KB/sec'))
+		#self.main_layout.addWidget(self.kb_sec)
+		self.main_layout.addLayout(self.hlayout([
+			QLabel('       KB/sec'),
+			self.kb_sec,
+		]))
 		self.main_layout.addWidget(QLabel('Progression'))
 		self.main_layout.addWidget(self.progress)
 		
