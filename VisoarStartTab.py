@@ -86,6 +86,14 @@ class VisoarStartTabWidget(QWidget):
         self.layout.addWidget(self.buttonLoad, alignment=Qt.AlignCenter)
         # self.layout.addStretch(True)
 
+        self.buttonLoad = QPushButton('Quick Image NDVI Processing', self)
+        self.buttonLoad.resize(180, 40)
+        self.buttonLoad.clicked.connect(self.quickNDVIView)
+        self.buttonLoad.setStyleSheet(GREEN_PUSH_BUTTON)
+        self.buttonLoad.resize(self.buttonLoad.sizeHint().width(), self.buttonLoad.sizeHint().height())
+        self.layout.addWidget(self.buttonLoad, alignment=Qt.AlignCenter)
+        # self.layout.addStretch(True)
+
         self.logo = QPushButton('', self)
         self.logo.setStyleSheet(NOBACKGROUND_PUSH_BUTTON)
         self.logo.setIcon(QIcon(os.path.join(self.parent.app_dir, 'icons', 'visoar_logo.png')))
@@ -96,6 +104,7 @@ class VisoarStartTabWidget(QWidget):
         self.layout.addWidget(self.logo)
 
         self.setLayout(self.layout)
+
 
     def moveDataFromCard(self):
         self.parent.enableViewMoveDataFromCards()
@@ -118,3 +127,7 @@ class VisoarStartTabWidget(QWidget):
     def loadFromUserLibrary(self):
         self.parent.enableViewLoad()
         self.parent.changeViewLoad()
+
+    def quickNDVIView(self):
+        self.parent.enablequickNDVIView()
+        self.parent.changequickNDVIView()

@@ -21,6 +21,7 @@ from VisoarLoadTab			import *
 from VisoarStitchTab			import *
 from VisoarAnalyzeTab			import *
 from ViSOARUIWidget             import *
+from ViSOARQuickNDVI             import *
 from slampy.sync     import VisoarMoveDataWidget
 
 from slam2dWidget 				import *
@@ -281,7 +282,8 @@ class ViSOARUIWidget(QWidget):
         self.ASKDEST_TAB = 9
         self.ASKSOURCERGBNDVI_TAB = 10
         self.MOVE_DATA_TAB = 11
-        self.LOG_TAB = 12
+        self.QUICK_NDVI_TAB = 12
+        self.LOG_TAB = 13
 
         self.copySourceBool = False
         self.SHOW_GOGGLE_MAP = False
@@ -399,6 +401,7 @@ class ViSOARUIWidget(QWidget):
 
         #self.tabBatchProcess = VisoarBatchProcessWidget(self)  # QWidget()
         self.tabMoveDataFromCards = VisoarMoveDataWidget(self)  # QWidget()
+        self.tabQuickNDVI = VisoarQuickNDVIWidget(self)  # QWidget()
 
         if self.ADD_VIEWER:
             self.tabStitcher = VisoarStitchTabWidget(self)  # QWidget()
@@ -436,6 +439,7 @@ class ViSOARUIWidget(QWidget):
         self.leftlist.insertItem(self.ASKDEST_TAB, 'Save Directory')
         self.leftlist.insertItem(self.ASKSOURCERGBNDVI_TAB, 'RGB and NDVI Image Directory')
         self.leftlist.insertItem(self.MOVE_DATA_TAB, 'Move Data from Drone Cards')
+        self.leftlist.insertItem(self.QUICK_NDVI_TAB, 'Quick NDVI of images')
         self.leftlist.currentRowChanged.connect(self.display)
 
         # use stack
@@ -452,6 +456,7 @@ class ViSOARUIWidget(QWidget):
         self.tabs.addWidget(self.tabAskDest)
         self.tabs.addWidget(self.tabAskSourceRGBNDVI)
         self.tabs.addWidget(self.tabMoveDataFromCards)
+        self.tabs.addWidget(self.tabQuickNDVI)
         self.tabs.addWidget(self.log)
 
         self.tabs.setCurrentIndex(0)
@@ -1448,6 +1453,13 @@ class ViSOARUIWidget(QWidget):
 
     def changeViewLoad(self):
         self.tabs.setCurrentIndex(self.LOAD_TAB)
+
+    def enablequickNDVIView(self, enabledView=True):
+        if (self.USER_TAB_UI):
+            self.tabs.setTabEnabled(self.QUICK_NDVI_TAB, enabledView)
+
+    def changequickNDVIView(self):
+        self.tabs.setCurrentIndex(self.QUICK_NDVI_TAB)
 
     def enableViewStitching(self,enabledView = True):
         if (self.USER_TAB_UI):
