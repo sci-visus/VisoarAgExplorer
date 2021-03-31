@@ -267,9 +267,9 @@ class QCustomQWidget ( QWidget):
         self.name = None
         self.textQVBoxLayout = QVBoxLayout()
         self.textUpQLabel    =  QLabel()
-        #self.textDownQLabel  =  QLabel()
+        self.textDownQLabel  =  QLabel()
         self.textQVBoxLayout.addWidget(self.textUpQLabel)
-        #self.textQVBoxLayout.addWidget(self.textDownQLabel)
+        self.textQVBoxLayout.addWidget(self.textDownQLabel)
         self.allQHBoxLayout  =  QHBoxLayout()
         #self.iconQLabel= QPushButton('', self)
         #self.iconQLabel.setStyleSheet(NOBACKGROUND_PUSH_BUTTON)
@@ -282,9 +282,15 @@ class QCustomQWidget ( QWidget):
         self.textUpQLabel.setStyleSheet('''
            background-color: white;
     	   color: #045951;
-    	   padding: 10px 10px 10px 10px;
-    	   margin: 5px 5px 5px 5px;
+    	   padding: 1px;
+    	   margin: 1px;
         ''')
+        self.textDownQLabel.setStyleSheet('''
+                  background-color: white;
+           	   color: #045951;
+           	  padding: 1px;
+    	        margin: 1px;
+               ''')
         # self.textDownQLabel.setStyleSheet('''
         #     color: rgb(255, 0, 0);
         # ''')
@@ -295,8 +301,8 @@ class QCustomQWidget ( QWidget):
         self.name = text
         self.textUpQLabel.setText(text)
 
-    #def setTextDown (self, text):
-    #    self.textDownQLabel.setText(text)
+    def setTextDown (self, text):
+        self.textDownQLabel.setText(text)
 
     def setIcon (self, imagePath):
         if imagePath:
@@ -344,7 +350,7 @@ class VisoarQuickNDVIWidget(QWidget):
         self.listWidget.setStyleSheet('''
                              background-color: white;
                       	   color: white;
-                      	   margin:10px; padding:10px;
+                      	   margin:5px; padding:5px;
                           ''')
 
         self.curDir = QLineEdit()
@@ -402,14 +408,18 @@ class VisoarQuickNDVIWidget(QWidget):
         if (skipN>0):  #skip every skipN items in array
             dirList = dirList[0::skipN]
         for file in dirList:
-            if file.endswith(extensions ):
+            if file.endswith(extensions ) and (file[0]!= '.') and (file[0]!= '~'):
                     files.append(os.path.join(dir, file))
 
         for x in files:
             # Create QCustomQWidget
             myQCustomQWidget = QCustomQWidget()
             myQCustomQWidget.setTextUp(x)
-            #myQCustomQWidget.setTextDown(x)
+            xdir, xfilestr = os.path.split(x)
+            xfilesplit = os.path.splitext(xfilestr)
+            xnamestr = xfilesplit[0]
+            xext = xfilesplit[1]
+            myQCustomQWidget.setTextDown(xnamestr)
             if False:
                 myQCustomQWidget.setIcon(x)
             # Create QListWidgetItem
