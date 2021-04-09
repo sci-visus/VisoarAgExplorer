@@ -368,7 +368,20 @@ class VisoarQuickNDVIWidget(QWidget):
         # self.skipLine.setText('5')
         # self.skipLine.setEnabled(False)
 
+        self.buttonHome = QPushButton('', self)
+        self.buttonHome.clicked.connect(self.parent.goHome)
+        self.buttonHome.setIcon(QIcon(os.path.join(self.parent.app_dir, 'icons', 'home.png')))
+        self.buttonHome.setIconSize(QSize(V_BUTTON_SIZE_SM, V_BUTTON_SIZE_SM))
+        self.buttonHome.resize(V_BUTTON_SIZE_SM, V_BUTTON_SIZE_SM)
+        self.buttonHome.setToolTip('Go back to Start Screen')
+        self.buttonHome.setStyleSheet(NOBACKGROUND_PUSH_BUTTON)
+        self.list_layout.addWidget(self.buttonHome, Qt.AlignLeft)
+        self.list_layout.addLayout(self.hlayout([
+            self.buttonHome,
+            self.separator()
+        ]))
         self.buttonAddImagesSource = QPushButton('setDirectory', self)
+        self.buttonAddImagesSource.setToolTip('Set Directory of Images to browse')
         self.buttonAddImagesSource.resize(180, 40)
         self.buttonAddImagesSource.clicked.connect(lambda: self.setImgListDir(changeDir=True))
         self.buttonAddImagesSource.setStyleSheet(GREEN_PUSH_BUTTON)
