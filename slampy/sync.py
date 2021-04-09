@@ -49,6 +49,7 @@ ThisDir = os.path.dirname(os.path.realpath(__file__))
 T1=datetime.datetime.now() 
 
 # memory card -> local directory
+#LOCAL_DIR="/Users/amygooch/GIT/SCI/DATA/visoar_files"
 LOCAL_DIR="c:/visoar_files"
 
 # local diretory to google bucket name
@@ -94,7 +95,8 @@ class Utils:
 		
 		if 'darwin' in sys.platform:
 			for line in os.listdir('/Volumes'):
-				ret.append('/Volumes/' + line.strip())
+				if  not ('Macintosh' in line):
+					ret.append('/Volumes/' + line.strip())
 			
 		elif 'win' in sys.platform:
 			
@@ -394,6 +396,7 @@ class VisoarMoveDataWidget(QWidget):
 	def __init__(self,parent=None):
 		QMainWindow.__init__(self,parent)
 		self.parent = parent
+		self.processingData = False
 		global log
 		if log is None:
 			log=LogFile()
@@ -403,9 +406,18 @@ class VisoarMoveDataWidget(QWidget):
 		self.resize(600,200)
 		self.sensors={}
 		self.main_layout = QVBoxLayout()
+
+		self.progressFrame = QFrame()
+		self.progressLayout = QFormLayout()
+		self.progressFrame.setLayout(self.progressLayout)
+
 		self.setLayout(self.main_layout)
 		self.refreshGui()
-		
+	def setDirSource(self,dirLine):
+		self.dir = str(
+			QFileDialog.getExistingDirectory(self, "Select Directory containing Images"))
+		dirLine.setText(self.dir)
+
 	# creatDumpMemoryCardWidget
 	def creatDumpMemoryCardWidget(self):
 		
@@ -420,13 +432,22 @@ class VisoarMoveDataWidget(QWidget):
 		src_dir=self.createComboBox(drives)
 		src_dir.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)		
 		clean=QCheckBox("Clean")
-		clean.setChecked(True)			
+		clean.setChecked(False)
 		sub.addLayout(self.hlayout([src_dir,clean]),0,1)
-		
+
+
 		sub.addWidget(QLabel("Destination"),1,0)
 		dst_dir=QLineEdit()
 		sub.addWidget(dst_dir,1,1)
-	
+
+		self.setDirSourceBtn = QPushButton(' . . . ', self)
+		self.setDirSourceBtn.resize(180, 40)
+		self.setDirSourceBtn.clicked.connect(lambda: self.setDirSource(dst_dir))
+		#self.setDirSourceBtn.setStyleSheet(GREEN_PUSH_BUTTON)
+		self.setDirSourceBtn.setToolTip('Specify directory of image for stitching')
+		sub.addWidget(self.setDirSourceBtn, 1, 2)
+
+
 		def guessDestinationDir(src_dir):
 			sensor_num=self.sensors[src_dir] if src_dir in self.sensors else len(self.sensors)
 			return "{}/{}-myfield/sensor{}".format(LOCAL_DIR, T1.strftime("%Y%m%d-%H%M%S"),sensor_num)
@@ -435,9 +456,9 @@ class VisoarMoveDataWidget(QWidget):
 		dst_dir.setText(guessDestinationDir(src_dir.currentText()))
 		
 		def onRun(src_dir, dst_dir, clean):
-			
+			self.progressFrame.show()
 			log.print("*** Dumping memory card","src_dir",src_dir, "dst_dir", dst_dir,"clean",clean)
-			
+
 			# assign sensor number if needed
 			if not src_dir in self.sensors:
 				self.sensors[src_dir]=len(self.sensors)
@@ -496,7 +517,7 @@ class VisoarMoveDataWidget(QWidget):
 		
 		# createCopyFilesToGoogleWidget
 		def onRun(src_dir, bucket_name, backup_dir, clean):
-			
+			self.progressFrame.show()
 			log.print("*** Copying", src_dir," to google drive bucket",bucket_name, "backup to",backup_dir, "clean",clean)
 			self.setRunning(True)
 			copier=CompoundCopyFiles()
@@ -535,53 +556,58 @@ class VisoarMoveDataWidget(QWidget):
 		self.buttons=[]
 
 		self.clearLayout(self.main_layout)
-		
+		self.clearLayout(self.progressLayout)
+
 		self.main_layout.addLayout(self.hlayout([
 			self.createButton('Home', callback=self.parent.goHome),
-			self.createButton('Refresh GUI',callback=self.refreshGui),
+			self.createButton('Reload available cards and refresh gui',callback=self.refreshGui),
 			self.createButton('Check for updates',callback=self.checkForUpdates),
 		]))
 		
-		self.main_layout.addWidget(self.separator())
+		#self.main_layout.addWidget(self.separator())
 		
 		self.prog=QLineEdit();self.prog.setEnabled(False)
 		# self.main_layout.addWidget(QLabel('Current'))
 		# self.main_layout.addWidget(self.prog)
 
-		self.main_layout.addLayout(self.hlayout([
-			QLabel('      Current'),
-			self.prog,
-		]))
-		
+		#Only show this stuff if processing card:
+		self.progressLayout.addRow(
+			QLabel('Processing Image Number'),
+			self.prog)
+
 		self.src=QLineEdit();self.src.setEnabled(False)
 		# self.main_layout.addWidget(QLabel('Source'))
 		# self.main_layout.addWidget(self.src)
 
-		self.main_layout.addLayout(self.hlayout([
-			QLabel('       Source'),
-			self.src,
-		]))
-				
+		self.progressLayout.addRow(
+			QLabel('Processing Image file'),
+			self.src
+		)
+
 		self.dst=QLineEdit();self.dst.setEnabled(False)
 		self.kb_sec=QLineEdit();self.kb_sec.setEnabled(False)
 		# self.main_layout.addWidget(QLabel('Destination'))
 		# self.main_layout.addWidget(self.dst)
-		self.main_layout.addLayout(self.hlayout([
-			QLabel('Destination'),
+		self.progressLayout.addRow(
+			QLabel('File to be saved'),
 			self.dst,
-		]))
+		)
 		self.progress = QProgressBar(self)
-		self.progress.setValue(0)	
+		self.progress.setValue(0)
 		#self.main_layout.addWidget(QLabel('KB/sec'))
 		#self.main_layout.addWidget(self.kb_sec)
-		self.main_layout.addLayout(self.hlayout([
-			QLabel('       KB/sec'),
+		self.progressLayout.addRow(
+			QLabel('KB/sec'),
 			self.kb_sec,
-		]))
-		self.main_layout.addWidget(QLabel('Progression'))
-		self.main_layout.addWidget(self.progress)
-		
-		self.main_layout.addWidget(self.separator())
+		)
+		self.progressLayout.addRow( QLabel('Progression'), self.progress)
+
+		self.main_layout.addWidget(self.progressFrame)
+		#self.main_layout.addWidget(self.separator())
+		if (not self.processingData):
+			self.progressFrame.hide()
+		else:
+			self.progressFrame.show()
 
 		tabwidget = QTabWidget()
 		self.main_layout.addWidget(tabwidget)
@@ -662,7 +688,7 @@ class VisoarMoveDataWidget(QWidget):
 	# onProgress
 	def onProgress(self,I,N,src,dst,kb_sec):
 		self.progress.setValue(int(100*I/N))
-		self.prog.setText("{}/{}".format(I,N))
+		self.prog.setText("{} of {}".format(I+1,N))  #AAG: added +1.. count is 0 based but N isn't?
 		self.src.setText(src)
 		self.dst.setText(dst)
 		self.kb_sec.setText(str(kb_sec))
@@ -685,6 +711,7 @@ class VisoarMoveDataWidget(QWidget):
 	def threadFinished(self):
 		
 		self.setRunning(False)
+		self.progress.setValue(100)
 		
 		if self.worker.error_message:
 			message="Error copying files. Please retry ({})".format(self.worker.error_message)
