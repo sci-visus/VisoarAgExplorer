@@ -467,7 +467,8 @@ class ViSOARUIWidget(QWidget):
         self.layout.addWidget(self.tabs)
         # _stdout = sys.stdout
         # _stderr = sys.stderr
-        logger = Logger(terminal=sys.stdout, filename="~visusslam.log", qt_callback=self.printLog)
+        print('Amy add logging...')
+        #logger = Logger(terminal=sys.stdout, filename="~visusslam.log", qt_callback=self.printLog)
         # sys.stdout = logger
         # sys.stderr = logger
 

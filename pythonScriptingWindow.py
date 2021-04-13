@@ -1,6 +1,6 @@
 
 from VisoarSettings         import *
-from slam2dWidget 				import *
+#from slam2dWidget 				import *
 
 class PythonScriptWindow(QDialog):
     def __init__(self, parent):

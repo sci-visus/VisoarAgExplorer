@@ -33,7 +33,7 @@ from PyQt5.QtWebEngineWidgets         import QWebEngineView
 from PyQt5.QtWidgets                  import QTableWidget,QTableWidgetItem
 
 
-from slam2dWidget 				import *
+#from slam2dWidget 				import *
 
 #from analysis_scripts			import *
 from lookAndFeel  				import *

@@ -3,7 +3,7 @@
 
 from VisoarSettings import *
 
-from slam2dWidget import *
+#from slam2dWidget import *
 
 from ViSOARUIWidget import *
 from slampy.utils import *
