@@ -387,6 +387,9 @@ class ViSOARUIWidget(QWidget):
 
         if self.ADD_VIEWER:
             self.slam_widget = Slam2DWidget()
+            self.slam_widget.setStyleSheet(LOOK_AND_FEEL)
+            self.slam_widget.progress_bar.bar.setStyleSheet(PROGRESSBAR_LOOK_AND_FEEL)
+            self.slam_widget.progress_bar.bar.setMinimumWidth(300)
             self.slam = Slam2D()
 
         self.visoarUserLibraryData = VisoarUserLibraryData(self.userFileHistory)
@@ -679,8 +682,10 @@ class ViSOARUIWidget(QWidget):
 
     def setAndRunSlam(self, image_dir, cache_dir=None, telemetry=None, plane=None, calibration=None,
                       physic_box=None):
+        self.slam = Slam2D()
         self.slam.setImageDirectory(image_dir,  cache_dir= cache_dir, telemetry=telemetry, plane=plane, calibration=calibration, physic_box=physic_box)
         self.slam_widget.run(self.slam)
+        self.slam_widget.slam.run()
         #
         # if not image_dir:
         #     print("Showing choose directory dialog")
@@ -1734,6 +1739,10 @@ class ViSOARUIWidgetFull(ViSOARUIWidget):
         self.logo.setText('')
         if self.ADD_VIEWER:
             self.slam_widget = Slam2DWidget(self)
+            self.slam_widget.setStyleSheet(LOOK_AND_FEEL)
+            self.slam_widget.progress_bar.bar.setStyleSheet(PROGRESSBAR_LOOK_AND_FEEL)
+            self.slam_widget.progress_bar.bar.setMinimumWidth(300)
+            self.slam = Slam2D()
 
         self.visoarUserLibraryData = VisoarUserLibraryData(self.userFileHistory)
 

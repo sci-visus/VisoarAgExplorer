@@ -117,7 +117,7 @@ class Slam2D(Slam):
 		# you can override using a physic_box from another sequence
 		self.physic_box         = None 
 
-		self.enable_svg              = True
+		self.enable_svg              = False
 		self.enable_color_matching   = False
 		self.do_bundle_adjustment    = True
 		

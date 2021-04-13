@@ -424,7 +424,7 @@ class VisoarAgExplorerBatchProcessWidget(ViSOARUIWidget):
         self.slam = Slam2D()
         self.slam.setImageDirectory(image_dir,  cache_dir= cache_dir, telemetry=telemetry, plane=plane, calibration=calibration, physic_box=physic_box)
         self.slam_widget.run(self.slam)
-
+        self.slam_widget.slam.run()
         #
         # if not image_dir:
         #     print("Showing choose directory dialog")

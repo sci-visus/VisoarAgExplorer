@@ -183,8 +183,10 @@ class Slam2DWidget(QWidget):
 
 	# refreshViewer
 	def refreshViewer(self,fieldname="output=voronoi()"):
-		url=self.slam.cache_dir+"/google.midx"
+		#url=self.slam.cache_dir+"/google.midx"
+		url=self.slam.cache_dir+"/visus.midx"
 		self.viewer.open(url)
+		#print('Note: the above will fail if you don\'t have the yaml file'..)
 		# make sure the RenderNode get almost RGB components
 		self.viewer.setFieldName(fieldname)	
 
@@ -198,13 +200,14 @@ class Slam2DWidget(QWidget):
 			pref.bShowLogs=False
 			self.viewer.setPreferences(pref)
 
-			# don't show annotations
-			db=self.viewer.getDataset()
-			db.setEnableAnnotations(False)
-		
-			# focus on slam dataset (not google world)
-			box=db.getChild("visus").getDatasetBounds().toAxisAlignedBox()
-			self.viewer.getGLCamera().guessPosition(box)
+			if False:  #AAG: This causes this to seg fault
+				# don't show annotations
+				db=self.viewer.getDataset()
+				db.setEnableAnnotations(False)
+
+				# focus on slam dataset (not google world)
+				box=db.getChild("visus").getDatasetBounds().toAxisAlignedBox()
+				self.viewer.getGLCamera().guessPosition(box)
 
 
 		# for Amy: example about processing
@@ -218,6 +221,65 @@ img=Array.toNumPy(input,bShareMem=True)
 img=cv2.Laplacian(img,cv2.CV_64F)
 output=Array.fromNumPy(img,TargetDim=pdim)
 """);
+
+		def resetView(self):
+			self.viewer.guessGLCameraPosition()
+
+		# box = db.getChild("visus").getDatasetBounds().toAxisAlignedBox()
+		# self.viewer.getGLCamera().guessPosition(box)
+
+		def runScript(self, name):
+			fieldname = "output=ArrayUtils.interleave(ArrayUtils.split(voronoi())[0:3])"
+			print("Showing NDVI for Red and IR channels")
+			url = os.path.join(self.cache_dir, "visus.midx")
+			self.viewer.open(url)
+			# make sure the RenderNode get almost RGB components
+			self.viewer.setFieldName(fieldname)
+
+			# for Amy: example about processing
+			# if False:
+			script = getTextFromScript(os.path.join(self.app_dir, 'scripts', name + '.py'))
+			self.viewer.setScriptingCode(script)
+
+		# showNDVI
+		def showNDVI(self):
+			runScript('NDVI')
+
+		# showTGI (for RGB datasets)
+		def showTGI(self):
+			runScript('TGI')
+
+		def loadPrevSolution(self):
+			fieldname = "output=ArrayUtils.interleave(ArrayUtils.split(voronoi())[0:3])"
+			print("Showing img src")
+			url = self.cache_dir + "/visus.midx"
+			self.viewer.open(url)
+			# make sure the RenderNode get almost RGB components
+			self.viewer.setFieldName(fieldname)
+
+			# for Amy: example about processing
+			# if False:
+			self.viewer.setScriptingCode(
+				"""
+                output=input
+            
+                """);
+
+		def showRGB(self):
+			fieldname = "output=ArrayUtils.interleave(ArrayUtils.split(voronoi())[0:3])"
+			print("Showing img src")
+			url = self.cache_dir + "/visus.midx"
+			self.viewer.open(url)
+			# make sure the RenderNode get almost RGB components
+			self.viewer.setFieldName(fieldname)
+
+			# for Amy: example about processing
+			# if False:
+			self.viewer.setScriptingCode(
+				"""
+                output=input
+            
+                """);
 
 	# refreshGoogleMaps
 	def refreshGoogleMaps(self):
@@ -258,7 +320,7 @@ output=Array.fromNumPy(img,TargetDim=pdim)
 			# 	self.slam.width,
 			# 	self.slam.height,
 			# 	self.slam.dtype.toString()))
-			HideSplash()
+			#HideSplash()
 			return True
 			#QApplication.instance().exec()   #Is this okay...?
 		except:
