@@ -772,7 +772,8 @@ class VisoarNewTabWidget(QWidget):
         self.parent.generate_bbox = generate_bbox
         self.parent.color_matching = color_matching
         self.parent.blending_exp = blending_exp
-        self.parent.slam_widget.setDefaults(generate_bbox=generate_bbox,color_matching=color_matching,blending_exp=blending_exp)
+        print("Note to self, taking out slam default changes")
+        #self.parent.slam_widget.setDefaults(generate_bbox=generate_bbox,color_matching=color_matching,blending_exp=blending_exp)
 
     def addImages(self):
         # if self.DEBUG:
@@ -885,7 +886,8 @@ class VisoarNewTabWidget(QWidget):
             else:
                 self.parent.enableViewStitching()
                 self.parent.changeViewStitching()
-                self.parent.slam_widget.setDefaults(generate_bbox=self.parent.generate_bbox,color_matching=self.parent.color_matching,blending_exp=self.parent.blending_exp)
+                print("Note to self, taking out slam default changes")
+                #                self.parent.slam_widget.setDefaults(generate_bbox=self.parent.generate_bbox,color_matching=self.parent.color_matching,blending_exp=self.parent.blending_exp)
                 self.parent.startViSUSSLAM()
             print('started slam')
         else:

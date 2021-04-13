@@ -123,7 +123,11 @@ class Slam2D(Slam):
 		
 	# setImageDirectory
 	def setImageDirectory(self, image_dir, cache_dir=None, telemetry=None, plane=None, calibration=None, physic_box=None):
-		
+
+		# by default cached files go inside
+		if not cache_dir:
+			cache_dir = os.path.abspath(os.path.join(image_dir, "./VisusSlamFiles"))
+
 		self.image_dir=image_dir
 		
 		images=FindImages(image_dir)
@@ -251,40 +255,42 @@ class Slam2D(Slam):
 					camera2 = adjacent[B]
 					camera1.addLocalCamera(camera2)
 
-		# insert prev and next
-		N=self.cameras.size()
-		for I in range(N):
-			camera2 = self.cameras[I]
-
+		USE_FILE_NAME_SPEEDUP = False #Amy 9.8.2020 comment this code out to fix bug with non-consecutive filenames
+		if USE_FILE_NAME_SPEEDUP:
 			# insert prev and next
-			if (I-1) >= 0:
-				camera2.addLocalCamera(self.cameras[I - 1])
+			N=self.cameras.size()
+			for I in range(N):
+				camera2 = self.cameras[I]
 
-			if (I+1) < N:
-				camera2.addLocalCamera(self.cameras[I + 1])
+				# insert prev and next
+				if (I-1) >= 0:
+					camera2.addLocalCamera(self.cameras[I - 1])
 
-		#enlarge a little 
-		if True:
+				if (I+1) < N:
+					camera2.addLocalCamera(self.cameras[I + 1])
 
-			new_local_cameras={}
+			#enlarge a little
+			if True:
 
-			for camera1 in self.cameras:
+				new_local_cameras={}
 
-				new_local_cameras[camera1]=set()
+				for camera1 in self.cameras:
 
-				for camera2 in camera1.getAllLocalCameras():
+					new_local_cameras[camera1]=set()
 
-					# euristic to say: do not take cameras on the same drone flight "row"
-					prev2=self.previousCamera(camera2)
-					next2=self.nextCamera(camera2)
-					if prev2!=camera1 and next2!=camera1:
-						if prev2: new_local_cameras[camera1].add(prev2)
-						if next2: new_local_cameras[camera1].add(next2)
+					for camera2 in camera1.getAllLocalCameras():
 
-			for camera1 in new_local_cameras:
-				for camera3 in new_local_cameras[camera1]:
-					camera1.addLocalCamera(camera3)
-					
+						# euristic to say: do not take cameras on the same drone flight "row"
+						prev2=self.previousCamera(camera2)
+						next2=self.nextCamera(camera2)
+						if prev2!=camera1 and next2!=camera1:
+							if prev2: new_local_cameras[camera1].add(prev2)
+							if next2: new_local_cameras[camera1].add(next2)
+
+				for camera1 in new_local_cameras:
+					for camera3 in new_local_cameras[camera1]:
+						camera1.addLocalCamera(camera3)
+
 		# draw the image
 		if True:
 			w = float(box.size()[0])
@@ -714,3 +720,4 @@ class Slam2D(Slam):
 
 		self.saveMidx()
 		print("Finished")
+		return True

@@ -853,9 +853,10 @@ class VisoarLoadTabWidget(QWidget):
         print('Run visus viewer with: ' + self.parent.projectInfo.projDir + '/VisusSlamFiles/visus.midx')
         if not os.path.exists(os.path.join(self.parent.projectInfo.projDir, 'VisusSlamFiles')):
             os.makedirs(os.path.join( self.parent.projectInfo.projDir, 'VisusSlamFiles'))
-
-        self.addToLayerViewer(os.path.join(self.parent.projectInfo.projDir, 'VisusSlamFiles', 'visus.midx'))
-
+        if (os.path.exists(os.path.join(self.parent.projectInfo.projDir, 'VisusSlamFiles', 'visus.midx'))):
+            self.addToLayerViewer(os.path.join(self.parent.projectInfo.projDir, 'VisusSlamFiles', 'visus.midx'))
+        elif (os.path.exists(os.path.join(self.parent.projectInfo.projDir,'visus.midx'))):
+            self.addToLayerViewer(os.path.join(self.parent.projectInfo.projDir, 'visus.midx'))
         ret1, ret2 = self.parent.openMIDX()
 
         # self.viewer.run()

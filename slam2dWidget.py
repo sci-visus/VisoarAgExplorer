@@ -727,7 +727,7 @@ class ExceptionHandler(QtCore.QObject):
 # //////////////////////////////////////////////////////////////////////////////
 if True:
 
-	class Slam2DWidget(QWidget):
+	class Slam2DWidgetOld(QWidget):
 
 		# constructor
 		def __init__(self, parent,  generate_bbox=False,

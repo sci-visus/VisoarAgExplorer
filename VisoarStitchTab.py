@@ -167,13 +167,15 @@ class VisoarStitchTabWidget(QWidget):
         #try:
         self.parent.openfilenameLabelS.setText("Starting to Stitch: "+ self.parent.projectInfo.srcDir )
         if self.parent.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam':
-            self.parent.slam_widget.setDefaults(color_matching=self.color_matching)
+            print("Note to self, taking out slam default changes")
+            #            self.parent.slam_widget.setDefaults(color_matching=self.color_matching)
             if not (os.path.exists(os.path.join(self.parent.projectInfo.srcDir, 'VisusSlamFiles'))):
                 os.makedirs(os.path.join(self.parent.projectInfo.srcDir, 'VisusSlamFiles'))
 
-            self.parent.slam_widget.setImageDirectory(image_dir=self.parent.projectInfo.srcDir,
+            self.parent.slam.setImageDirectory(image_dir=self.parent.projectInfo.srcDir,
                                                       cache_dir=os.path.join(self.parent.projectInfo.srcDir, 'VisusSlamFiles'))
-            ret = self.parent.slam_widget.run()
+            ret = self.parent.slam_widget.run(self.parent.slam)
+
 
             #Now, we have to parse the midx from the RGB data set and send it into the NDVI one:
             # <dataset typename='IdxMultipleDataset' logic_box='0 33219 0 9355' physic_box='0.18167907760636232 0.18178016271080077 0.63092731395604973 0.63093683616193741'>
@@ -189,20 +191,19 @@ class VisoarStitchTabWidget(QWidget):
             self.parent.openfilenameLabelS.setText(
                 "Starting to Stitch: " +  self.parent.projectInfo.srcDirNDVI)
 
-            self.parent.slam_widget.setImageDirectory(image_dir= self.parent.projectInfo.srcDirNDVI,
+            self.parent.slam.setImageDirectory(image_dir= self.parent.projectInfo.srcDirNDVI,
                                                       cache_dir= os.path.join(self.parent.projectInfo.srcDirNDVI, 'VisusSlamFiles'),
                                                       telemetry=os.path.join(self.parent.projectInfo.srcDirNDVI, 'VisusSlamFiles/metadata.json'),
                                                       physic_box=physbox)
-            ret2 = self.parent.slam_widget.run()
+            ret2 = self.parent.slam_widget.run(self.parent.slam)
             self.parent.createRGBNDVI_MIDX()
         else:
-            self.parent.slam_widget.setDefaults(color_matching=self.color_matching)
-            self.parent.slam_widget.setImageDirectory(image_dir=self.parent.projectInfo.srcDir,
+            print("Note to self, taking out slam default changes")
+            #self.parent.slam_widget.setDefaults(color_matching=self.color_matching)
+            self.parent.slam.setImageDirectory(image_dir=self.parent.projectInfo.srcDir,
                                                       cache_dir=self.parent.projectInfo.projDir)
 
-            ret = self.parent.slam_widget.run()
-
-
+            ret = self.parent.slam_widget.run(self.parent.slam)
 
             self.parent.projectInfo.cache_dir = os.path.join(self.parent.projectInfo.projDir, 'VisusSlamFiles')
             if (ret):

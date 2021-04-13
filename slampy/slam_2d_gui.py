@@ -63,17 +63,16 @@ class RedirectLog(QtCore.QObject):
 
 
 # //////////////////////////////////////////////////////////////////////////////
-class Slam2DWindow(QMainWindow):
+class Slam2DWidget(QWidget):
 	
 	# constructor
 	def __init__(self):
-		super(Slam2DWindow, self).__init__()
+		super(Slam2DWidget, self).__init__()
 		ShowSplash()
 		self.redirect_log=RedirectLog()
 		self.redirect_log.setCallback(self.printLog)	
 		self.createGui()
-		self.showMaximized()	
-		
+		self.showMaximized()
 
 	# createPushButton
 	def createPushButton(self,text,callback=None, img=None ):
@@ -90,8 +89,8 @@ class Slam2DWindow(QMainWindow):
 	# createGui
 	def createGui(self):
 
-		self.setWindowTitle("Visus SLAM")
-
+		#self.setWindowTitle("Visus SLAM")
+		self.layout = QVBoxLayout(self)
 		class Buttons : pass
 		self.buttons=Buttons
 	
@@ -116,9 +115,7 @@ class Slam2DWindow(QMainWindow):
 	
 		# toolbar
 		toolbar=QHBoxLayout()
-		self.buttons.run_slam=self.createPushButton("Run",lambda: self.onRunClicked())
-			
-		toolbar.addWidget(self.buttons.run_slam)
+
 		toolbar.addLayout(self.progress_bar)
 
 		toolbar.addStretch(1)
@@ -130,18 +127,11 @@ class Slam2DWindow(QMainWindow):
 		center.setSizes([100,200])
 	
 		main_layout.addWidget(center,1)
-		main_layout.addWidget(self.log)
+		DRAW_LOG_BOX = False
+		if DRAW_LOG_BOX:
+			main_layout.addWidget(self.log)
 
-		central_widget = QFrame()
-		central_widget.setLayout(main_layout)
-		central_widget.setFrameShape(QFrame.NoFrame)
-		self.setCentralWidget(central_widget)
-
-	# onRunClicked
-	def onRunClicked(self):
-		self.slam.run()
-		self.preview.hide()
-		self.refreshViewer()
+		self.layout.addLayout(main_layout)
 
 	# processEvents
 	def processEvents(self):
@@ -250,24 +240,69 @@ output=Array.fromNumPy(img,TargetDim=pdim)
 		SaveTextDocument(filename,content)
 		self.google_maps.load(QUrl.fromLocalFile(filename))	
 
-	# rim
+	# run
 	def run(self,slam):
-		
+		try:
+			self.slam=slam
+			slam.provider.progress_bar=self.progress_bar
+			slam.startAction=self.startAction
+			slam.advanceAction=self.advanceAction
+			slam.endAction=self.endAction
+			slam.showEnergy=self.showEnergy
+
+			self.refreshGoogleMaps()
+			self.refreshViewer()
+			# self.setWindowTitle("num_images({}) width({}) height({}) dtype({}) ".format(
+			# 	len(self.slam.provider.images),
+			# 	self.slam.width,
+			# 	self.slam.height,
+			# 	self.slam.dtype.toString()))
+			HideSplash()
+			return True
+			#QApplication.instance().exec()
+		except:
+				QMessageBox.information(self,
+										"No data set loaded",
+										"Please load a dataset before Stitching. ")
+				return False
+
+
+# //////////////////////////////////////////////////////////////////////////////
+class Slam2DWindow(QMainWindow):
+
+	# constructor
+	def __init__(self):
+		super(Slam2DWindow, self).__init__()
+		self.createGui()
+		self.showMaximized()
+
+	def createGui(self):
+		self.setWindowTitle("Visus SLAM")
+		self.slamWidget = Slam2DWidget()
+
+		main_layout = QVBoxLayout()
+
+		# toolbar
+		toolbar = QHBoxLayout()
+		self.buttons.run_slam = self.createPushButton("Run", lambda: self.onRunClicked())
+
+		toolbar.addWidget(self.buttons.run_slam)
+		#toolbar.addLayout(self.progress_bar)
+
+
+		main_layout.addWidget(self.slamWidget, 1)
+		main_layout.addWidget(self.log)
+
+		central_widget = QFrame()
+		central_widget.setLayout(main_layout)
+		central_widget.setFrameShape(QFrame.NoFrame)
+		self.setCentralWidget(central_widget)
+
+	def onRunClicked(self):
+		self.slamWidget.run()
+		self.slamWidget.preview.hide()
+		self.slamWidget.refreshViewer()
+
+	def run(self,slam):
 		self.slam=slam
-		slam.provider.progress_bar=self.progress_bar
-		slam.startAction=self.startAction
-		slam.advanceAction=self.advanceAction
-		slam.endAction=self.endAction
-		slam.showEnergy=self.showEnergy		
-		
-		self.refreshGoogleMaps()
-		self.refreshViewer()
-		self.setWindowTitle("num_images({}) width({}) height({}) dtype({}) ".format(
-			len(self.slam.provider.images),
-			self.slam.width, 
-			self.slam.height, 
-			self.slam.dtype.toString()))
-		HideSplash()
-		QApplication.instance().exec()
-				
-		
+		self.slam.run(slam)

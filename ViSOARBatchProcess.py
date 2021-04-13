@@ -22,7 +22,7 @@ from VisoarLoadTab			import *
 from VisoarAnalyzeTab			import *
 from ViSOARUIWidget             import *
 
-from slam2dWidget 				import *
+#from slam2dWidget 				import *
 from gmail_visoar				import *
 
 # IMPORTANT for WIndows
@@ -421,6 +421,10 @@ class VisoarAgExplorerBatchProcessWidget(ViSOARUIWidget):
 
     def setAndRunSlam(self, image_dir, cache_dir=None, telemetry=None, plane=None, calibration=None,
                           physic_box=None):
+        self.slam = Slam2D()
+        self.slam.setImageDirectory(image_dir,  cache_dir= cache_dir, telemetry=telemetry, plane=plane, calibration=calibration, physic_box=physic_box)
+        self.slam_widget.run(self.slam)
+
         #
         # if not image_dir:
         #     print("Showing choose directory dialog")
@@ -436,53 +440,53 @@ class VisoarAgExplorerBatchProcessWidget(ViSOARUIWidget):
         # if self.image_dir == image_dir and self.cache_dir == cache_dir:
         #     return
 
-        Assert(os.path.isdir(image_dir))
-        self.log.clear()
-        self.generate_bbox = False
-        self.color_matching = False
-        self.blending_exp = "output=voronoi()"
-
-        self.cache_dir = cache_dir
-        self.image_dir = image_dir
-
-        os.makedirs(self.cache_dir, exist_ok=True)
-
-        self.provider, all_images = CreateProvider(self.image_dir)
-        self.provider.cache_dir = self.cache_dir
-        #self.provider.progress_bar = self.progress_bar
-        self.provider.telemetry = telemetry
-        self.provider.plane = plane
-        self.provider.calibration = calibration
-        self.provider.setImages(all_images)
-
-        TryRemoveFiles(self.cache_dir + '/~*')
-
-        full = self.generateImage(self.provider.images[0])
-        array = Array.fromNumPy(full, TargetDim=2)
-        width = array.getWidth()
-        height = array.getHeight()
-        dtype = array.dtype
-
-        # self.slam=Slam2D(width,height,dtype, self.provider.calibration,self.cache_dir)
-        self.slam = Slam2DCode(width, height, dtype, self.provider.calibration, self.cache_dir,
-                               generate_bbox=self.generate_bbox,
-                               color_matching=self.color_matching, blending_exp=self.blending_exp, enable_svg=False,
-                               enable_color_matching=False)
-        self.slam.debug_mode = False
-        self.slam.generateImage = self.generateImage
-        # self.slam.startAction = self.startAction
-        # self.slam.advanceAction = self.advanceAction
-        # self.slam.endAction = self.endAction
-        # self.slam.showEnergy = self.showEnergy
-        # self.slam.physic_box= BoxNd.fromString(physic_box)
-        self.slam.physic_box = BoxNd.fromString(physic_box) if physic_box else None
-        for img in self.provider.images:
-            camera = self.slam.addCamera(img)
-            self.slam.createIdx(camera)
-        # self.refreshViewer() #Amy Added.. trying to get
-
-        self.slam.initialSetup()
-        self.slam.run()
+        # Assert(os.path.isdir(image_dir))
+        # self.log.clear()
+        # self.generate_bbox = False
+        # self.color_matching = False
+        # self.blending_exp = "output=voronoi()"
+        #
+        # self.cache_dir = cache_dir
+        # self.image_dir = image_dir
+        #
+        # os.makedirs(self.cache_dir, exist_ok=True)
+        #
+        # self.provider, all_images = CreateProvider(self.image_dir)
+        # self.provider.cache_dir = self.cache_dir
+        # #self.provider.progress_bar = self.progress_bar
+        # self.provider.telemetry = telemetry
+        # self.provider.plane = plane
+        # self.provider.calibration = calibration
+        # self.provider.setImages(all_images)
+        #
+        # TryRemoveFiles(self.cache_dir + '/~*')
+        #
+        # full = self.generateImage(self.provider.images[0])
+        # array = Array.fromNumPy(full, TargetDim=2)
+        # width = array.getWidth()
+        # height = array.getHeight()
+        # dtype = array.dtype
+        #
+        # # self.slam=Slam2D(width,height,dtype, self.provider.calibration,self.cache_dir)
+        # self.slam = Slam2DCode(width, height, dtype, self.provider.calibration, self.cache_dir,
+        #                        generate_bbox=self.generate_bbox,
+        #                        color_matching=self.color_matching, blending_exp=self.blending_exp, enable_svg=False,
+        #                        enable_color_matching=False)
+        # self.slam.debug_mode = False
+        # self.slam.generateImage = self.generateImage
+        # # self.slam.startAction = self.startAction
+        # # self.slam.advanceAction = self.advanceAction
+        # # self.slam.endAction = self.endAction
+        # # self.slam.showEnergy = self.showEnergy
+        # # self.slam.physic_box= BoxNd.fromString(physic_box)
+        # self.slam.physic_box = BoxNd.fromString(physic_box) if physic_box else None
+        # for img in self.provider.images:
+        #     camera = self.slam.addCamera(img)
+        #     self.slam.createIdx(camera)
+        # # self.refreshViewer() #Amy Added.. trying to get
+        #
+        # self.slam.initialSetup()
+        # self.slam.run()
         self.setUpRClone()
 
 #
