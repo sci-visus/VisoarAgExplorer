@@ -201,7 +201,7 @@ class VisoarStitchTabWidget(QWidget):
             print("Note to self, taking out slam default changes")
             #self.parent.slam_widget.setDefaults(color_matching=self.color_matching)
             self.parent.slam.setImageDirectory(image_dir=self.parent.projectInfo.srcDir,
-                                                      cache_dir=self.parent.projectInfo.projDir)
+                                                      cache_dir=os.path.join(self.parent.projectInfo.projDir, 'VisusSlamFiles'))
 
             ret = self.parent.slam_widget.run(self.parent.slam)
 

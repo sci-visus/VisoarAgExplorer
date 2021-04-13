@@ -125,8 +125,9 @@ class Slam2D(Slam):
 	def setImageDirectory(self, image_dir, cache_dir=None, telemetry=None, plane=None, calibration=None, physic_box=None):
 
 		# by default cached files go inside
-		if not cache_dir:
-			cache_dir = os.path.abspath(os.path.join(image_dir, "./VisusSlamFiles"))
+		#if not os.path.exists(os.path.join(image_dir, 'VisusSlamFiles')):
+		#if not cache_dir:
+		cache_dir = os.path.abspath(os.path.join(image_dir, "./VisusSlamFiles"))
 
 		self.image_dir=image_dir
 		

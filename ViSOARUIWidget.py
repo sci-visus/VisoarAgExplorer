@@ -533,6 +533,7 @@ class ViSOARUIWidget(QWidget):
                         self.tabAskDest.destNametextbox.setText(self.projectInfo.srcDir.strip())
                         self.projectInfo.projDir = self.projectInfo.srcDir.strip()
                         self.projectInfo.projDirNDVI = self.projectInfo.srcDirNDVI.strip()
+                        self.projectInfo.cache_dir = os.path.join(self.projectInfo.projDir, 'VisusSlamFiles')
                         self.tabs.setCurrentIndex(self.ASKNAME_TAB)
                 else:
                     print('AfterAskSource')
@@ -545,6 +546,7 @@ class ViSOARUIWidget(QWidget):
                         self.projectInfo.projName = tempName
                         self.tabAskDest.destNametextbox.setText(self.projectInfo.srcDir.strip())
                         self.projectInfo.projDir = self.projectInfo.srcDir.strip()
+                        self.projectInfo.cache_dir = os.path.join(self.projectInfo.projDir, 'VisusSlamFiles')
                         self.tabs.setCurrentIndex(self.ASKNAME_TAB)
 
         elif s == 'AfterAskName':
@@ -1520,7 +1522,7 @@ class ViSOARUIWidget(QWidget):
         if not self.projectInfo.srcDir:
             self.projectInfo.srcDir = self.projectInfo.projDir
 
-        self.slam.setImageDirectory(image_dir=self.projectInfo.srcDir, cache_dir=self.projectInfo.projDir)
+        self.slam.setImageDirectory(image_dir=self.projectInfo.srcDir, cache_dir=os.path.join(self.projectInfo.projDir, 'VisusSlamFiles'))
         # self.parent.onChange(self.parent.STITCHING_VIEW_TAB)
         # except:
         # self.parent.tabs.setCurrentIndex(self.parent.START_TAB)
