@@ -199,12 +199,20 @@ class VisoarImageMailer(QDialog):
         # Add body to email
         message.attach(MIMEText(note, "plain"))
 
-        filename = self.imgWPath  # In same directory as script
+        if type(self.imgWPath) == str:
+            filename = self.imgWPath  # In same directory as script
 
-        fp = open(filename, 'rb')
-        msg_att = MIMEImage(fp.read() )
-        fp.close()
-        message.attach(msg_att)
+            fp = open(filename, 'rb')
+            msg_att = MIMEImage(fp.read() )
+            fp.close()
+            message.attach(msg_att)
+        else:
+            #assume it is an array
+            for filename in self.imgWPath:
+                fp = open(filename, 'rb')
+                msg_att = MIMEImage(fp.read())
+                fp.close()
+                message.attach(msg_att)
 
         #text = message.as_string()
         ret = send_message_to_google(message, fromEmail, False)

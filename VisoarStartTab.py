@@ -15,6 +15,7 @@ from PyQt5.QtWidgets                  import QWidget, QMessageBox, QGroupBox, QS
 from PyQt5.QtWidgets                  import QTableWidget,QTableWidgetItem
 
 
+
 class VisoarStartTabWidget(QWidget):
     def __init__(self, parent):
         super(QWidget, self).__init__(parent)
@@ -32,6 +33,15 @@ class VisoarStartTabWidget(QWidget):
         self.layout.setSpacing(GRID_SPACING)
 
         self.buttons = Buttons
+
+        # self.buttonCheckForUpdates = QPushButton('Check For Updates', self)
+        # self.buttonCheckForUpdates.resize(180, 40)
+        # self.buttonCheckForUpdates.clicked.connect(lambda: checkForUpdates (self))
+        # self.buttonCheckForUpdates.setStyleSheet(GREEN_PUSH_BUTTON)
+        # self.buttonCheckForUpdates.resize(self.buttonCheckForUpdates.sizeHint().width(), self.buttonCheckForUpdates.sizeHint().height())
+        # self.choicelayoutTop.addStretch(True)
+        # self.choicelayoutTop.addWidget(self.buttonCheckForUpdates, alignment=Qt.AlignLeft)
+        # self.choicelayoutTop.addStretch(True)
 
         self.buttonMoveCardData = QPushButton('Process Drone Memory Card', self)
         self.buttonMoveCardData.resize(180, 40)
@@ -86,6 +96,14 @@ class VisoarStartTabWidget(QWidget):
         self.layout.addWidget(self.buttonLoad, alignment=Qt.AlignCenter)
         # self.layout.addStretch(True)
 
+        self.buttonLoad = QPushButton('Quick Image NDVI Processing', self)
+        self.buttonLoad.resize(180, 40)
+        self.buttonLoad.clicked.connect(self.quickNDVIView)
+        self.buttonLoad.setStyleSheet(GREEN_PUSH_BUTTON)
+        self.buttonLoad.resize(self.buttonLoad.sizeHint().width(), self.buttonLoad.sizeHint().height())
+        self.layout.addWidget(self.buttonLoad, alignment=Qt.AlignCenter)
+        # self.layout.addStretch(True)
+
         self.logo = QPushButton('', self)
         self.logo.setStyleSheet(NOBACKGROUND_PUSH_BUTTON)
         self.logo.setIcon(QIcon(os.path.join(self.parent.app_dir, 'icons', 'visoar_logo.png')))
@@ -96,6 +114,7 @@ class VisoarStartTabWidget(QWidget):
         self.layout.addWidget(self.logo)
 
         self.setLayout(self.layout)
+
 
     def moveDataFromCard(self):
         self.parent.enableViewMoveDataFromCards()
@@ -118,3 +137,7 @@ class VisoarStartTabWidget(QWidget):
     def loadFromUserLibrary(self):
         self.parent.enableViewLoad()
         self.parent.changeViewLoad()
+
+    def quickNDVIView(self):
+        self.parent.enablequickNDVIView()
+        self.parent.changequickNDVIView()

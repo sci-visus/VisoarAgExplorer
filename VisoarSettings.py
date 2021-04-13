@@ -30,6 +30,84 @@ import xml.etree.ElementTree as ET
 import xml.dom.minidom
 
 
+def checkForUpdates(parent, log=None):
+    print("Checking for updates")
+
+    import git
+    ThisDir = os.path.dirname(os.path.realpath(__file__))
+    g = git.Git(os.path.join(ThisDir, ".."))
+    retcode = g.pull('origin', 'master')
+    if retcode.startswith('Already'):
+        message = "Software is already updated"
+        if log:
+            log.print(message)
+        QMessageBox.about(parent, "Ok", message)
+    else:
+        message = "Software has been updated. You NEED TO RESTART"
+        if log:
+            log.print(message)
+        QMessageBox.about(parent, "Error", message)
+
+
+# createButton
+def createButton( text, callback=None):
+    ret = QPushButton(text)
+    if callback is not None:
+        ret.clicked.connect(callback)
+    return ret
+
+
+# createComboBox
+def createComboBox( options=[], callback=None):
+    ret = QComboBox()
+    ret.addItems(options)
+    if callback:
+        ret.currentIndexChanged.connect(callback)
+    return ret
+
+
+# separator
+def separator():
+    line = QLabel(" ")
+    # line.setFrameShape(QFrame.HLine)
+    # line.setFrameShadow(QFrame.Sunken)
+    return line
+
+
+# hlayout
+def hlayout( items):
+    ret = QHBoxLayout()
+    for item in items:
+        try:
+            ret.addWidget(item)
+        except:
+            ret.addLayout(item)
+    return ret
+
+
+# vlayout
+def vlayout( items):
+    ret = QVBoxLayout()
+    for item in items:
+        if item.widget() is not None:
+            ret.addWidget(item)
+        else:
+            ret.addLayout(item)
+    return ret
+
+
+# clearLayout
+def clearLayout(  layout):
+    if layout is None: return
+    while layout.count():
+        item = layout.takeAt(0)
+        widget = item.widget()
+        if widget is not None:
+            widget.deleteLater()
+        else:
+            clearLayout(item.layout())
+
+
 def getNameFromMIDX( filename):
     dir, filestr = os.path.split(filename)
     filesplit = os.path.splitext(filestr)
