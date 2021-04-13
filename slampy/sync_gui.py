@@ -5,9 +5,10 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 
 # memory card -> local directory
-if ()
-LOCAL_DIR="c:/visoar_files"
-LOCAL_DIR="/User/"
+if (sys.platform.startswith('win')):
+	LOCAL_DIR="c:/visoar_files"
+else:
+	LOCAL_DIR="/User/"
 
 
 ThisDir = os.path.dirname(os.path.realpath(__file__))
@@ -45,7 +46,9 @@ class VisoarMoveDataWidget(QWidget):
 	# constructor
 	def __init__(self,parent=None):
 		QMainWindow.__init__(self,parent)
-		
+		self.parent = parent
+		self.processingData = False
+
 		self.log=LogFile.getLogger()
 		self.log.print("Got arguments", sys.argv)
 		self.processingData = False
