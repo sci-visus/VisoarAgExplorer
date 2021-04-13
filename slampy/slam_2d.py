@@ -5,28 +5,7 @@ import random
 import threading
 import time
 
-from OpenVisus                        import *
-
-# Checking if OpenVisus was built with GUI support, if not we do not import any Qt libraries or GUI stuff
-import importlib
-visus_gui_spec = importlib.util.find_spec("OpenVisus.VisusGuiPy")
-
-if visus_gui_spec is not None:
-	# this must appear before creating the qapp
-	from PyQt5.QtWebEngineWidgets import QWebEngineView
-	
-	from OpenVisus.gui                    import *
-
-	from PyQt5 import QtCore 
-	from PyQt5.QtCore                     import QUrl
-	from PyQt5.QtWidgets                  import QApplication, QHBoxLayout, QLineEdit
-	from PyQt5.QtWidgets                  import QMainWindow, QPushButton, QVBoxLayout,QSplashScreen
-	from PyQt5.QtWidgets                  import QWidget
-	from PyQt5.QtWidgets                  import QTableWidget,QTableWidgetItem
-
-	from slampy.gui_utils         import *
-else:
-	print("OpenVisus.VisusGuiPy not found, you are proabbly using a version of OpenVisus without GUI")
+from OpenVisus import *
 
 from slampy.extract_keypoints import *
 from slampy.google_maps       import *
@@ -34,6 +13,12 @@ from slampy.gps_utils         import *
 from slampy.find_matches      import *
 from slampy.image_provider    import *
 from slampy.image_utils       import *
+
+
+from . image_provider_sequoia   import ImageProviderSequoia
+from . image_provider_lumenera  import ImageProviderLumenera
+from . image_provider_micasense import ImageProviderRedEdge
+from . image_provider_generic   import ImageProviderGeneric
 
 # ///////////////////////////////////////////////////////////////////
 def ComposeImage(v, axis):
@@ -49,20 +34,72 @@ def ComposeImage(v, axis):
 			ret[cur[1]:cur[1]+H,cur[0]:cur[0]+W,:]=single
 			cur[axis]+=[W,H][axis]
 		return ret
+		
+		
+
+# ///////////////////////////////////////////////////////////////////
+def FindImages(image_dir):
+	ret=[]
+	for filename in glob.glob(os.path.join(image_dir,"**/*.*"),recursive=True):
+		if not os.path.splitext(filename)[1].lower() in ('.jpg','.png','.tif','.bmp'): continue # look for extension, must be an image
+		if "~" in filename: continue # skip temporary files
+		if "VisusSlamFiles" in filename: continue # default is cache_dir is indie image_dir
+		print("Found image",len(ret),filename)
+		ret.append(filename)
+
+	if not ret:
+		raise Exception("Cannot find any image")
+	
+	return ret
+	
+# ///////////////////////////////////////////////////////////////////
+def GuessProvider(filename):
+	# I need to guess what model is the drone (I use the metadata for that. see all CreateImageProviderInstance methods)
+	# try with some images in the middle (more probability of taking the flight images)
+	
+	reader=MetadataReader()
+	metadata=reader.readMetadata(filename)
+	reader.close()
+
+	print("Trying to create provider from metatada")
+	acc=[]
+	for key,value in metadata.items():
+		print("\t",key,"=",value)
+		acc.append(str(value).lower())
+		
+	exif_make =str(metadata["EXIF:Make"]).lower()  if "EXIF:Make"  in metadata else ""
+	exif_model=str(metadata["EXIF:Model"]).lower() if "EXIF:Model" in metadata else ""
+	
+	if "sequoia" in exif_make or "sequoia" in exif_model:
+		print("Setting Sequoia provider")
+		return ImageProviderSequoia()
+		
+	if "lumenera" in exif_model or "lumenera" in exif_make:
+		print("Setting Lumenera provider")
+		return ImageProviderLumenera()		
+		
+	if "rededge" in " ".join(acc) or "micasense" in " ".join(acc):
+		print("Setting micasense provider")
+		return ImageProviderRedEdge()
+
+	print("Setting generic provider")
+	return ImageProviderGeneric()
+		
 
 # ///////////////////////////////////////////////////////////////////
 class Slam2D(Slam):
 
 	# constructor
-	def __init__(self,width,height,dtype,calibration,cache_dir, enable_svg=True, enable_color_matching=False, do_badj=True):
+	def __init__(self):
 
 		super(Slam2D,self).__init__()
 
-		self.width              = width
-		self.height             = height
-		self.dtype              = dtype
-		self.calibration        = calibration
-		self.cache_dir          = cache_dir
+		self.width              = 0
+		self.height             = 0
+		self.dtype              = DType()
+		self.calibration        = Calibration()
+		self.image_dir          = ""
+		self.cache_dir          = ""
 
 		self.debug_mode         = False # True
 		self.energy_size        = 1280 
@@ -77,11 +114,50 @@ class Slam2D(Slam):
 		self.images             = []
 		self.extractor          = None
 
-		self.physic_box         = None # you can override using a physic_box from another sequence
+		# you can override using a physic_box from another sequence
+		self.physic_box         = None 
 
-		self.enable_svg              = enable_svg
-		self.enable_color_matching   = enable_color_matching
-		self.do_badj 				 = do_badj
+		self.enable_svg              = True
+		self.enable_color_matching   = False
+		self.do_bundle_adjustment    = True
+		
+	# setImageDirectory
+	def setImageDirectory(self, image_dir, cache_dir=None, telemetry=None, plane=None, calibration=None, physic_box=None):
+		
+		self.image_dir=image_dir
+		
+		images=FindImages(image_dir)
+		
+		cache_dir=cache_dir if cache_dir else os.path.abspath(os.path.join(self.image_dir,"./VisusSlamFiles"))
+		self.cache_dir=cache_dir
+		TryRemoveFiles(self.cache_dir+'/~*')
+		os.makedirs(self.cache_dir,exist_ok=True)
+		
+		self.provider=GuessProvider(images[int(max(len(images)/2-1,0))])
+		self.provider.telemetry=telemetry
+		self.provider.plane=plane
+		self.provider.image_dir=self.image_dir
+		self.provider.cache_dir=self.cache_dir
+		self.provider.calibration=calibration
+		self.provider.setImages(images)
+		
+		array=Array.fromNumPy(self.generateImage(self.provider.images[0]),TargetDim=2) 
+		self.width=array.getWidth()
+		self.height=array.getHeight()
+		self.dtype=array.dtype
+		self.calibration=self.provider.calibration
+		self.physic_box=physic_box
+
+		for img in self.provider.images:
+			camera=self.addCamera(img)
+			self.createIdx(camera)
+
+		self.guessInitialPoses()
+		self.refreshQuads()
+		self.saveMidx()
+		self.guessLocalCameras()
+		self.debugMatchesGraph()
+		self.debugSolution()
 
 	# addCamera
 	def addCamera(self,img):
@@ -106,21 +182,18 @@ class Slam2D(Slam):
 				fields=[field],
 				dims=(self.width, self.height))
 
-	# generateImage
-	def generateImage(self,img):
-		raise Exception("to implement")
-
 	# startAction
 	def startAction(self,N,message):
-		pass
+		print("Starting action",N,message,"...")
 
 	# advanceAction
 	def advanceAction(self,I):
+		# print("Advance action",I)
 		pass
 
 	# endAction
 	def endAction(self):
-		pass
+		print("End action")
 
 	# showEnergy
 	def showEnergy(self,camera,energy):
@@ -253,6 +326,7 @@ class Slam2D(Slam):
 	# saveMidx
 	def saveMidx(self):
 
+		print("Saving midx")
 		lat0,lon0=self.images[0].lat,self.images[0].lon
 
 
@@ -602,14 +676,13 @@ class Slam2D(Slam):
 		num_matches=sum(results)
 		print("Found num_matches(", num_matches, ") matches in ", t1.elapsedMsec() ,"msec")
 
-	# initialSetup
-	def initialSetup(self):
-		self.guessInitialPoses()
-		self.refreshQuads()
-		self.saveMidx()
-		self.guessLocalCameras()
-		self.debugMatchesGraph()
-		self.debugSolution()
+	# generateImage
+	def generateImage(self,img):
+		t1=Time.now()
+		print("Generating image",img.filenames[0])	
+		ret = InterleaveChannels(self.provider.generateMultiImage(img))
+		print("done",img.id,"range",ComputeImageRange(ret),"shape",ret.shape, "dtype",ret.dtype,"in",t1.elapsedMsec(),"msec")
+		return ret
 
 	# run
 	def run(self):
@@ -617,13 +690,16 @@ class Slam2D(Slam):
 		# if it's the first time, I need to find key point matches
 		if self.cameras[0].keypoints.size()==0:
 			self.convertToIdxAndExtractKeyPoints()
-			if self.do_badj:
+			if self.do_bundle_adjustment:
+				print("Finding matches...")
 				self.findAllMatches()
+				print("removeDisconnectedCameras...")
 				self.removeDisconnectedCameras()
+				print("debugMatchesGraph...")
 				self.debugMatchesGraph()
 
-		if self.do_badj:
-			# bundle adjustment
+		if self.do_bundle_adjustment:
+			print("Doing bundle adjustment...")
 			tolerances=(10.0*self.ba_tolerance,1.0*self.ba_tolerance)
 			self.startAction(len(tolerances),"Refining solution...")
 			for I,tolerance in enumerate(tolerances):
@@ -638,264 +714,3 @@ class Slam2D(Slam):
 
 		self.saveMidx()
 		print("Finished")
-
-# //////////////////////////////////////////////////////////////////////////////
-def CreatePushButton(text,callback=None, img=None ):
-	ret=QPushButton(text)
-	#ret.setStyleSheet("QPushButton{background: transparent;}");
-	ret.setAutoDefault(False)
-	if callback:
-		ret.clicked.connect(callback)
-	if img:
-		ret.setIcon(QtGui.QIcon(img))
-	return ret
-
-if visus_gui_spec is not None:
-	
-	# //////////////////////////////////////////////////////////////////////////////
-	class Slam2DWindow(QMainWindow):	
-		# constructor
-		def __init__(self):
-			super(Slam2DWindow, self).__init__()
-			self.image_dir=""
-			self.cache_dir=""
-			self.createGui()
-
-		# createGui
-		def createGui(self):
-
-			self.setWindowTitle("Visus SLAM")
-
-			class Buttons : pass
-			self.buttons=Buttons
-		
-			# create widgets
-			self.viewer=Viewer()
-			self.viewer.setMinimal()
-			viewer_subwin = sip.wrapinstance(FromCppQtWidget(self.viewer.c_ptr()), QtWidgets.QMainWindow)	
-		
-			self.google_maps = QWebEngineView()
-			self.progress_bar=ProgressLine()
-			self.preview=PreviewImage()
-
-			self.log = QTextEdit()
-			self.log.setLineWrapMode(QTextEdit.NoWrap)
-		
-			p = self.log.viewport().palette()
-			p.setColor(QPalette.Base, QtGui.QColor(200,200,200))
-			p.setColor(QPalette.Text, QtGui.QColor(0,0,0))
-			self.log.viewport().setPalette(p)
-		
-			main_layout=QVBoxLayout()
-		
-			# toolbar
-			toolbar=QHBoxLayout()
-			self.buttons.run_slam=CreatePushButton("Run",lambda: self.run())
-				
-			toolbar.addWidget(self.buttons.run_slam)
-			toolbar.addLayout(self.progress_bar)
-
-			toolbar.addStretch(1)
-			main_layout.addLayout(toolbar)
-		
-			center = QSplitter(QtCore.Qt.Horizontal)
-			center.addWidget(self.google_maps)
-			center.addWidget(viewer_subwin)
-			center.setSizes([100,200])
-		
-			main_layout.addWidget(center,1)
-			main_layout.addWidget(self.log)
-
-			central_widget = QFrame()
-			central_widget.setLayout(main_layout)
-			central_widget.setFrameShape(QFrame.NoFrame)
-			self.setCentralWidget(central_widget)
-
-		# run
-		def run(self):
-			self.slam.run()
-			self.preview.hide()
-			self.refreshViewer()
-
-		# processEvents
-		def processEvents(self):
-			QApplication.processEvents()
-			time.sleep(0.00001)
-
-		# printLog
-		def printLog(self,text):
-			self.log.moveCursor(QtGui.QTextCursor.End)
-			self.log.insertPlainText(text)
-			self.log.moveCursor(QtGui.QTextCursor.End)	
-			if hasattr(self,"__print_log__") and self.__print_log__.elapsedMsec()<200: return
-			self.__print_log__=Time.now()
-			self.processEvents()
-
-		# startAction
-		def startAction(self,N,message):
-			print(message)
-			self.progress_bar.setRange(0,N)
-			self.progress_bar.setMessage(message)
-			self.progress_bar.setValue(0)
-			self.progress_bar.show()
-			self.processEvents()
-
-		# advanceAction
-		def advanceAction(self,I):
-			self.progress_bar.setValue(max(I,self.progress_bar.value()))
-			self.processEvents()
-
-		# endAction
-		def endAction(self):
-			self.progress_bar.hide()
-			self.processEvents()
-
-		# showMessageBox
-		def showMessageBox(self,msg):
-			print(msg)
-			QMessageBox.information(self, 'Information', msg)
-
-		# generateImage
-		def generateImage(self,img):
-			t1=Time.now()
-			print("Generating image",img.filenames[0])	
-			generated=self.provider.generateImage(img)
-			ret = InterleaveChannels(generated)
-			print("done",img.id,"range",ComputeImageRange(ret),"shape",ret.shape, "dtype",ret.dtype,"in",t1.elapsedMsec()/1000,"msec")
-			return ret
-
-		# showEnergy
-		def showEnergy(self,camera,energy):
-
-			if self.slam.debug_mode:
-				SaveImage(self.cache_dir+"/generated/%04d.%d.tif" % (camera.id,camera.keypoints.size()), energy)
-
-			self.preview.showPreview(energy,"Extracting keypoints image(%d/%d) #keypoints(%d)" % (camera.id,len(self.provider.images),camera.keypoints.size()))
-			self.processEvents()
-
-		# setImageDirectory
-		def setImageDirectory(self, image_dir, cache_dir=None, telemetry=None, plane=None, calibration=None, physic_box=None):
-
-			if not image_dir:
-				print("Showing choose directory dialog")
-				image_dir = QFileDialog.getExistingDirectory(self, "Choose directory...","",QFileDialog.ShowDirsOnly) 
-				if not image_dir: 
-					return
-
-			# by default cached files go inside
-			if not cache_dir:
-				cache_dir=os.path.abspath(os.path.join(image_dir,"./VisusSlamFiles"))
-
-			# avoid recursions
-			if self.image_dir==image_dir and self.cache_dir==cache_dir:
-				return
-
-			Assert(os.path.isdir(image_dir))
-			self.log.clear()
-		
-			self.cache_dir=cache_dir
-			self.image_dir=image_dir
-
-			os.makedirs(self.cache_dir,exist_ok=True)
-
-			self.provider, all_images=CreateProvider(self.image_dir)
-			self.provider.cache_dir=self.cache_dir
-			self.provider.progress_bar=self.progress_bar	
-			self.provider.telemetry=telemetry
-			self.provider.plane=plane
-			self.provider.calibration=calibration
-			self.provider.setImages(all_images)
-
-			TryRemoveFiles(self.cache_dir+'/~*')
-
-			full=self.generateImage(self.provider.images[0])
-			array=Array.fromNumPy(full,TargetDim=2)
-			width  = array.getWidth()
-			height = array.getHeight()
-			dtype  = array.dtype
-
-			self.slam=Slam2D(width,height,dtype, self.provider.calibration,self.cache_dir)
-			self.slam.debug_mode=False
-			self.slam.generateImage=self.generateImage
-			self.slam.startAction=self.startAction
-			self.slam.advanceAction=self.advanceAction
-			self.slam.endAction=self.endAction
-			self.slam.showEnergy=self.showEnergy
-			self.slam.physic_box=physic_box
-
-			for img in self.provider.images:
-				camera=self.slam.addCamera(img)
-				self.slam.createIdx(camera)
-
-			self.slam.initialSetup()
-			self.refreshGoogleMaps()
-			self.refreshViewer()
-
-			self.setWindowTitle("{} num_images({}) width({}) height({}) dtype({}) ".format(
-				image_dir, 
-				len(self.provider.images),
-				self.slam.width, 
-				self.slam.height, 
-				self.slam.dtype.toString()))
-
-		# refreshViewer
-		def refreshViewer(self,fieldname="output=voronoi()"):
-			url=self.cache_dir+"/google.midx"
-			self.viewer.open(url)
-			# make sure the RenderNode get almost RGB components
-			self.viewer.setFieldName(fieldname)	
-
-			if True:
-
-				# don't show logs
-				pref=ViewerPreferences()
-				pref.bShowToolbar=False
-				pref.bShowTreeView=False
-				pref.bShowDataflow=False
-				pref.bShowLogs=False
-				self.viewer.setPreferences(pref)
-
-				# don't show annotations
-				db=self.viewer.getDataset()
-				db.setEnableAnnotations(False)
-			
-				# focus on slam dataset (not google world)
-				box=db.getChild("visus").getDatasetBounds().toAxisAlignedBox()
-				self.viewer.getGLCamera().guessPosition(box)
-
-
-			# for Amy: example about processing
-			if False:
-				self.viewer.setScriptingCode(
-	"""
-	import numpy
-	import cv2
-	pdim=input.dims.getPointDim()
-	img=Array.toNumPy(input,bShareMem=True)
-	img=cv2.Laplacian(img,cv2.CV_64F)
-	output=Array.fromNumPy(img,TargetDim=pdim)
-	""");
-
-		# refreshGoogleMaps
-		def refreshGoogleMaps(self):
-	
-			images=self.slam.images
-			if not images:
-				return
-			
-			maps=GoogleMaps()
-			maps.addPolyline([(img.lat,img.lon) for img in images],strokeColor="#FF0000")
-		
-			for I,img in enumerate(images):
-				maps.addMarker(img.filenames[0], img.lat, img.lon, color="green" if I==0 else ("red" if I==len(images)-1 else "blue"))
-				dx=math.cos(img.yaw)*0.00015
-				dy=math.sin(img.yaw)*0.00015
-				maps.addPolyline([(img.lat, img.lon),(img.lat + dx, img.lon + dy)],strokeColor="yellow")
-
-			content=maps.generateHtml()
-		
-			filename=os.path.join(self.cache_dir,"slam.html")
-			SaveTextDocument(filename,content)
-			self.google_maps.load(QUrl.fromLocalFile(filename))	
-
-

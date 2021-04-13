@@ -19,8 +19,8 @@ class ImageProviderGeneric(ImageProvider):
 		all_images=sorted(all_images)
 		return [[filename] for filename in all_images]
 
-	# generateImage
-	def generateImage(self,img):
+	# generateMultiImage
+	def generateMultiImage(self,img):
 		multi = [cv2.imread(filename,-1) for filename in img.filenames]
 		multi = self.mirrorY(multi)
 		multi = self.swapRedAndBlue(multi)
@@ -29,6 +29,3 @@ class ImageProviderGeneric(ImageProvider):
 		return multi
 
 
-# ///////////////////////////////////////////////////////////////////////////////////////////////
-def CreateImageProviderInstance(metadata):
-	return ImageProviderGeneric()
