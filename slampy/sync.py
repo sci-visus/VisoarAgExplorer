@@ -416,6 +416,7 @@ class VisoarMoveDataWidget(QWidget):
 	def setDirSource(self,dirLine):
 		self.dir = str(
 			QFileDialog.getExistingDirectory(self, "Select Directory containing Images"))
+		LOCAL_DIR = self.dir
 		dirLine.setText(self.dir)
 
 	# creatDumpMemoryCardWidget
