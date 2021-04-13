@@ -69,10 +69,11 @@ class Slam2DWidget(QWidget):
 	def __init__(self):
 		super(Slam2DWidget, self).__init__()
 		ShowSplash()
+		self.slam = None
 		self.redirect_log=RedirectLog()
 		self.redirect_log.setCallback(self.printLog)	
 		self.createGui()
-		self.showMaximized()
+		#self.showMaximized()
 
 	# createPushButton
 	def createPushButton(self,text,callback=None, img=None ):
@@ -259,7 +260,7 @@ output=Array.fromNumPy(img,TargetDim=pdim)
 			# 	self.slam.dtype.toString()))
 			HideSplash()
 			return True
-			#QApplication.instance().exec()
+			#QApplication.instance().exec()   #Is this okay...?
 		except:
 				QMessageBox.information(self,
 										"No data set loaded",
@@ -299,7 +300,7 @@ class Slam2DWindow(QMainWindow):
 		self.setCentralWidget(central_widget)
 
 	def onRunClicked(self):
-		self.slamWidget.run()
+		self.slamWidget.slam.run()
 		self.slamWidget.preview.hide()
 		self.slamWidget.refreshViewer()
 
