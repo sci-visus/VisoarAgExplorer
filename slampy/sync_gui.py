@@ -71,8 +71,6 @@ class VisoarMoveDataWidget(QWidget):
 		LOCAL_DIR = self.dir
 		sensor_num = self.sensors[self.dir] if self.dir in self.sensors else len(self.sensors)
 		dirLine.setText("{}/{}-myfield/sensor{}".format(LOCAL_DIR, T1.strftime("%Y%m%d-%H%M%S"), sensor_num))
-
-
 		
 	# creatDumpMemoryCardWidget
 	def creatDumpMemoryCardWidget(self):
@@ -214,6 +212,7 @@ class VisoarMoveDataWidget(QWidget):
 		self.clearLayout(self.progressLayout)
 
 		self.main_layout.addLayout(self.hlayout([
+			self.createButton('Home', callback=self.parent.goHome),
 			self.createButton('Refresh GUI',callback=self.refreshGui),
 			self.createButton('Check for updates',callback=self.checkForUpdates),
 		]))
