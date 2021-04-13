@@ -46,7 +46,6 @@ rsa==4.7.2
 scikit-image==0.17.2
 scipy==1.5.4
 six==1.15.0
-slampy==1.0.1
 smmap==4.0.0
 tifffile==2020.9.3
 uritemplate==3.0.1
