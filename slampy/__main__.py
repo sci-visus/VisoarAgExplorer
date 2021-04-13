@@ -1,63 +1,16 @@
-import os, sys, argparse
-
-from slampy.slam_2d import Slam2DWindow
-from slampy.gui_utils import *
-import datetime
-
-# //////////////////////////////////////////////////////////////////////////////
-class RedirectLog(QtCore.QObject):
-
-	"""Redirects console output to text widget."""
-	my_signal = QtCore.pyqtSignal(str)
-
-	# constructor
-	def __init__(self, filename="~visusslam.log", ):
-		super().__init__()
-		self.log=open(filename,'w')
-		self.callback=None
-		self.messages=[]
-		sys.__stdout__     = sys.stdout
-		sys.__stderr__     = sys.stderr
-		sys.__excepthook__ = sys.excepthook
-		sys.stdout=self
-		sys.stderr=self
-		sys.excepthook = self.excepthook
-
-	# handler
-	def excepthook(self, exctype, value, traceback):
-		sys.stdout    =sys.__stdout__
-		sys.stderr    =sys.__stderr__
-		sys.excepthook=sys.__excepthook__
-		sys.excepthook(exctype, value, traceback)
-
-	# setCallback
-	def setCallback(self, value):
-		self.callback=value
-		self.my_signal.connect(value)
-		for msg in self.messages:
-			self.my_signal.emit(msg)
-		self.messages=[]
-
-	# write
-	def write(self, msg):
-		msg=msg.replace("\n", "\n" + str(datetime.datetime.now())[0:-7] + " ")
-		sys.__stdout__.write(msg)
-		sys.__stdout__.flush()
-		self.log.write(msg)
-		if self.callback:
-			self.my_signal.emit(msg)
-		else:
-			self.messages.append(msg)
-
-	# flush
-	def flush(self):
-		sys.__stdout__.flush()
-		self.log.flush()
-
-
+import os, sys, argparse, datetime
+from . slam_2d import *
 
 # ////////////////////////////////////////////////
 def Main(args):
+
+	# -m slampy --directory D:\GoogleSci\visus_slam\TaylorGrant (Generic)
+	# -m slampy --directory D:\GoogleSci\visus_slam\Alfalfa     (Generic)
+	# -m slampy --directory D:\GoogleSci\visus_slam\RedEdge     (micasense)
+	# -m slampy --directory "D:\GoogleSci\visus_slam\Agricultural_image_collections\AggieAir uav Micasense example\test" (micasense)		
+	# -m slampy --directory D:\GoogleSci\visus_slam\TaylorGrantSmall --cache D:\~slam\TaylorGrantSmall	
+	# -m slampy --directory D:\GoogleSci\visus_slam\TaylorGrantSmall --cache D:\~slam\TaylorGrantSmall --plane 1071.61 --calibration "2222.2194 2000.0 1500.0" --telemetry D:/~slam/TaylorGrantSmall/metadata.json
+	# -m slampy --directory D:\GoogleSci\visus_slam\TaylorGrantSmall --cache D:\~slam\TaylorGrantSmall	--physic-box "0.18167907760636232 0.18171277264117514 0.63092731395604973 0.63093683616193741"
 
 	parser = argparse.ArgumentParser(description="slam command.")
 	parser.add_argument("--directory",   type=str, help="Directory of the source images", required=False,default="")
@@ -75,33 +28,18 @@ def Main(args):
 	# To force the physic box to be the same of another sequence
 	# Example: --physic-box 'x1 x2 y1 y2' (i.e. interleaved).
 	parser.add_argument("--physic-box" , type=str, help="Physic box of the MIDX", required=False,default=None) 
-
-	args = parser.parse_args(args[1:])
-
-
-	# since I'm writing data serially I can disable locks
-	os.environ["VISUS_DISABLE_WRITE_LOCK"]="1"
-	ShowSplash()
-
-	# -m slampy --directory D:\GoogleSci\visus_slam\TaylorGrant (Generic)
-	# -m slampy --directory D:\GoogleSci\visus_slam\Alfalfa     (Generic)
-	# -m slampy --directory D:\GoogleSci\visus_slam\RedEdge     (micasense)
-	# -m slampy --directory "D:\GoogleSci\visus_slam\Agricultural_image_collections\AggieAir uav Micasense example\test" (micasense)		
-	# -m slampy --directory D:\GoogleSci\visus_slam\TaylorGrantSmall --cache D:\~slam\TaylorGrantSmall	
-	# -m slampy --directory D:\GoogleSci\visus_slam\TaylorGrantSmall --cache D:\~slam\TaylorGrantSmall --plane 1071.61 --calibration "2222.2194 2000.0 1500.0" --telemetry D:/~slam/TaylorGrantSmall/metadata.json
-	# -m slampy --directory D:\GoogleSci\visus_slam\TaylorGrantSmall --cache D:\~slam\TaylorGrantSmall	--physic-box "0.18167907760636232 0.18171277264117514 0.63092731395604973 0.63093683616193741"
-	win=Slam2DWindow()
-
-	redirect_log=RedirectLog()
-	redirect_log.setCallback(win.printLog)
-	win.showMaximized()
+	
+	# enable/disable batch
+	parser.add_argument("--batch" , type=bool, help="Enable batching", required=False,default=False) 
 
 	# parse arguments
-	image_directory=args.directory
+	args = parser.parse_args(args[1:])
+	image_dir=args.directory
 	cache_dir=args.cache_dir if args.cache_dir else None
 	telemetry=args.telemetry if args.telemetry else None
 	plane=cdouble(args.plane) if args.plane else None
 	physic_box=BoxNd.fromString(args.physic_box) if args.physic_box else None 
+	batch=args.batch
 
 	calibration=None
 	if args.calibration:
@@ -109,23 +47,38 @@ def Main(args):
 		calibration=Calibration(f,cx,cy)
 
 	print("Running slam:")
-	print("   image_directory", repr(image_directory))
-	print("   cache_dir", repr(cache_dir))
-	print("   telemetry", repr(telemetry))
-	print("   plane", repr(plane))
-	print("   calibration", (calibration.f,calibration.cx,calibration.cy) if calibration else None)
-	print("   physic_box", physic_box.toString() if physic_box else None)
+	print("\t","image_dir", repr(image_dir))
+	print("\t","cache_dir", repr(cache_dir))
+	print("\t","telemetry", repr(telemetry))
+	print("\t","plane", repr(plane))
+	print("\t","calibration", (calibration.f,calibration.cx,calibration.cy) if calibration else None)
+	print("\t","physic_box", physic_box.toString() if physic_box else None)		
+	print("\t","batch", batch)		
 
-	win.setImageDirectory(
-		image_directory, 
-		cache_dir= cache_dir, 
-		telemetry=cache_dir, 
-		plane=plane, 
-		calibration=calibration,
-		physic_box=physic_box) 
+	# since I'm writing data serially I can disable locks
+	os.environ["VISUS_DISABLE_WRITE_LOCK"]="1"
+	
+	gui=None
+	if not batch:
+		from . slam_2d_gui import Slam2DWindow
+		gui=Slam2DWindow()
+		
+		if not image_dir:
+			from PyQt5.QtWidgets import QFileDialog
+			image_dir = QFileDialog.getExistingDirectory(None, "Choose directory...","",QFileDialog.ShowDirsOnly) 
 
-	HideSplash()
-	QApplication.instance().exec()
+	if not image_dir: 
+		print("Specify an image directory")
+		sys.exit(-1)
+		
+	slam = Slam2D()
+	slam.setImageDirectory(image_dir,  cache_dir= cache_dir, telemetry=cache_dir, plane=plane, calibration=calibration, physic_box=physic_box) 	
+		
+	if batch:
+		slam.run()
+	else:
+		gui.run(slam)
+	
 	print("All done")
 	sys.exit(0)	
 

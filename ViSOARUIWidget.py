@@ -22,7 +22,7 @@ from VisoarStitchTab			import *
 from VisoarAnalyzeTab			import *
 from ViSOARUIWidget             import *
 from ViSOARQuickNDVI             import *
-from slampy.sync     import VisoarMoveDataWidget
+from slampy.sync_gui     import VisoarMoveDataWidget
 
 from slam2dWidget 				import *
 from gmail_visoar				import *
