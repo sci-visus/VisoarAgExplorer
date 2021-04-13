@@ -82,8 +82,8 @@ class ImageProviderRedEdge(ImageProvider):
 				pass
 
 
-	# generateImage
-	def generateImage(self,img):
+	# generateMultiImage
+	def generateMultiImage(self,img):
 		capture = micasense.capture.Capture.from_filelist(img.filenames)
 		# note I'm ignoring distotions here
 		# capture.images[I].undistorted(capture.images[I].reflectance())
@@ -95,16 +95,3 @@ class ImageProviderRedEdge(ImageProvider):
 		multi = self.alignImage(multi)
 		multi=[single for single in multi if single.shape==multi[0].shape]
 		return multi
-
-# /////////////////////////////////////////////////////////////////////////////////////////////////////
-def CreateImageProviderInstance(metadata):
-
-	acc=[]
-	for key,value in metadata.items():
-		acc.append(str(value).lower())
-
-	acc=" ".join(acc)
-	if "rededge" in acc or "micasense" in acc:
-		return ImageProviderRedEdge()
-	else:
-		return None

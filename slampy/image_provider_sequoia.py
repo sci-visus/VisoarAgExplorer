@@ -176,8 +176,8 @@ class ImageProviderSequoia(ImageProvider):
 		if not self.panels:
 			print("Warning","I don't have any panel image'")
 
-	# generateImage
-	def generateImage(self,img):
+	# generateMultiImage
+	def generateMultiImage(self,img):
 
 		# read all images
 		multi=[cv2.imread(filename,-1) for filename in img.filenames]
@@ -195,13 +195,3 @@ class ImageProviderSequoia(ImageProvider):
 		multi = self.undistortImage(multi)
 		multi = self.alignImage(multi)
 		return multi
-
-
-# /////////////////////////////////////////////////////////////////////////////////////////////////////
-def CreateImageProviderInstance(metadata):
-	exif_make =str(metadata["EXIF:Make"]).lower()  if "EXIF:Make"  in metadata else ""
-	exif_model=str(metadata["EXIF:Model"]).lower() if "EXIF:Model" in metadata else ""
-	if "sequoia" in exif_make or "sequoia" in exif_model:
-		return ImageProviderSequoia()
-	else:
-		return None

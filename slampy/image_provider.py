@@ -680,7 +680,7 @@ class ImageProvider:
 			self.plane=self.guessPlane()
 		self.setPlane(self.plane)
 
-		multi=self.generateImage(self.images[0])
+		multi=self.generateMultiImage(self.images[0])
 		print("First multi image generated",[(single.shape,single.dtype) for single in multi])
 
 		# calibration "f cx cy"
@@ -723,69 +723,5 @@ class ImageProvider:
 		return multi
 
 
-# ////////////////////////////////////////////////////////////////////////////////////////
-def CreateProvider(image_dir, image_extensions=('.jpg','.png','.tif','.bmp')):
+
 	
-	all_images=[]
-
-	for filename in glob.glob(os.path.join(image_dir,"**/*.*"),recursive=True):
-		
-		# look for extension, must be an image
-		if image_extensions:
-			ext=	os.path.splitext(filename)[1].lower()
-			if not ext in image_extensions:
-				continue
-			
-		# skip temporary files
-		if "~" in filename:
-			continue
-
-		# default is cache_dir is indie image_dir
-		if "VisusSlamFiles" in filename:
-			continue
-
-		print("Found image",len(all_images),filename)
-		all_images.append(filename)
-
-	if not all_images:
-		return None
-
-	# I need to guess what model is the drone (I use the metadata for that. see all CreateImageProviderInstance methods)
-	reader=MetadataReader()
-	
-	# looking for all providers at run time 
-	provider_names=[os.path.splitext(os.path.basename(it))[0] for it in glob.glob(os.path.dirname(__file__) + "/image_provider_*.py")]
-	provider_names.remove("image_provider_generic") # must be the last one
-	provider_names.append("image_provider_generic")
-	print("Provider names",provider_names)
-
-	provider_modules=[importlib.import_module("slampy."+it) for it in provider_names]
-
-	# try with some images in the middle (more probability of taking the flight images)
-	provider_instance=None
-	maybe_flight=all_images[int(max(len(all_images)/2-1,0)):][:2]
-	for filename in maybe_flight:
-
-		metadata=reader.readMetadata(filename)
-
-		print("Trying to create provider from metatada")
-		for key,value in metadata.items():
-			print("\t",key,"=",value)
-
-		for module in provider_modules:
-			print("Trying",module.__name__)
-			provider_instance=getattr(module, "CreateImageProviderInstance")(metadata)
-			if provider_instance: 
-				print("Detected",module.__name__)
-				break
-
-		if provider_instance:
-			break
-
-	reader.close()
-
-	if not provider_instance:
-		raise Exception("cannot find a good provider")
-
-	provider_instance.image_dir=image_dir
-	return (provider_instance,all_images)
