@@ -69,7 +69,10 @@ class VisoarMoveDataWidget(QWidget):
 		self.dir = str(
 			QFileDialog.getExistingDirectory(self, "Select Directory containing Images"))
 		LOCAL_DIR = self.dir
-		dirLine.setText(self.dir)
+		sensor_num = self.sensors[self.dir] if self.dir in self.sensors else len(self.sensors)
+		dirLine.setText("{}/{}-myfield/sensor{}".format(LOCAL_DIR, T1.strftime("%Y%m%d-%H%M%S"), sensor_num))
+
+
 		
 	# creatDumpMemoryCardWidget
 	def creatDumpMemoryCardWidget(self):
@@ -103,7 +106,7 @@ class VisoarMoveDataWidget(QWidget):
 		def guessDestinationDir(src_dir):
 			sensor_num=self.sensors[src_dir] if src_dir in self.sensors else len(self.sensors)
 			return "{}/{}-myfield/sensor{}".format(LOCAL_DIR, T1.strftime("%Y%m%d-%H%M%S"),sensor_num)
-		
+
 		src_dir.currentIndexChanged.connect(lambda: dst_dir.setText(guessDestinationDir(src_dir.currentText())))
 		dst_dir.setText(guessDestinationDir(src_dir.currentText()))
 		

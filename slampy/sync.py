@@ -17,7 +17,7 @@ from threading import Timer
 # from VisoarAgExplorer.slampy.utils import *
 # from VisoarAgExplorer.slampy.sync import *
 from slampy.utils import *
-from slampy.sync import *
+#from slampy.sync import *
 
 """
 =====================================================================================

@@ -6,7 +6,14 @@ from VisoarSettings import *
 from slam2dWidget import *
 
 from ViSOARUIWidget import *
+from slampy.utils import *
+# memory card -> local directory
+if (sys.platform.startswith('win')):
+	LOCAL_DIR="c:/visoar_files"
+else:
+	LOCAL_DIR="/Users/amygooch/"
 
+T1=datetime.datetime.now()
 
 # IMPORTANT for WIndows
 # Mixing C++ Qt5 and PyQt5 won't work in Windows/DEBUG mode
@@ -86,6 +93,7 @@ class VisoarAgExplorer(QMainWindow):
 # //////////////////////////////////////////////
 def Main(argv):
     SetCommandLine("__main__")
+    LogFile(Utils.NormalizePath(os.path.join(LOCAL_DIR, T1.strftime("%Y%m%d.%H%M%S") + ".visoar.sync.log")))
     app = QApplication(sys.argv)
     app.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
     app.setAttribute(Qt.AA_EnableHighDpiScaling, True)
