@@ -68,7 +68,7 @@ class Slam2DWidget(QWidget):
 	# constructor
 	def __init__(self):
 		super(Slam2DWidget, self).__init__()
-		ShowSplash()
+
 		self.slam = None
 		self.redirect_log=RedirectLog()
 		self.redirect_log.setCallback(self.printLog)	
@@ -320,7 +320,7 @@ output=Array.fromNumPy(img,TargetDim=pdim)
 			# 	self.slam.width,
 			# 	self.slam.height,
 			# 	self.slam.dtype.toString()))
-			#HideSplash()
+
 			return True
 			#QApplication.instance().exec()   #Is this okay...?
 		except:
@@ -336,6 +336,7 @@ class Slam2DWindow(QMainWindow):
 	# constructor
 	def __init__(self):
 		super(Slam2DWindow, self).__init__()
+		ShowSplash()
 		self.createGui()
 		self.showMaximized()
 
@@ -367,5 +368,6 @@ class Slam2DWindow(QMainWindow):
 		self.slamWidget.refreshViewer()
 
 	def run(self,slam):
+		HideSplash()
 		self.slam=slam
 		self.slam.run(slam)

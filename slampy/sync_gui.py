@@ -150,7 +150,7 @@ class VisoarMoveDataWidget(QWidget):
 		src_dir.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 		src_dir.setText(LOCAL_DIR)
 		clean=QCheckBox("Clean")
-		clean.setChecked(True)			
+		clean.setChecked(False)
 		sub.addLayout(self.hlayout([src_dir,clean]),0,1)
 		
 		sub.addWidget(QLabel("Google Destination"),1,0)
