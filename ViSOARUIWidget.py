@@ -74,12 +74,12 @@ class MyViewerWidget(QWidget):
         self.toolbar.addWidget(self.openMyMapWidget, alignment=Qt.AlignRight)
         #self.toolbar.addStretch(10)
 
-        self.resetView = createPushButton("", lambda: self.resetView())
-        self.resetView.setToolTip('Reset Viewpoint to see full mosaic')
-        self.resetView.setIcon(QIcon('icons/resetView.png'))
-        fixButtonsLookFeel(self.resetView)
+        self.resetViewBtn = createPushButton("", lambda: self.resetView())
+        self.resetViewBtn.setToolTip('Reset Viewpoint to see full mosaic')
+        self.resetViewBtn.setIcon(QIcon('icons/resetView.png'))
+        fixButtonsLookFeel(self.resetViewBtn)
         #self.resetView.setStyleSheet(WHITE_PUSH_BUTTON)
-        self.toolbar.addWidget(self.resetView, alignment=Qt.AlignRight)
+        self.toolbar.addWidget(self.resetViewBtn, alignment=Qt.AlignRight)
 
         self.sublayout.addLayout(self.toolbar)
 
@@ -101,8 +101,8 @@ class MyViewerWidget(QWidget):
 
     def resetView(self):
         db = self.viewer.getDataset()
-        if len(self.visoarLayerList) > 0:
-            for alayer in self.visoarLayerList:
+        if len(self.parent.visoarLayerList) > 0:
+            for alayer in self.parent.visoarLayerList:
                 # for all layers not google should do a union of all boxes
                 if alayer.name != 'google' and db.getChild(alayer.name):
                     db2 = self.viewer2.getDataset()
@@ -119,17 +119,17 @@ class MyViewerWidget(QWidget):
                     return
 
         elif db.getChild("visus"):
-            db2 = self.viewer2.getDataset()
+            #db2 = self.viewer2.getDataset()
             # Causes a crash
             # db.setEnableAnnotations(False)
             # if (db2):
             #     db2.setEnableAnnotations(False)
             box = db.getChild("visus").getDatasetBounds().toAxisAlignedBox()
             self.viewer.getGLCamera().guessPosition(box)
-            self.viewer2.getGLCamera().guessPosition(box)
+            #self.viewer2.getGLCamera().guessPosition(box)
         else:
             self.viewer.guessGLCameraPosition()
-            self.viewer2.guessGLCameraPosition()
+            #self.viewer2.guessGLCameraPosition()
 
     def openLayersWindow(self):
         v = VisoarLayerView(self.parent, self.parent.visoarLayerList, self.viewer)
@@ -271,7 +271,7 @@ class ViSOARUIWidget(QWidget):
         self.app_dir = os.getcwd()
 
         self.USER_TAB_UI = False
-
+        self.visoarLayerList = []
         self.START_TAB = 0
         self.NEW_STITCH_TAB = 1
         self.NEW_TIME_SERIES_TAB = 2
@@ -1657,7 +1657,7 @@ class ViSOARUIWidgetFull(ViSOARUIWidget):
 
         self.inputMode = "R G B"
         self.projectInfo = VisoarProject()
-        self.visoarLayerList = []
+
 
         self.userFileHistory = os.path.join(os.getcwd(), 'userFileHistory.xml')
 

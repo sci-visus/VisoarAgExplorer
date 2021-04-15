@@ -93,11 +93,11 @@ class VisoarStitchTabWidget(QWidget):
         # toolbar.addWidget(self.buttons.show_tgi)
         # toolbar.addWidget(self.buttons.show_rgb)
 
-        self.buttons.resetView = createPushButton("",
+        self.buttons.resetViewBtn = createPushButton("",
                                                   lambda: parent.resetView())
-        self.buttons.resetView.setIcon(QIcon('icons/resetView.png'))
-        fixButtonsLookFeel(self.buttons.resetView)
-        toolbar.addWidget(self.buttons.resetView)
+        self.buttons.resetViewBtn.setIcon(QIcon('icons/resetView.png'))
+        fixButtonsLookFeel(self.buttons.resetViewBtn)
+        toolbar.addWidget(self.buttons.resetViewBtn)
 
         self.buttons.save_screenshot = createPushButton("",
                                                         lambda: self.parent.saveScreenshot())
