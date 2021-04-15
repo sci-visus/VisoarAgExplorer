@@ -29,6 +29,7 @@ class VisoarLoadTabWidget(QWidget):
         self.DEBUG = True
         self.parent = parent
         self.setStyleSheet(LOOK_AND_FEEL)
+
         #def tabLoadUI(self):
         # AAG: 05152020 was:
         #		self.sublayoutTabLoad= QVBoxLayout(self)
@@ -54,7 +55,7 @@ class VisoarLoadTabWidget(QWidget):
         self.containerScroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
 
         self.container = QWidget(self )
-
+        self.sublayoutGrid = QGridLayout(self.container)
         self.sublayoutTabLoad = QVBoxLayout()
 
         self.sortLayout = QHBoxLayout()
@@ -77,6 +78,7 @@ class VisoarLoadTabWidget(QWidget):
             self.comboBoxSortLibrary.resize(100, 40)
             self.comboBoxSortLibrary.setFixedWidth(100)
             self.comboBoxSortLibrary.setFixedHeight(40)
+            self.comboBoxSortLibrary.setCurrentIndex(1)
             self.sortLayout.addWidget(self.sortLibraryLabel, Qt.AlignLeft)
             self.sortLayout.addWidget(self.comboBoxSortLibrary, Qt.AlignLeft)
             self.sortLayout.addStretch(0)
@@ -85,7 +87,7 @@ class VisoarLoadTabWidget(QWidget):
         self.sublayoutTabLoad.addWidget(self.containerScroll)
 
         if self.LOAD_MODE == self.LOAD_MODE_LIST or self.LOAD_MODE == self.LOAD_MODE_GRID:
-            self.sublayoutGrid = QGridLayout(self.container)
+            #self.sublayoutGrid = QGridLayout(self.container)
             self.sublayoutGrid.setAlignment(Qt.AlignTop)
             self.sublayoutGrid.setSpacing(GRID_SPACING)
             self.sublayoutGrid.setHorizontalSpacing(0)
@@ -293,7 +295,8 @@ class VisoarLoadTabWidget(QWidget):
     def LoadFromFile(self):
         self.parent.visoarUserLibraryData.refreshProjectsFromXML()
         #Clear Layout
-        clearLayout(self.sublayoutGrid)
+        if self.sublayoutGrid:
+            clearLayout(self.sublayoutGrid)
 
 
         if self.LOAD_MODE == self.LOAD_MODE_GRID:
