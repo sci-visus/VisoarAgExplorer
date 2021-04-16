@@ -61,8 +61,8 @@ class MyViewerWidget(QWidget):
         self.comboBoxATab.setMinimumWidth(width)
 
         #self.comboBoxATab.setSizePolicy(QSizePolicy.Preferred, self.comboBoxATab.sizePolicy().verticalPolicy())
-        self.comboBoxATab.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
-        self.comboBoxATab.setSizeAdjustPolicy(QComboBox.AdjustToContents)
+        #self.comboBoxATab.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+        #self.comboBoxATab.setSizeAdjustPolicy(QComboBox.AdjustToContents)
 
         self.comboBoxATabScripts = QComboBox(self)
         # self.buttons.comboBoxATabScripts.setToolTip('Sensor/Image mode for input images')
