@@ -57,6 +57,9 @@ class MyViewerWidget(QWidget):
         # self.comboBoxATab.setFixedHeight(100)
         # self.comboBoxATab.setMinimumContentsLength(100)
 
+        width = self.comboBoxATab.minimumSizeHint().width()
+        self.comboBoxATab.setMinimumWidth(width)
+
         #self.comboBoxATab.setSizePolicy(QSizePolicy.Preferred, self.comboBoxATab.sizePolicy().verticalPolicy())
         self.comboBoxATab.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
         self.comboBoxATab.setSizeAdjustPolicy(QComboBox.AdjustToContents)
