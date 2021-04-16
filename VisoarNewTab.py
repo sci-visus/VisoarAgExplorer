@@ -140,6 +140,9 @@ class VisoarAskSensor(QWidget):
         self.comboBoxNewTab.resize(100, 40)
         self.comboBoxNewTab.setFixedWidth(100)
         self.comboBoxNewTab.setFixedHeight(40)
+        width = self.comboBoxNewTab.minimumSizeHint().width()
+        self.comboBoxNewTab.setMinimumWidth(width)
+
         self.comboBoxNewTab.setToolTip('Set sensor/image input format')
         self.sublayoutForm = QFormLayout()
         self.sublayout.addStretch(True)
