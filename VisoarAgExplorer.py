@@ -51,6 +51,9 @@ class VisoarAgExplorer(QMainWindow):
         #self.setWindowFlags(
         #    self.windowFlags() | Qt.WindowStaysOnTopHint)  # set always on top flag, makes window disappear
 
+        screen = QDesktopWidget().screenGeometry()
+
+
         self.central_widget = QFrame()
         self.central_widget.setFrameShape(QFrame.NoFrame)
 
@@ -67,6 +70,15 @@ class VisoarAgExplorer(QMainWindow):
         # self.activateWindow()
         if self.DEBUG:
             print('VisoarAgExplorer init finished')
+
+        #self.center()
+        self.showMaximized()
+
+    def center(self):
+        qr = self.frameGeometry()
+        cp = QDesktopWidget().availableGeometry().center()
+        qr.moveCenter(cp)
+        self.move(qr.topLeft())
 
     def on_click(self):
         print("\n")
