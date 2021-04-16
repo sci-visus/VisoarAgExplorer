@@ -51,6 +51,7 @@ class MyViewerWidget(QWidget):
         #print('combobox new tab: ' + str(self.parent.tabNewStitching.comboBoxNewTab.currentIndex()))
         self.comboBoxATab.setToolTip('Sensor/Image mode for input images')
         self.toolbar.addWidget(self.comboBoxATab)
+        self.comboBoxATab.setGeometry(200, 150, 200, 50)
 
         self.comboBoxATabScripts = QComboBox(self)
         # self.buttons.comboBoxATabScripts.setToolTip('Sensor/Image mode for input images')

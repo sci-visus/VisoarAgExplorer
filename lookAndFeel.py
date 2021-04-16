@@ -645,7 +645,10 @@ QWidget:item:selected
     background-color: #08a596;
     color: white
 }
-QFrame { border: 2px solid #045951; }
+QFrame { 
+    border: 2px solid #045951;  
+    padding: 5px;
+    margin: 5px;}
 QWidget
 {
     border: 0px solid #999900;
