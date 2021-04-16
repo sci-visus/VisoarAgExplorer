@@ -661,7 +661,7 @@ QWidget:item:checked
 }
 QComboBox {
     min-width:200px;
-    min-height:80px;
+    min-height:120px;
     border-radius: 3px;
     padding: 1px 10px 1px 3px;
     color: #045951;
