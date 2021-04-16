@@ -592,7 +592,7 @@ GRAY_PUSH_BUTTON = """QPushButton {
 		}""".strip()
 
 WHITE_PUSH_BUTTON = """QPushButton {
-		max-width:300px;
+        min-width:300px;
 		border-radius: 7;
 		border-style: outset; 
 		border-width: 1px;
@@ -660,11 +660,11 @@ QWidget:item:checked
      font-weight: bold
 }
 QComboBox {
+    min-width:200px;
     border-radius: 3px;
     padding: 1px 10px 1px 3px;
     color: #045951;
     background-color: white;
-    min-width:120px;
     min-height:30px;
     border : 2px  #045951;
     border-style : solid;
