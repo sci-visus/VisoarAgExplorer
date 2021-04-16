@@ -1,19 +1,48 @@
 import os, sys, argparse, datetime
 from . slam_2d import *
 
-# ////////////////////////////////////////////////
-def Main(args):
+# //////////////////////////////////////////
+if __name__ == "__main__":
 
-	# -m slampy --directory D:\GoogleSci\visus_slam\TaylorGrant (Generic)
-	# -m slampy --directory D:\GoogleSci\visus_slam\Alfalfa     (Generic)
-	# -m slampy --directory D:\GoogleSci\visus_slam\RedEdge     (micasense)
-	# -m slampy --directory "D:\GoogleSci\visus_slam\Agricultural_image_collections\AggieAir uav Micasense example\test" (micasense)		
-	# -m slampy --directory D:\GoogleSci\visus_slam\TaylorGrantSmall --cache D:\~slam\TaylorGrantSmall	
-	# -m slampy --directory D:\GoogleSci\visus_slam\TaylorGrantSmall --cache D:\~slam\TaylorGrantSmall --plane 1071.61 --calibration "2222.2194 2000.0 1500.0" --telemetry D:/~slam/TaylorGrantSmall/metadata.json
-	# -m slampy --directory D:\GoogleSci\visus_slam\TaylorGrantSmall --cache D:\~slam\TaylorGrantSmall	--physic-box "0.18167907760636232 0.18171277264117514 0.63092731395604973 0.63093683616193741"
+	# -m slampy --image-dir D:\GoogleSci\visus_slam\TaylorGrant (Generic)
+	# -m slampy --image-dir D:\GoogleSci\visus_slam\Alfalfa     (Generic)
+	# -m slampy --image-dir D:\GoogleSci\visus_slam\RedEdge     (micasense)
+	# -m slampy --image-dir "D:\GoogleSci\visus_slam\Agricultural_image_collections\AggieAir uav Micasense example\test" (micasense)		
+	# -m slampy --image-dir D:\GoogleSci\visus_slam\TaylorGrantSmall --cache D:\~slam\TaylorGrantSmall	
+	# -m slampy --image-dir D:\GoogleSci\visus_slam\TaylorGrantSmall --cache D:\~slam\TaylorGrantSmall --plane 1071.61 --calibration "2222.2194 2000.0 1500.0" --telemetry D:/~slam/TaylorGrantSmall/metadata.json
+	# -m slampy --image-dir D:\GoogleSci\visus_slam\TaylorGrantSmall --cache D:\~slam\TaylorGrantSmall	--physic-box "0.18167907760636232 0.18171277264117514 0.63092731395604973 0.63093683616193741"
+
+	# set name=/visus-agricultural/Field_Images/Blackadder Farms Ptr/Sams 6.24.20
+	# set PYTHONPATH=build\RelWithDebInfo;.;.\VisoarAgExplorer
+	# python -m slampy --remote-dir "G:%name%" --image-dir "D:/visus-slam/image-dir%name%" --cache-dir "D:/visus-slam/cache-dir%name%" --idx-filename "D:/visus-slam/idx-dir%name%/visus.idx"
+
+	"""
+	"/visus-agricultural/Field_Images/Blackadder Farms Ptr/Shape Behind Toris",
+	"/visus-agricultural/Field_Images/Blackadder Farms Ptr/South of Joes",
+	"/visus-agricultural/Field_Images/Bobby Tinsley/Ferrel, Kell 10.14.20 10.15.20",
+	"/visus-agricultural/Field_Images/Cap Phillips/Digmans",
+	"/visus-agricultural/Field_Images/David Schug/6-12-20 Branch 50, New Ground",
+	"/visus-agricultural/Field_Images/David Schug/6-12-20 Shop 26, 8",
+	"/visus-agricultural/Field_Images/Moody Farms/#10 8.25.20 2",
+	"/visus-agricultural/Field_Images/Moody Farms/#12 8.25.20 2",
+	"/visus-agricultural/Field_Images/Moody Farms/#19 8.25.20",
+	"/visus-agricultural/Field_Images/Terry Grimes/Radar, D11,D12 11.19.20",
+	"/visus-agricultural/Field_Images/Todd Cullen/56 East 30 6.24.20",
+	"/visus-agricultural/Field_Images/Todd Cullen/James 41 6.17.20",
+	"/visus-agricultural/Field_Images/W&W Farms/106 9.10.20"
+	"""
+
+	print("Got args",repr(sys.argv))
 
 	parser = argparse.ArgumentParser(description="slam command.")
-	parser.add_argument("--directory",   type=str, help="Directory of the source images", required=False,default="")
+	
+	# remote directory
+	parser.add_argument("--remote-dir",   type=str, help="Directory of the remote images (to rclone sync)", required=False,default="")
+			
+	# image directory
+	parser.add_argument("--image-dir", "--directory", type=str, help="Directory of the source images", required=False,default="")
+	
+	# cache dir
 	parser.add_argument("--cache-dir",   type=str, help="Directory for generated files" , required=False,default="")
 
 	# if you already know the probjecting plane
@@ -31,58 +60,28 @@ def Main(args):
 	
 	# enable/disable batch
 	parser.add_argument("--batch" , type=bool, help="Enable batching", required=False,default=False) 
+	
+	# save idx
+	parser.add_argument("--idx-filename" , type=str, help="idx filename", required=False,default="")
 
 	# parse arguments
-	args = parser.parse_args(args[1:])
-	image_dir=args.directory
-	cache_dir=args.cache_dir if args.cache_dir else None
-	telemetry=args.telemetry if args.telemetry else None
-	plane=cdouble(args.plane) if args.plane else None
-	physic_box=BoxNd.fromString(args.physic_box) if args.physic_box else None 
-	batch=args.batch
-
-	calibration=None
-	if args.calibration:
-		f,cx,cy=[cdouble(it) for it in args.calibration.split()]
-		calibration=Calibration(f,cx,cy)
-
-	print("Running slam:")
-	print("\t","image_dir", repr(image_dir))
-	print("\t","cache_dir", repr(cache_dir))
-	print("\t","telemetry", repr(telemetry))
-	print("\t","plane", repr(plane))
-	print("\t","calibration", (calibration.f,calibration.cx,calibration.cy) if calibration else None)
-	print("\t","physic_box", physic_box.toString() if physic_box else None)		
-	print("\t","batch", batch)		
+	args = parser.parse_args(sys.argv[1:])
 
 	# since I'm writing data serially I can disable locks
 	os.environ["VISUS_DISABLE_WRITE_LOCK"]="1"
 	
-	gui=None
-	if not batch:
-		from . slam_2d_gui import Slam2DWindow
-		gui=Slam2DWindow()
-		
-		if not image_dir:
-			from PyQt5.QtWidgets import QFileDialog
-			image_dir = QFileDialog.getExistingDirectory(None, "Choose directory...","",QFileDialog.ShowDirsOnly) 
+	Slam2D.Run(
+		remote_dir=args.remote_dir,
+		image_dir=args.image_dir,
+		cache_dir=args.cache_dir if args.cache_dir else None,
+		telemetry=args.telemetry if args.telemetry else None,
+		plane=cdouble(args.plane) if args.plane else None,
+		calibration=args.calibration,
+		physic_box=BoxNd.fromString(args.physic_box) if args.physic_box else None ,
+		batch=args.batch, 
+		idx_filename=args.idx_filename
+	)
 
-	if not image_dir: 
-		print("Specify an image directory")
-		sys.exit(-1)
-		
-	slam = Slam2D()
-	slam.setImageDirectory(image_dir,  cache_dir= cache_dir, telemetry=cache_dir, plane=plane, calibration=calibration, physic_box=physic_box) 	
-		
-	if batch:
-		slam.run()
-	else:
-		gui.run(slam)
-	
 	print("All done")
 	sys.exit(0)	
 
-
-# //////////////////////////////////////////
-if __name__ == "__main__":
-	Main(sys.argv)

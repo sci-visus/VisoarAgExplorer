@@ -6,6 +6,7 @@ import threading
 import time
 
 from OpenVisus import *
+from OpenVisus.__main__ import MidxToIdx
 
 from slampy.extract_keypoints import *
 from slampy.google_maps       import *
@@ -34,8 +35,19 @@ def ComposeImage(v, axis):
 			ret[cur[1]:cur[1]+H,cur[0]:cur[0]+W,:]=single
 			cur[axis]+=[W,H][axis]
 		return ret
-		
-		
+
+# //////////////////////////////////////////
+def SavePreview(db_filename, img_filename,width=1024):
+	db=LoadDataset(db_filename)
+	maxh=db.getMaxResolution()
+	logic_box=db.getLogicBox()
+	logic_size=db.getLogicSize()
+	height=int(width*(logic_size[1]/logic_size[0]))
+	tot_pixels=logic_size[0]*logic_size[1]
+	deltah=int(math.log2(tot_pixels/(width*height)))
+	data=db.read(logic_box=db.getLogicBox(),max_resolution=maxh-deltah)
+	SaveImage(img_filename,data)
+	
 
 # ///////////////////////////////////////////////////////////////////
 def FindImages(image_dir):
@@ -126,7 +138,9 @@ class Slam2D(Slam):
 		
 		self.image_dir=image_dir
 		
+		print("Finding images in",image_dir)
 		images=FindImages(image_dir)
+		# images=images[0:10]
 		
 		cache_dir=cache_dir if cache_dir else os.path.abspath(os.path.join(self.image_dir,"./VisusSlamFiles"))
 		self.cache_dir=cache_dir
@@ -328,7 +342,6 @@ class Slam2D(Slam):
 
 		print("Saving midx")
 		lat0,lon0=self.images[0].lat,self.images[0].lon
-
 
 		logic_box = self.getQuadsBox()
 
@@ -580,9 +593,9 @@ class Slam2D(Slam):
 			# create idx and extract keypoints
 			keypoint_filename = self.cache_dir+"/keypoints/%04d" % (camera.id,)
 			idx_filename      = self.cache_dir+"/" + camera.idx_filename
-
-			if not self.loadKeyPoints(camera,keypoint_filename) or not os.path.isfile(idx_filename):
-
+			
+			if not self.loadKeyPoints(camera,keypoint_filename) or not os.path.isfile(idx_filename) or not os.path.isfile(idx_filename.replace(".idx",".bin")):
+				
 				full = self.generateImage(img)
 				Assert(isinstance(full, numpy.ndarray))
 
@@ -595,9 +608,12 @@ class Slam2D(Slam):
 						color_matching_ref = full
 
 				dataset = LoadDataset(idx_filename)
+				
+				# slow: first write then compress
 				#dataset.write(full)
 				#dataset.compressDataset(["lz4"],Array.fromNumPy(full,TargetDim=2, bShareMem=True)) # write zipped full 
 
+				# fast: compress in-place
 				comp=["lz4"]#,"jpg-JPEG_QUALITYGOOD-JPEG_SUBSAMPLING_420-JPEG_OPTIMIZE" ,"jpg-JPEG_QUALITYGOOD-JPEG_SUBSAMPLING_420-JPEG_OPTIMIZE","jpg-JPEG_QUALITYGOOD-JPEG_SUBSAMPLING_420-JPEG_OPTIMIZE"]
 				dataset.compressDataset(comp,Array.fromNumPy(full,TargetDim=2, bShareMem=True)) # write zipped full 
 
@@ -713,4 +729,74 @@ class Slam2D(Slam):
 			print("Skipping bundle adjustment...")
 
 		self.saveMidx()
+		SavePreview(self.cache_dir+"/visus.midx",self.cache_dir+"/preview.png")
 		print("Finished")
+
+
+	# ////////////////////////////////////////////////
+	@staticmethod
+	def Run(remote_dir=None,image_dir=None, cache_dir=None,telemetry=None,plane=None,calibration=None,physic_box=None,batch=False, idx_filename=None):
+		
+		if isinstance(calibration,str) and len(calibration):
+			f,cx,cy=[cdouble(it) for it in calibration.split()]
+			calibration=Calibration(f,cx,cy)
+		else:
+			calibration=None
+				
+		print("Running slam:")
+		print("\t","remote_dir", repr(remote_dir))
+		print("\t","image_dir", repr(image_dir))
+		print("\t","cache_dir", repr(cache_dir))
+		print("\t","telemetry", repr(telemetry))
+		print("\t","plane", repr(plane))
+		print("\t","calibration", (calibration.f,calibration.cx,calibration.cy) if calibration else None)
+		print("\t","physic_box", physic_box.toString() if physic_box else None)		
+		print("\t","batch", batch)
+		print("\t","idx_filename",idx_filename)
+		
+		# I need to download the sequence locally otherwise is going to be too slow
+		# TODO: switch to pydrive
+		if remote_dir is not None and remote_dir!=image_dir :
+			
+			print("Need to sync",remote_dir,image_dir)
+			
+			# just not to repeat the same sync over and over
+			if os.path.exists(image_dir+ "/~sync.done"):
+				print("sync already done")
+			else:
+				cmd=["rclone","sync","-v",remote_dir,image_dir]
+				print("Running:",cmd)
+				subprocess.run(cmd, shell=False, check=True, stdout=sys.stdout, stderr=sys.stderr) 
+				open(image_dir+ "/~sync.done", 'w').close()
+			
+		gui=None
+		if not batch:
+			from . slam_2d_gui import Slam2DWindow
+			gui=Slam2DWindow()
+			
+			if not image_dir:
+				from PyQt5.QtWidgets import QFileDialog
+				image_dir = QFileDialog.getExistingDirectory(None, "Choose directory...","",QFileDialog.ShowDirsOnly) 
+
+		if not image_dir: 
+			print("Specify an image directory")
+			sys.exit(-1)
+			
+		slam = Slam2D()
+		slam.setImageDirectory(image_dir,  cache_dir= cache_dir, telemetry=cache_dir, plane=plane, calibration=calibration, physic_box=physic_box) 	
+		
+		# in case it was automatically asssigned
+		if not cache_dir:
+			cache_dir=slam.cache_dir 
+			
+		if batch:
+			slam.run()
+		else:
+			gui.run(slam)
+			
+		# convert to idx and produce preview
+		if idx_filename:
+			MidxToIdx(["--midx", cache_dir+"/visus.midx","--idx", idx_filename])	
+			idx_dir=os.path.dirname(idx_filename)
+			SavePreview(idx_filename,idx_dir+"/preview.png")
+			
