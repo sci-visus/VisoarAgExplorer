@@ -665,6 +665,8 @@ QComboBox {
     min-height:30px;
     border : 2px  #045951;
     border-style : solid;
+    padding: 5px;
+    margin: 5px;
    }
 
 """.strip()
