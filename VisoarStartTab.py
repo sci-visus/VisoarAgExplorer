@@ -29,6 +29,7 @@ class VisoarStartTabWidget(QWidget):
         self.layout = QVBoxLayout()
         self.choicelayoutTop = QHBoxLayout()
         self.choicelayout = QHBoxLayout()
+        self.choicelayoutBottom = QHBoxLayout()
 
         self.layout.setSpacing(GRID_SPACING)
 
@@ -83,26 +84,33 @@ class VisoarStartTabWidget(QWidget):
         self.choicelayout.addStretch(True)
 
 
-        self.layout.addStretch(True)
-        self.layout.addLayout(self.choicelayoutTop)
-        self.layout.addStretch(True)
-        self.layout.addLayout(self.choicelayout)
-        self.layout.addStretch(True)
 
         self.buttonLoad = QPushButton('Load From Library', self)
         self.buttonLoad.resize(180, 40)
         self.buttonLoad.clicked.connect(self.loadFromUserLibrary)
         self.buttonLoad.setStyleSheet(GREEN_PUSH_BUTTON)
         self.buttonLoad.resize(self.buttonLoad.sizeHint().width(),self.buttonLoad.sizeHint().height())
-        self.layout.addWidget(self.buttonLoad, alignment=Qt.AlignCenter)
+        self.choicelayoutBottom.addStretch(True)
+        self.choicelayoutBottom.addWidget(self.buttonLoad, alignment=Qt.AlignLeft)
+        self.choicelayoutBottom.addStretch(True)
+
+        #self.layout.addWidget(self.buttonLoad, alignment=Qt.AlignCenter)
         # self.layout.addStretch(True)
 
-        self.buttonLoad = QPushButton('Quick Image NDVI Processing', self)
-        self.buttonLoad.resize(180, 40)
-        self.buttonLoad.clicked.connect(self.quickNDVIView)
-        self.buttonLoad.setStyleSheet(WHITE_PUSH_BUTTON)
-        self.buttonLoad.resize(self.buttonLoad.sizeHint().width(), self.buttonLoad.sizeHint().height())
-        self.layout.addWidget(self.buttonLoad, alignment=Qt.AlignCenter)
+        self.buttonQuick= QPushButton('Quick Image NDVI Processing', self)
+        self.buttonQuick.resize(180, 40)
+        self.buttonQuick.clicked.connect(self.quickNDVIView)
+        self.buttonQuick.setStyleSheet(WHITE_PUSH_BUTTON)
+        self.buttonQuick.resize(self.buttonLoad.sizeHint().width(), self.buttonQuick.sizeHint().height())
+        self.choicelayoutBottom.addWidget(self.buttonQuick, alignment=Qt.AlignCenter)
+        self.choicelayoutBottom.addStretch(True)
+
+        self.layout.addStretch(True)
+        self.layout.addLayout(self.choicelayoutTop)
+        self.layout.addStretch(True)
+        self.layout.addLayout(self.choicelayout)
+        self.layout.addStretch(True)
+        self.layout.addLayout(self.choicelayoutBottom )
         # self.layout.addStretch(True)
 
         self.logo = QPushButton('', self)

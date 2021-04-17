@@ -586,10 +586,12 @@ class VisoarUserLibraryData():
         tree = ET.ElementTree(file=self.userFileHistory)
 
         #Make backup
+
         now = datetime.now()
         date_time = now.strftime("_%Y%m%d_%H%M%S")
-        prefixFimename =   self.userFileHistory.replace('.xml','')
-        tree.write(prefixFimename+date_time+'.xml')
+        if False:
+            prefixFimename =   self.userFileHistory.replace('.xml','')
+            tree.write(prefixFimename+date_time+'.xml')
 
         #print(tree.getroot())
         root = tree.getroot()
@@ -629,8 +631,9 @@ class VisoarUserLibraryData():
         #Make backup
         now = datetime.now()
         date_time = now.strftime("_%Y%m%d_%H%M%S")
-        prefixFimename =   self.userFileHistory.replace('.xml','')
-        tree.write(prefixFimename+date_time+'.xml')
+        if False:
+            prefixFimename =   self.userFileHistory.replace('.xml','')
+            tree.write(prefixFimename+date_time+'.xml')
 
         #print(tree.getroot())
         root = tree.getroot()
@@ -712,7 +715,8 @@ class VisoarUserLibraryData():
         def getkeyUpdatedAt(elem):
             return elem.findtext("updatedAt")
 
-        self.backup()
+        if False:
+            self.backup()
         tree = ET.ElementTree(file=self.userFileHistory)
         #container = tree.find("data")
 
