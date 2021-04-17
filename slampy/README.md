@@ -43,58 +43,78 @@ python -m slampy --directory [D:\GoogleSci\visus_slam\TaylorGrant]
 ```
 
 
+# Command line help
 
-# New slam version following Valerio pipeline
+![Screenshot](C:/projects/OpenVisus/VisoarAgExplorer/slampy/resources/images/server-pipeline.png)
 
-Call the python command by:
 
+Call the slampy command by:
 
 ```
-python -m slampy [--remote-dir <value>] [--image-dir <value>] [--cache-dir <value> [--idx-filename <value>]
+python -m slampy \
+	[--batch] \
+	[--remote-dir <value>] \
+	[--image-dir <value>] \
+	[--cache-dir <value> \
+	[--idx-filename <value>]
 ```
 
-Where:
 
-### --remote-dir (OPTIONAL) 
-
-If you have the data on the cloud (example S3 mounted with CyberDuck or rclone) and you need to download it,us the following :
+Linux example (`DroneWasabi` is an rclone configured item):
 ```
---remote-dir /path/to/remote/images
-# example: --remote-dir "G:/visus-agricultural/Field_Images/Blackadder Farms Ptr/Sams 6.24.20"
-```
-
-### --image-dir (REQUIRED) 
-
-Specify where the local image directory is:
-```
---image-dir /path/to/local/images
-# example: --image-dir "D:/visus-slam/visus-agricultural/Field_Images/Blackadder Farms Ptr/Sams 6.24.20"
-```
-
-### --cache-dir (OPTIONAL) 
-
-Specify where to store local slam files (useful if you want the slam files in a different directory):
-```
---cache-dir /path/to/stitching/directory
-# example: --cache-dir "D:/visus-slam/cache-dir/visus-agricultural/Field_Images/Blackadder Farms Ptr/Sams 6.24.20"
+name=/visus-agricultural/Field_Images/Blackadder Farms Ptr/Sams 6.24.20
+python -m slampy \
+	--batch \
+	--remote-dir   "DroneWasabi:$name" \
+	--image-dir    "C:/visus-slam/image-dir$name" \
+	--cache-dir    "C:/visus-slam/cache-dir$name" \
+	--idx-filename "C:/visus-slam/final-dir$name/visus.idx"
 ````
 
-### --idx-filename (OPTIONAL) 
+Windows example (`G:` is a CyberDuck mounted drive):
+
+```
+set name=/visus-agricultural/Field_Images/Blackadder Farms Ptr/Shape Behind Toris
+python -m slampy ^
+	--batch ^
+	--remote-dir   "WasabiDrone:%name%" ^
+	--image-dir    "C:/visus-slam/image-dir%name%" ^
+	--cache-dir    "C:/visus-slam/cache-dir%name%" ^
+	--idx-filename "C:/visus-slam/final-dir%name%/visus.idx"
+```
+
+### (REQUIRED) `--image-dir  /path/to/local/images` 
+
+Specify where the image directory is. Example:
+```
+--image-dir "D:/visus-slam/visus-agricultural/Field_Images/Blackadder Farms Ptr/Sams 6.24.20"
+```
+
+### (OPTIONAL)`--remote-dir /path/to/remote/images`  
+
+If you have the data on the cloud and you need to download data into `--image-dir` **before** the stitching. It can be a mounted drive 
+(`rclone mount` or cyberduck mount) or a simple rclone item.
+
+Note: `rclone` but be **installed and configured properly**. Examples:
+```
+rclone item    :  --remote-dir "WasabiDrone:/visus-agricultural/Field_Images/Blackadder Farms Ptr/Sams 6.24.20"
+rclone mount   :  --remote-dir "G:/visus-agricultural/Field_Images/Blackadder Farms Ptr/Sams 6.24.20"
+cyberduck mount:  --remote-dir "H:/visus-agricultural/Field_Images/Blackadder Farms Ptr/Sams 6.24.20"
+```
+
+### (OPTIONAL)  `--cache-dir /path/to/stitching/directory` 
+
+Specify where to store local slam files (useful if you want the slam files in a different directory). Example:
+```
+--cache-dir "D:/visus-slam/cache-dir/visus-agricultural/Field_Images/Blackadder Farms Ptr/Sams 6.24.20"
+````
+
+### (OPTIONAL)`--idx-filename /path/to/idx/filename`  
 
 Specify where to store the final idx files. 
-If not specified you will be using MIDX:
+If not specified you will be using MIDX. Example:
 
 ```
---idx-filename /path/to/idx/filename
-# example: --idx-filename "D:/visus-slam/idx-dir/visus-agricultural/Field_Images/Blackadder Farms Ptr/Sams 6.24.20/visus.idx"
+--idx-filename "D:/visus-slam/idx-dir/visus-agricultural/Field_Images/Blackadder Farms Ptr/Sams 6.24.20/visus.idx"
 ```
 
-As an example, assuming you have a sequence on CyberDuck mounted as `G:` drive:
-
-```
-python -m slampy 
-	--remote-dir   "G:/visus-agricultural/Field_Images/Blackadder Farms Ptr/Sams 6.24.20" 
-	--image-dir    "C:/visus-slam/image-dir/visus-agricultural/Field_Images/Blackadder Farms Ptr/Sams 6.24.20" 
-	--cache-dir    "C:/visus-slam/cache-dir/visus-agricultural/Field_Images/Blackadder Farms Ptr/Sams 6.24.20" 
-	--idx-filename "C:/visus-slam/visus-dir/visus-agricultural/Field_Images/Blackadder Farms Ptr/Sams 6.24.20/visus.idx"
-````

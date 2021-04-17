@@ -15,7 +15,6 @@ from slampy.find_matches      import *
 from slampy.image_provider    import *
 from slampy.image_utils       import *
 
-
 from . image_provider_sequoia   import ImageProviderSequoia
 from . image_provider_lumenera  import ImageProviderLumenera
 from . image_provider_micasense import ImageProviderRedEdge
@@ -525,22 +524,46 @@ class Slam2D(Slam):
 		self.debugMatchesGraph()
 
 	# convertAndExtract
-	def convertAndExtract(args):
+	def convertAndExtract(self,args):
 		I, (img, camera) = args
+		
+		if not self.extractor:
+			self.extractor=ExtractKeyPoints(self.min_num_keypoints,self.max_num_keypoints,self.anms)
+
+		if self.enable_color_matching:
+			color_matching_ref = None		
 
 		self.advanceAction(I)
 
 		# create idx and extract keypoints
 		keypoint_filename = self.cache_dir+"/keypoints/%04d" % (camera.id,)
 		idx_filename      = self.cache_dir+"/" + camera.idx_filename
-
-		if not self.loadKeyPoints(camera,keypoint_filename) or not os.path.isfile(idx_filename):
-
+	
+		if self.loadKeyPoints(camera,keypoint_filename) and os.path.isfile(idx_filename) and os.path.isfile(idx_filename.replace(".idx",".bin")):
+			print("Keypoints already stored and idx generated",img.filenames[0])
+			
+		else:
+			
 			full = self.generateImage(img)
 			Assert(isinstance(full, numpy.ndarray))
 
+			# Match Histograms
+			if self.enable_color_matching:
+				if color_matching_ref:
+					print("doing color matching...")
+					MatchHistogram(full, color_matching_ref) 
+				else:
+					color_matching_ref = full
+
 			dataset = LoadDataset(idx_filename)
-			dataset.compressDataset(["zip"],Array.fromNumPy(full,TargetDim=2, bShareMem=True)) # write zipped full 
+			
+			# slow: first write then compress
+			#dataset.write(full)
+			#dataset.compressDataset(["lz4"],Array.fromNumPy(full,TargetDim=2, bShareMem=True)) # write zipped full 
+
+			# fast: compress in-place
+			comp=["lz4"]#,"jpg-JPEG_QUALITYGOOD-JPEG_SUBSAMPLING_420-JPEG_OPTIMIZE" ,"jpg-JPEG_QUALITYGOOD-JPEG_SUBSAMPLING_420-JPEG_OPTIMIZE","jpg-JPEG_QUALITYGOOD-JPEG_SUBSAMPLING_420-JPEG_OPTIMIZE"]
+			dataset.compressDataset(comp,Array.fromNumPy(full,TargetDim=2, bShareMem=True)) # write zipped full 
 
 			energy=ConvertImageToGrayScale(full)
 			energy=ResizeImage(energy, self.energy_size)
@@ -571,6 +594,8 @@ class Slam2D(Slam):
 				energy=ComposeImage([warped,energy],1)
 
 			self.showEnergy(camera,energy)
+			
+		print("Done",camera.filenames[0],I,"of",len(self.cameras))
 
 	# convertToIdxAndExtractKeyPoints
 	def convertToIdxAndExtractKeyPoints(self):
@@ -580,75 +605,10 @@ class Slam2D(Slam):
 		# convert to idx and find keypoints (don't use threads for IO ! it will slow down things)
 		# NOTE I'm disabling write-locks
 		self.startAction(len(self.cameras),"Converting idx and extracting keypoints...")
-
-		if not self.extractor:
-			self.extractor=ExtractKeyPoints(self.min_num_keypoints,self.max_num_keypoints,self.anms)
-
-		if self.enable_color_matching:
-			color_matching_ref = None
-
+		
 		for I,(img,camera) in enumerate(zip(self.images,self.cameras)):
-			self.advanceAction(I)
-
-			# create idx and extract keypoints
-			keypoint_filename = self.cache_dir+"/keypoints/%04d" % (camera.id,)
-			idx_filename      = self.cache_dir+"/" + camera.idx_filename
-			
-			if not self.loadKeyPoints(camera,keypoint_filename) or not os.path.isfile(idx_filename) or not os.path.isfile(idx_filename.replace(".idx",".bin")):
-				
-				full = self.generateImage(img)
-				Assert(isinstance(full, numpy.ndarray))
-
-				# Match Histograms
-				if self.enable_color_matching:
-					if color_matching_ref:
-						print("doing color matching...")
-						MatchHistogram(full, color_matching_ref) 
-					else:
-						color_matching_ref = full
-
-				dataset = LoadDataset(idx_filename)
-				
-				# slow: first write then compress
-				#dataset.write(full)
-				#dataset.compressDataset(["lz4"],Array.fromNumPy(full,TargetDim=2, bShareMem=True)) # write zipped full 
-
-				# fast: compress in-place
-				comp=["lz4"]#,"jpg-JPEG_QUALITYGOOD-JPEG_SUBSAMPLING_420-JPEG_OPTIMIZE" ,"jpg-JPEG_QUALITYGOOD-JPEG_SUBSAMPLING_420-JPEG_OPTIMIZE","jpg-JPEG_QUALITYGOOD-JPEG_SUBSAMPLING_420-JPEG_OPTIMIZE"]
-				dataset.compressDataset(comp,Array.fromNumPy(full,TargetDim=2, bShareMem=True)) # write zipped full 
-
-				energy=ConvertImageToGrayScale(full)
-				energy=ResizeImage(energy, self.energy_size)
-				(keypoints,descriptors)=self.extractor.doExtract(energy)
-
-				vs=self.width  / float(energy.shape[1])
-				if keypoints:
-					camera.keypoints.clear()
-					camera.keypoints.reserve(len(keypoints))
-					for keypoint in keypoints:
-						camera.keypoints.push_back(KeyPoint(vs*keypoint.pt[0], vs*keypoint.pt[1], keypoint.size, keypoint.angle, keypoint.response, keypoint.octave, keypoint.class_id))
-					camera.descriptors=Array.fromNumPy(descriptors,TargetDim=2) 
-
-				self.saveKeyPoints(camera,keypoint_filename)
-
-				energy=cv2.cvtColor(energy, cv2.COLOR_GRAY2RGB)
-				for keypoint in keypoints:
-					cv2.drawMarker(energy, (int(keypoint.pt[0]), int(keypoint.pt[1])), (0, 255, 255), cv2.MARKER_CROSS, 5)
-				energy=cv2.flip(energy, 0)
-				energy=ConvertImageToUint8(energy)
-
-				if False:
-					quad_box=camera.quad.getBoundingBox()
-					VS = self.energy_size / max(quad_box.size()[0],quad_box.size()[1])
-					T=Matrix.scale(2,VS) * camera.homography * Matrix.scale(2,vs)
-					quad_box=Quad(T,Quad(energy.shape[1],energy.shape[0])).getBoundingBox()
-					warped=cv2.warpPerspective(energy,  MatrixToNumPy(Matrix.translate(-quad_box.p1) * T),  (int(quad_box.size()[0]),int(quad_box.size()[1])))
-					energy=ComposeImage([warped,energy],1)
-
-				self.showEnergy(camera,energy)
-				
-			print("Done",camera.filenames[0],I,"of",len(self.cameras))
-
+			self.convertAndExtract([I,(img,camera)])
+		
 		print("done in",t1.elapsedMsec(),"msec")
 
 	# findMatches

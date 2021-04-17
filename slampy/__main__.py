@@ -14,7 +14,7 @@ if __name__ == "__main__":
 
 	# set name=/visus-agricultural/Field_Images/Blackadder Farms Ptr/Sams 6.24.20
 	# set PYTHONPATH=build\RelWithDebInfo;.;.\VisoarAgExplorer
-	# python -m slampy --remote-dir "G:%name%" --image-dir "D:/visus-slam/image-dir%name%" --cache-dir "D:/visus-slam/cache-dir%name%" --idx-filename "D:/visus-slam/idx-dir%name%/visus.idx"
+	# python -m slampy --remote-dir "GoogleDrone:%name%" --image-dir "D:/visus-slam/image-dir%name%" --cache-dir "D:/visus-slam/cache-dir%name%" --idx-filename "D:/visus-slam/idx-dir%name%/visus.idx"
 
 	"""
 	"/visus-agricultural/Field_Images/Blackadder Farms Ptr/Shape Behind Toris",
