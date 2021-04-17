@@ -83,8 +83,6 @@ class VisoarStartTabWidget(QWidget):
         self.choicelayout.addWidget(self.buttonTimeSeries, alignment=Qt.AlignCenter)
         self.choicelayout.addStretch(True)
 
-
-
         self.buttonLoad = QPushButton('Load From Library', self)
         self.buttonLoad.resize(180, 40)
         self.buttonLoad.clicked.connect(self.loadFromUserLibrary)
@@ -93,9 +91,6 @@ class VisoarStartTabWidget(QWidget):
         self.choicelayoutBottom.addStretch(True)
         self.choicelayoutBottom.addWidget(self.buttonLoad, alignment=Qt.AlignLeft)
         self.choicelayoutBottom.addStretch(True)
-
-        #self.layout.addWidget(self.buttonLoad, alignment=Qt.AlignCenter)
-        # self.layout.addStretch(True)
 
         self.buttonQuick= QPushButton('Quick Image NDVI Processing', self)
         self.buttonQuick.resize(180, 40)
