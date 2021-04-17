@@ -98,11 +98,15 @@ class ViSOARNDVIImageWidget(QWidget):
         else:
             date_time = ''
 
+
         dir, filestr = os.path.split(self.originalImagePath)
         filesplit = os.path.splitext(filestr)
         namestr = filesplit[0]
         ext = filesplit[1]
-        self.saveImagePath = os.path.join(dir,namestr+self.MODE+date_time+ext)
+        savedir = os.path.join(dir, 'VisusSlamFiles')
+        if not os.path.exists(savedir):
+            os.mkdir(savedir)
+        self.saveImagePath = os.path.join(savedir,namestr+self.MODE+date_time+ext)
         #cv2.imshow('out before saving', out)
         cv2.imwrite(self.saveImagePath, out)
 
@@ -334,7 +338,7 @@ class VisoarQuickNDVIWidget(QWidget):
         self.sensors = {}
         self.main_layout = QHBoxLayout()
         self.list_layout = QVBoxLayout()
-        self.ndviViewWidget = ViSOARNDVIImageWidget()
+        self.ndviViewWidget = ViSOARNDVIImageWidget(self.parent)
         self.main_layout.addLayout(self.list_layout)
         self.main_layout.addWidget(self.ndviViewWidget)
         self.setLayout(self.main_layout)

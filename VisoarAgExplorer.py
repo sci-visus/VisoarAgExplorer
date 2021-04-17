@@ -71,8 +71,12 @@ class VisoarAgExplorer(QMainWindow):
         if self.DEBUG:
             print('VisoarAgExplorer init finished')
 
+        self.isWINDOWS = (sys.platform.startswith("win") or
+                          (sys.platform == 'cli' and os.name == 'nt'))
         #self.center()
-        self.showMaximized()
+        if (self.isWINDOWS):
+            #I hate maximized window when developing, but Weston seems to miss buttons if it is not full screen
+            self.showMaximized()
 
     def center(self):
         qr = self.frameGeometry()

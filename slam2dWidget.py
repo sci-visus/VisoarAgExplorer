@@ -208,7 +208,7 @@ class Slam2DCode(Slam):
 					camera2 = adjacent[B]
 					camera1.addLocalCamera(camera2)
 
-		USE_FILE_NAME_SPEEDUP = False #Amy 9.8.2020 comment this code out to fix bug with non-consecutive filenames
+		USE_FILE_NAME_SPEEDUP = True #Amy 9.8.2020 comment this code out to fix bug with non-consecutive filenames
 		if USE_FILE_NAME_SPEEDUP:
 			# insert prev and next
 			N=self.cameras.size()
