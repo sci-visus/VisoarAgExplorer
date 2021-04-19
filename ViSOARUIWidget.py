@@ -13,17 +13,18 @@ from PyQt5.QtWidgets                  import QWidget, QMessageBox, QGroupBox, QS
 
 from PyQt5.QtWidgets                  import QTableWidget,QTableWidgetItem
 
-from editUserLibrary			import *
-from VisoarStartTab			import *
-from VisoarNewTab			import *
-from VisoarNewTimeSeriesTab			import *
-from VisoarLoadTab			import *
-from VisoarStitchTab			import *
-from VisoarAnalyzeTab			import *
-from ViSOARUIWidget             import *
-from ViSOARQuickNDVI             import *
-from slampy.sync_gui     import VisoarMoveDataWidget
-from slampy.slam_2d     import *
+from editUserLibrary			    import *
+from VisoarStartTab			        import *
+from VisoarNewTab			        import *
+from VisoarNewTimeSeriesTab		    import *
+from VisoarLoadTab			        import *
+from VisoarStitchTab			    import *
+from VisoarAnalyzeTab			    import *
+from ViSOARUIWidget                 import *
+from ViSOARQuickNDVI                import *
+from slampy.sync_gui                import VisoarMoveDataWidget
+from slampy.slam_2d                 import *
+from slampy.slam_2d_gui             import *
 
 
 # commented
