@@ -174,6 +174,7 @@ class VisoarStitchTabWidget(QWidget):
 
             if not self.parent.slam:
                 self.parent.slam = Slam2d()
+                self.parent.slam.enable_svg = False
 
             self.parent.slam.setImageDirectory(image_dir=self.parent.projectInfo.srcDir,
                                                       cache_dir=os.path.join(self.parent.projectInfo.srcDir, 'VisusSlamFiles'))
@@ -195,6 +196,7 @@ class VisoarStitchTabWidget(QWidget):
                 "Starting to Stitch: " +  self.parent.projectInfo.srcDirNDVI)
             if not self.parent.slam:
                 self.parent.slam = Slam2d()
+                self.parent.slam.enable_svg = False
             self.parent.slam.setImageDirectory(image_dir= self.parent.projectInfo.srcDirNDVI,
                                                       cache_dir= os.path.join(self.parent.projectInfo.srcDirNDVI, 'VisusSlamFiles'),
                                                       telemetry=os.path.join(self.parent.projectInfo.srcDirNDVI, 'VisusSlamFiles/metadata.json'),
@@ -208,6 +210,7 @@ class VisoarStitchTabWidget(QWidget):
             #self.parent.slam_widget.setDefaults(color_matching=self.color_matching)
             if not self.parent.slam:
                 self.parent.slam = Slam2d()
+                self.parent.slam.enable_svg = False
             self.parent.slam.setImageDirectory(image_dir=self.parent.projectInfo.srcDir,
                                                       cache_dir=os.path.join(self.parent.projectInfo.projDir, 'VisusSlamFiles'))
 

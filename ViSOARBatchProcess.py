@@ -422,6 +422,7 @@ class VisoarAgExplorerBatchProcessWidget(ViSOARUIWidget):
     def setAndRunSlam(self, image_dir, cache_dir=None, telemetry=None, plane=None, calibration=None,
                           physic_box=None):
         self.slam = Slam2D()
+        self.slam.enable_svg = False
         self.slam.setImageDirectory(image_dir,  cache_dir= cache_dir, telemetry=telemetry, plane=plane, calibration=calibration, physic_box=physic_box)
         self.slam_widget.run(self.slam)
         self.slam_widget.slam.run()

@@ -700,6 +700,7 @@ class ViSOARUIWidget(QWidget):
     def setAndRunSlam(self, image_dir, cache_dir=None, telemetry=None, plane=None, calibration=None,
                       physic_box=None):
         self.slam = Slam2D()
+        self.slam.enable_svg = False
         self.slam.setImageDirectory(image_dir,  cache_dir= cache_dir, telemetry=telemetry, plane=plane, calibration=calibration, physic_box=physic_box)
         self.slam_widget.run(self.slam)
         self.slam_widget.slam.run()
@@ -1544,7 +1545,7 @@ class ViSOARUIWidget(QWidget):
 
         if not self.projectInfo.srcDir:
             self.projectInfo.srcDir = self.projectInfo.projDir
-
+        self.slam.enable_svg = False
         self.slam.setImageDirectory(image_dir=self.projectInfo.srcDir, cache_dir=os.path.join(self.projectInfo.projDir, 'VisusSlamFiles'))
         # self.parent.onChange(self.parent.STITCHING_VIEW_TAB)
         # except:
