@@ -1,18 +1,14 @@
 import sys, os
 import time
 
-import importlib
-visus_gui_spec = importlib.util.find_spec("OpenVisus.VisusGuiPy")
+from PyQt5 import Qt,QtCore,QtGui,QtWidgets
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 
-if visus_gui_spec is not None:
-    from PyQt5 import Qt,QtCore,QtGui,QtWidgets
-    from PyQt5.QtGui import *
-    from PyQt5.QtWidgets import *
-
-    try:
-        from PyQt5 import sip as  sip
-    except ImportError:
-        import sip
+try:
+    from PyQt5 import sip as  sip
+except ImportError:
+    import sip
 
 from slampy.image_utils import *
 

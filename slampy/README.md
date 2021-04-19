@@ -41,3 +41,5 @@ python -m pip install numpy matplotlib pymap3d pytz pyzbar scikit-image scipy py
 PYTHONPATH=.\build\RelWithDebInfo;.\Libs
 python -m slampy --directory [D:\GoogleSci\visus_slam\TaylorGrant]
 ```
+
+

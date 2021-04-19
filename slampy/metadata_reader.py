@@ -30,7 +30,7 @@ class MetadataReader(object):
 	# readMetadata
 	def readMetadata(self,filename):
 		
-		print("Reading metadata",filename)
+		# print("Reading metadata",filename)
 		self.process.stdin.write(b"-j\n" + filename.encode() + b"\n-execute\n")
 		self.process.stdin.flush()	
 		

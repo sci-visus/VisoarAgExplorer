@@ -11,7 +11,7 @@ from . slam_2d import *
 from . gui_utils import *
 
 # //////////////////////////////////////////////////////////////////////////////
-class RedirectLog(QtCore.QObject):
+class GuiRedirectLog(QtCore.QObject):
 
 	"""Redirects console output to text widget."""
 	my_signal = QtCore.pyqtSignal(str)
@@ -60,20 +60,17 @@ class RedirectLog(QtCore.QObject):
 		sys.__stdout__.flush()
 		self.log.flush()
 
-
-
 # //////////////////////////////////////////////////////////////////////////////
-class Slam2DWidget(QWidget):
-	
+class Slam2DWindow(QMainWindow):
+
 	# constructor
 	def __init__(self):
-		super(Slam2DWidget, self).__init__()
-
-		self.slam = None
-		self.redirect_log=RedirectLog()
+		super(Slam2DWindow, self).__init__()
+		ShowSplash()
+		self.redirect_log=GuiRedirectLog()
 		self.redirect_log.setCallback(self.printLog)	
 		self.createGui()
-		#self.showMaximized()
+		self.showMaximized()	
 
 	# createPushButton
 	def createPushButton(self,text,callback=None, img=None ):
@@ -85,54 +82,62 @@ class Slam2DWidget(QWidget):
 		if img:
 			ret.setIcon(QtGui.QIcon(img))
 		return ret
-		
 
 	# createGui
 	def createGui(self):
 
-		#self.setWindowTitle("Visus SLAM")
-		self.layout = QVBoxLayout(self)
+		self.setWindowTitle("Visus SLAM")
+
 		class Buttons : pass
 		self.buttons=Buttons
-	
+
 		# create widgets
 		self.viewer=Viewer()
 		self.viewer.setMinimal()
 		viewer_subwin = sip.wrapinstance(FromCppQtWidget(self.viewer.c_ptr()), QtWidgets.QMainWindow)	
-	
+
 		self.google_maps = QWebEngineView()
 		self.progress_bar=ProgressLine()
 		self.preview=PreviewImage()
 
 		self.log = QTextEdit()
 		self.log.setLineWrapMode(QTextEdit.NoWrap)
-	
+
 		p = self.log.viewport().palette()
 		p.setColor(QPalette.Base, QtGui.QColor(200,200,200))
 		p.setColor(QPalette.Text, QtGui.QColor(0,0,0))
 		self.log.viewport().setPalette(p)
-	
+
 		main_layout=QVBoxLayout()
-	
+
 		# toolbar
 		toolbar=QHBoxLayout()
+		self.buttons.run_slam=self.createPushButton("Run",lambda: self.onRunClicked())
 
+		toolbar.addWidget(self.buttons.run_slam)
 		toolbar.addLayout(self.progress_bar)
 
 		toolbar.addStretch(1)
 		main_layout.addLayout(toolbar)
-	
+
 		center = QSplitter(QtCore.Qt.Horizontal)
 		center.addWidget(self.google_maps)
 		center.addWidget(viewer_subwin)
 		center.setSizes([100,200])
-	
-		main_layout.addWidget(center,1)
-		DRAW_LOG_BOX = False
-		if DRAW_LOG_BOX:
-			main_layout.addWidget(self.log)
 
-		self.layout.addLayout(main_layout)
+		main_layout.addWidget(center,1)
+		main_layout.addWidget(self.log)
+
+		central_widget = QFrame()
+		central_widget.setLayout(main_layout)
+		central_widget.setFrameShape(QFrame.NoFrame)
+		self.setCentralWidget(central_widget)
+
+	# onRunClicked
+	def onRunClicked(self):
+		self.slam.run()
+		self.preview.hide()
+		self.refreshViewer()
 
 	# processEvents
 	def processEvents(self):
@@ -183,103 +188,26 @@ class Slam2DWidget(QWidget):
 
 	# refreshViewer
 	def refreshViewer(self,fieldname="output=voronoi()"):
-		#url=self.slam.cache_dir+"/google.midx"
-		url=self.slam.cache_dir+"/visus.midx"
+		url=self.slam.cache_dir+"/google.midx"
 		self.viewer.open(url)
-		#print('Note: the above will fail if you don\'t have the yaml file'..)
 		# make sure the RenderNode get almost RGB components
 		self.viewer.setFieldName(fieldname)	
 
-		if True:
+		# don't show logs
+		pref=ViewerPreferences()
+		pref.bShowToolbar=False
+		pref.bShowTreeView=False
+		pref.bShowDataflow=False
+		pref.bShowLogs=False
+		self.viewer.setPreferences(pref)
 
-			# don't show logs
-			pref=ViewerPreferences()
-			pref.bShowToolbar=False
-			pref.bShowTreeView=False
-			pref.bShowDataflow=False
-			pref.bShowLogs=False
-			self.viewer.setPreferences(pref)
+		# don't show annotations
+		db=self.viewer.getDataset()
+		db.setEnableAnnotations(False)
 
-			if False:  #AAG: This causes this to seg fault
-				# don't show annotations
-				db=self.viewer.getDataset()
-				db.setEnableAnnotations(False)
-
-				# focus on slam dataset (not google world)
-				box=db.getChild("visus").getDatasetBounds().toAxisAlignedBox()
-				self.viewer.getGLCamera().guessPosition(box)
-
-
-		# for Amy: example about processing
-		if False:
-			self.viewer.setScriptingCode(
-"""
-import numpy
-import cv2
-pdim=input.dims.getPointDim()
-img=Array.toNumPy(input,bShareMem=True)
-img=cv2.Laplacian(img,cv2.CV_64F)
-output=Array.fromNumPy(img,TargetDim=pdim)
-""");
-
-		def resetView(self):
-			self.viewer.guessGLCameraPosition()
-
-		# box = db.getChild("visus").getDatasetBounds().toAxisAlignedBox()
-		# self.viewer.getGLCamera().guessPosition(box)
-
-		def runScript(self, name):
-			fieldname = "output=ArrayUtils.interleave(ArrayUtils.split(voronoi())[0:3])"
-			print("Showing NDVI for Red and IR channels")
-			url = os.path.join(self.cache_dir, "visus.midx")
-			self.viewer.open(url)
-			# make sure the RenderNode get almost RGB components
-			self.viewer.setFieldName(fieldname)
-
-			# for Amy: example about processing
-			# if False:
-			script = getTextFromScript(os.path.join(self.app_dir, 'scripts', name + '.py'))
-			self.viewer.setScriptingCode(script)
-
-		# showNDVI
-		def showNDVI(self):
-			runScript('NDVI')
-
-		# showTGI (for RGB datasets)
-		def showTGI(self):
-			runScript('TGI')
-
-		def loadPrevSolution(self):
-			fieldname = "output=ArrayUtils.interleave(ArrayUtils.split(voronoi())[0:3])"
-			print("Showing img src")
-			url = self.cache_dir + "/visus.midx"
-			self.viewer.open(url)
-			# make sure the RenderNode get almost RGB components
-			self.viewer.setFieldName(fieldname)
-
-			# for Amy: example about processing
-			# if False:
-			self.viewer.setScriptingCode(
-				"""
-                output=input
-            
-                """);
-
-		def showRGB(self):
-			fieldname = "output=ArrayUtils.interleave(ArrayUtils.split(voronoi())[0:3])"
-			print("Showing img src")
-			url = self.cache_dir + "/visus.midx"
-			self.viewer.open(url)
-			# make sure the RenderNode get almost RGB components
-			self.viewer.setFieldName(fieldname)
-
-			# for Amy: example about processing
-			# if False:
-			self.viewer.setScriptingCode(
-				"""
-                output=input
-            
-                """);
+		# focus on slam dataset (not google world)
+		box=db.getChild("visus").getDatasetBounds().toAxisAlignedBox()
+		self.viewer.getGLCamera().guessPosition(box)
 
 	# refreshGoogleMaps
 	def refreshGoogleMaps(self):
@@ -287,10 +215,10 @@ output=Array.fromNumPy(img,TargetDim=pdim)
 		images=self.slam.images
 		if not images:
 			return
-		
+
 		maps=GoogleMaps()
 		maps.addPolyline([(img.lat,img.lon) for img in images],strokeColor="#FF0000")
-	
+
 		for I,img in enumerate(images):
 			maps.addMarker(img.filenames[0], img.lat, img.lon, color="green" if I==0 else ("red" if I==len(images)-1 else "blue"))
 			dx=math.cos(img.yaw)*0.00015
@@ -298,76 +226,22 @@ output=Array.fromNumPy(img,TargetDim=pdim)
 			maps.addPolyline([(img.lat, img.lon),(img.lat + dx, img.lon + dy)],strokeColor="yellow")
 
 		content=maps.generateHtml()
-	
+
 		filename=os.path.join(self.slam.cache_dir,"slam.html")
 		SaveTextDocument(filename,content)
 		self.google_maps.load(QUrl.fromLocalFile(filename))	
 
-	# run
+	# rim
 	def run(self,slam):
-		try:
-			self.slam=slam
-			slam.provider.progress_bar=self.progress_bar
-			slam.startAction=self.startAction
-			slam.advanceAction=self.advanceAction
-			slam.endAction=self.endAction
-			slam.showEnergy=self.showEnergy
-
-			self.refreshGoogleMaps()
-			self.refreshViewer()
-			# self.setWindowTitle("num_images({}) width({}) height({}) dtype({}) ".format(
-			# 	len(self.slam.provider.images),
-			# 	self.slam.width,
-			# 	self.slam.height,
-			# 	self.slam.dtype.toString()))
-
-			return True
-			#QApplication.instance().exec()   #Is this okay...?
-		except:
-				QMessageBox.information(self,
-										"No data set loaded",
-										"Please load a dataset before Stitching. ")
-				return False
-
-
-# //////////////////////////////////////////////////////////////////////////////
-class Slam2DWindow(QMainWindow):
-
-	# constructor
-	def __init__(self):
-		super(Slam2DWindow, self).__init__()
-		ShowSplash()
-		self.createGui()
-		self.showMaximized()
-
-	def createGui(self):
-		self.setWindowTitle("Visus SLAM")
-		self.slamWidget = Slam2DWidget()
-
-		main_layout = QVBoxLayout()
-
-		# toolbar
-		toolbar = QHBoxLayout()
-		self.buttons.run_slam = self.createPushButton("Run", lambda: self.onRunClicked())
-
-		toolbar.addWidget(self.buttons.run_slam)
-		#toolbar.addLayout(self.progress_bar)
-
-
-		main_layout.addWidget(self.slamWidget, 1)
-		main_layout.addWidget(self.log)
-
-		central_widget = QFrame()
-		central_widget.setLayout(main_layout)
-		central_widget.setFrameShape(QFrame.NoFrame)
-		self.setCentralWidget(central_widget)
-
-	def onRunClicked(self):
-		self.slamWidget.slam.run()
-		self.slamWidget.preview.hide()
-		self.slamWidget.refreshViewer()
-
-	def run(self,slam):
-		HideSplash()
 		self.slam=slam
-		self.slam.run(slam)
+		slam.provider.progress_bar=self.progress_bar
+		slam.startAction=self.startAction
+		slam.advanceAction=self.advanceAction
+		slam.endAction=self.endAction
+		slam.showEnergy=self.showEnergy
+		self.refreshGoogleMaps()
+		self.refreshViewer()
+		self.setWindowTitle("num_images({}) width({}) height({}) dtype({}) ".format(len(self.slam.provider.images),self.slam.width, self.slam.height, self.slam.dtype.toString()))
+		HideSplash()
+		QApplication.instance().exec()
+

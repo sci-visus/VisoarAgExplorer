@@ -6,8 +6,6 @@ import cv2
 import numpy
 
 # /////////////////////////////////////////////////////////////////////////////////////
-
-
 def DebugMatches(filename, width, height, img1, points1, H1, img2, points2, H2, TargetWidth=1024):
 
     def transformPoints(points, H):
@@ -42,10 +40,8 @@ def DebugMatches(filename, width, height, img1, points1, H1, img2, points2, H2, 
     H2 = numpy.matmul(numpy.matmul(Scale(vs, vs), Translate(-x1, -y1)), H2)
 
     # could be that img1 and img2 are at a lower resolution
-    Timg1 = numpy.matmul(
-        H1, Scale(width / float(img1.shape[1]), height / float(img1.shape[0])))
-    Timg2 = numpy.matmul(
-        H2, Scale(width / float(img2.shape[1]), height / float(img2.shape[0])))
+    Timg1 = numpy.matmul(H1, Scale(width / float(img1.shape[1]), height / float(img1.shape[0])))
+    Timg2 = numpy.matmul(H2, Scale(width / float(img2.shape[1]), height / float(img2.shape[0])))
     # , cv2.INTER_LINEAR, cv2.BORDER_TRANSPARENT, (0, 0, 0, 0))
     blended1 = cv2.warpPerspective(img1, Timg1, (W, H))
     # , cv2.INTER_LINEAR, cv2.BORDER_TRANSPARENT, (0, 0, 0, 0))
