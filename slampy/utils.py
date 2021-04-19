@@ -97,18 +97,7 @@ class Utils:
 		
 		return ret
 		
-	
-	# EjectUSBDrive (BROKEN!
-	@staticmethod
-	def EjectUSBDrive(drive):
-		tmp_file = open('tmp.ps1','w')
-		tmp_file.write("""$driveEject = New-Object -comObject Shell.Application\n""")
-		tmp_file.write("""$driveEject.Namespace(17).ParseName("{}").InvokeVerb("Eject")\n""".format(drive))
-		tmp_file.close()
-		process = subprocess.Popen(['powershell.exe', '-ExecutionPolicy','Unrestricted','.\\tmp.ps1'],stdout=sys.stdout)
-		process.communicate()
-		time.sleep(2)
-	
+
 	# ComputeLocalMd5
 	@staticmethod
 	def ComputeLocalMd5(filename):
@@ -118,4 +107,4 @@ class Utils:
 		with open(filename, "rb") as f:
 			md5_hash = hashlib.md5()
 			md5_hash.update(f.read())
-			return md5_hash.hexdigest()		
+			return md5_hash.hexdigest()

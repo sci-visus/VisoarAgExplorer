@@ -36,20 +36,22 @@ def ComposeImage(v, axis):
 		return ret
 
 # //////////////////////////////////////////
-def SavePreview(db_filename, img_filename,width=1024):
+def SaveDatasetPreview(db_filename, img_filename,width=1024):
 	db=LoadDataset(db_filename)
 	maxh=db.getMaxResolution()
 	logic_box=db.getLogicBox()
 	logic_size=db.getLogicSize()
+	print("Dataset has logic box",logic_box,"logic size",logic_size)
 	height=int(width*(logic_size[1]/logic_size[0]))
-	tot_pixels=logic_size[0]*logic_size[1]
-	deltah=int(math.log2(tot_pixels/(width*height)))
-	data=db.read(logic_box=db.getLogicBox(),max_resolution=maxh-deltah)
+	deltah=int(math.log2((logic_size[0]/width)*(logic_size[1]/height)))
+	data=db.read(logic_box=logic_box,max_resolution=maxh-deltah)
 	SaveImage(img_filename,data)
 	
 
 # ///////////////////////////////////////////////////////////////////
-def FindImages(image_dir):
+def FindImages(image_dir,max_images=0):
+	
+	print("Finding images in",image_dir)
 	ret=[]
 	for filename in glob.glob(os.path.join(image_dir,"**/*.*"),recursive=True):
 		if not os.path.splitext(filename)[1].lower() in ('.jpg','.png','.tif','.bmp'): continue # look for extension, must be an image
@@ -57,6 +59,8 @@ def FindImages(image_dir):
 		if "VisusSlamFiles" in filename: continue # default is cache_dir is indie image_dir
 		print("Found image",len(ret),filename)
 		ret.append(filename)
+		if max_images and len(ret)>=max_images:
+			break
 
 	if not ret:
 		raise Exception("Cannot find any image")
@@ -97,6 +101,41 @@ def GuessProvider(filename):
 	return ImageProviderGeneric()
 		
 
+
+# //////////////////////////////////////////////////////////////////////////////
+class RedirectLog:
+
+	# constructor
+	def __init__(self, filename):
+		super().__init__()
+		os.makedirs(os.path.dirname(filename), exist_ok=True)
+		self.log=open(filename,'w')
+		sys.__stdout__     = sys.stdout
+		sys.__stderr__     = sys.stderr
+		sys.__excepthook__ = sys.excepthook
+		sys.stdout=self
+		sys.stderr=self
+		sys.excepthook = self.excepthook
+
+	# handler
+	def excepthook(self, exctype, value, traceback):
+		sys.stdout    =sys.__stdout__
+		sys.stderr    =sys.__stderr__
+		sys.excepthook=sys.__excepthook__
+		sys.excepthook(exctype, value, traceback)
+
+	# write
+	def write(self, msg):
+		msg=msg.replace("\n", "\n" + str(datetime.datetime.now())[0:-7] + " ")
+		sys.__stdout__.write(msg)
+		sys.__stdout__.flush()
+		self.log.write(msg)
+
+	# flush
+	def flush(self):
+		sys.__stdout__.flush()
+		self.log.flush()
+
 # ///////////////////////////////////////////////////////////////////
 class Slam2D(Slam):
 
@@ -112,7 +151,7 @@ class Slam2D(Slam):
 		self.image_dir          = ""
 		self.cache_dir          = ""
 
-		self.debug_mode         = False # True
+		self.debug_mode         = False
 		self.energy_size        = 1280 
 		self.min_num_keypoints  = 3000
 		self.max_num_keypoints  = 6000
@@ -133,15 +172,22 @@ class Slam2D(Slam):
 		self.do_bundle_adjustment    = True
 		
 	# setImageDirectory
-	def setImageDirectory(self, image_dir, cache_dir=None, telemetry=None, plane=None, calibration=None, physic_box=None):
+	def setImageDirectory(self, image_dir, cache_dir=None, telemetry=None, plane=None, calibration=None, physic_box=None,max_images=0,debug_mode=False):
 		
+		print("setImageDirectory")
+		print("\t","image_dir", repr(image_dir))
+		print("\t","cache_dir", repr(cache_dir))
+		print("\t","telemetry", repr(telemetry))
+		print("\t","plane", repr(plane))
+		print("\t","calibration", (calibration.f,calibration.cx,calibration.cy) if calibration else None)
+		print("\t","physic_box", physic_box.toString() if physic_box else None)
+		print("\t","max_images",max_images)		
+		
+		self.debug_mode=debug_mode
 		self.image_dir=image_dir
 		
-		print("Finding images in",image_dir)
-		images=FindImages(image_dir)
-		# images=images[0:10]
+		images=FindImages(image_dir,max_images=max_images)
 		
-		cache_dir=cache_dir if cache_dir else os.path.abspath(os.path.join(self.image_dir,"./VisusSlamFiles"))
 		self.cache_dir=cache_dir
 		TryRemoveFiles(self.cache_dir+'/~*')
 		os.makedirs(self.cache_dir,exist_ok=True)
@@ -168,10 +214,12 @@ class Slam2D(Slam):
 		self.guessInitialPoses()
 		self.refreshQuads()
 		self.saveMidx()
+		
 		self.guessLocalCameras()
 		self.debugMatchesGraph()
 		self.debugSolution()
 
+		
 	# addCamera
 	def addCamera(self,img):
 		self.images.append(img)
@@ -210,7 +258,8 @@ class Slam2D(Slam):
 
 	# showEnergy
 	def showEnergy(self,camera,energy):
-		pass
+		if self.debug_mode:
+			SaveImage(self.cache_dir+"/energy/%04d.tif" % (camera.id,), energy)
 
 	# guessLocalCameras
 	def guessLocalCameras(self):
@@ -440,7 +489,9 @@ class Slam2D(Slam):
 		lines.append("</dataset>")
 
 		SaveTextDocument(self.cache_dir+"/visus.midx","\n".join(lines))
+		print("Midx Saved")
 
+		print("Saving google")
 		SaveTextDocument(self.cache_dir+"/google.midx",
 """
 <dataset name='slam' typename='IdxMultipleDataset'>
@@ -449,6 +500,8 @@ class Slam2D(Slam):
 	<dataset name='visus'   url='./visus.midx' />
 </dataset>
 """)
+		print("Google Saved")
+
 
 	# debugMatchesGraph
 	def debugMatchesGraph(self):
@@ -539,7 +592,7 @@ class Slam2D(Slam):
 		keypoint_filename = self.cache_dir+"/keypoints/%04d" % (camera.id,)
 		idx_filename      = self.cache_dir+"/" + camera.idx_filename
 	
-		if self.loadKeyPoints(camera,keypoint_filename) and os.path.isfile(idx_filename) and os.path.isfile(idx_filename.replace(".idx",".bin")):
+		if not self.debug_mode and self.loadKeyPoints(camera,keypoint_filename) and os.path.isfile(idx_filename) and os.path.isfile(idx_filename.replace(".idx",".bin")):
 			print("Keypoints already stored and idx generated",img.filenames[0])
 			
 		else:
@@ -626,10 +679,16 @@ class Slam2D(Slam):
 		if self.debug_mode and H21 is not None and len(matches)>0:
 			points1=[(k.x, k.y) for k in camera1.keypoints]
 			points2=[(k.x, k.y) for k in camera2.keypoints]
+			
+			A=Array.toNumPy(ArrayUtils.loadImage(self.cache_dir+"/energy/%04d.tif" % (camera1.id,)))
+			B=Array.toNumPy(ArrayUtils.loadImage(self.cache_dir+"/energy/%04d.tif" % (camera2.id,)))
+			A=cv2.cvtColor(A, cv2.COLOR_RGB2GRAY)
+			B=cv2.cvtColor(B, cv2.COLOR_RGB2GRAY)
+			
 			DebugMatches(self.cache_dir+"/debug_matches/%s/%04d.%04d.%d.png" %(err if err else "good",camera1.id,camera2.id,len(matches)), 
 				self.width, self.height, 
-				Array.toNumPy(ArrayUtils.loadImage(self.cache_dir+"/energy/~%04d.tif" % (camera1.id,))), [points1[match.queryIdx] for match in matches], H21, 
-				Array.toNumPy(ArrayUtils.loadImage(self.cache_dir+"/energy/~%04d.tif" % (camera2.id,))), [points2[match.trainIdx] for match in matches], numpy.identity(3,dtype='float32'))
+				A, [points1[match.queryIdx] for match in matches], H21, 
+				B, [points2[match.trainIdx] for match in matches], numpy.identity(3,dtype='float32'))
 
 		if err:
 			camera2.getEdge(camera1).setMatches([],err)
@@ -648,8 +707,15 @@ class Slam2D(Slam):
 				if camera1.id < camera2.id:
 					jobs.append(lambda pair=(camera1,camera2): self.findMatches(pair[0],pair[1]))
 		self.startAction(len(jobs),"Finding all matches")
-		results=RunJobsInParallel(jobs,advance_callback=lambda ndone: self.advanceAction(ndone))
-		num_matches=sum(results)
+		
+		if self.debug_mode:
+			num_matches=0
+			for I,job in enumerate(jobs): 
+				num_matches+=job()
+				self.advanceAction(I)
+		else:
+			results=RunJobsInParallel(jobs,advance_callback=lambda ndone: self.advanceAction(ndone))
+			num_matches=sum(results)
 		print("Found num_matches(", num_matches, ") matches in ", t1.elapsedMsec() ,"msec")
 
 	# generateImage
@@ -689,13 +755,15 @@ class Slam2D(Slam):
 			print("Skipping bundle adjustment...")
 
 		self.saveMidx()
-		SavePreview(self.cache_dir+"/visus.midx",self.cache_dir+"/preview.png")
 		print("Finished")
 
 
 	# ////////////////////////////////////////////////
 	@staticmethod
-	def Run(remote_dir=None,image_dir=None, cache_dir=None,telemetry=None,plane=None,calibration=None,physic_box=None,batch=False, idx_filename=None):
+	def Run(remote_dir=None,image_dir=None, cache_dir=None,telemetry=None,plane=None,calibration=None,physic_box=None,batch=False, max_images=0,debug_mode=False):
+		
+		# since I'm writing data serially I can disable locks
+		os.environ["VISUS_DISABLE_WRITE_LOCK"]="1"
 		
 		if isinstance(calibration,str) and len(calibration):
 			f,cx,cy=[cdouble(it) for it in calibration.split()]
@@ -704,59 +772,39 @@ class Slam2D(Slam):
 			calibration=None
 				
 		print("Running slam:")
-		print("\t","remote_dir", repr(remote_dir))
-		print("\t","image_dir", repr(image_dir))
-		print("\t","cache_dir", repr(cache_dir))
-		print("\t","telemetry", repr(telemetry))
-		print("\t","plane", repr(plane))
-		print("\t","calibration", (calibration.f,calibration.cx,calibration.cy) if calibration else None)
-		print("\t","physic_box", physic_box.toString() if physic_box else None)		
-		print("\t","batch", batch)
-		print("\t","idx_filename",idx_filename)
-		
-		# I need to download the sequence locally otherwise is going to be too slow
-		# TODO: switch to pydrive
-		if remote_dir is not None and remote_dir!=image_dir :
-			
-			print("Need to sync",remote_dir,image_dir)
-			
-			# just not to repeat the same sync over and over
-			if os.path.exists(image_dir+ "/~sync.done"):
-				print("sync already done")
-			else:
-				cmd=["rclone","sync","-v",remote_dir,image_dir]
-				print("Running:",cmd)
-				subprocess.run(cmd, shell=False, check=True, stdout=sys.stdout, stderr=sys.stderr) 
-				open(image_dir+ "/~sync.done", 'w').close()
-			
-		gui=None
+				
 		if not batch:
-			from . slam_2d_gui import Slam2DWindow
-			gui=Slam2DWindow()
-			
 			if not image_dir:
 				from PyQt5.QtWidgets import QFileDialog
-				image_dir = QFileDialog.getExistingDirectory(None, "Choose directory...","",QFileDialog.ShowDirsOnly) 
-
+				image_dir = QFileDialog.getExistingDirectory(None, "Choose directory...","",QFileDialog.ShowDirsOnly) 			
+				
 		if not image_dir: 
 			print("Specify an image directory")
 			sys.exit(-1)
 			
-		slam = Slam2D()
-		slam.setImageDirectory(image_dir,  cache_dir= cache_dir, telemetry=cache_dir, plane=plane, calibration=calibration, physic_box=physic_box) 	
-		
-		# in case it was automatically asssigned
+		# assign cache dir
 		if not cache_dir:
-			cache_dir=slam.cache_dir 
+			cache_dir=os.path.abspath(os.path.join(image_dir,"./VisusSlamFiles"))
+			
+		log_filename=cache_dir+"/~visusslam.log"
+		redirect_log=None
+		
+		gui=None
+		slam = Slam2D()
 			
 		if batch:
-			slam.run()
+			redirect_log=RedirectLog(log_filename)
 		else:
+			from . gui_utils import ShowSplash,HideSplash
+			from . slam_2d_gui import Slam2DWindow,GuiRedirectLog
+			ShowSplash()
+			gui=Slam2DWindow()
+			
+		slam.setImageDirectory(image_dir,  cache_dir= cache_dir, telemetry=cache_dir, plane=plane, calibration=calibration, physic_box=physic_box, max_images=max_images,debug_mode=debug_mode)
+			
+		if gui:
 			gui.run(slam)
-			
-		# convert to idx and produce preview
-		if idx_filename:
-			MidxToIdx(["--midx", cache_dir+"/visus.midx","--idx", idx_filename])	
-			idx_dir=os.path.dirname(idx_filename)
-			SavePreview(idx_filename,idx_dir+"/preview.png")
-			
+		else:
+			slam.run()
+
+	redirect_log=None	

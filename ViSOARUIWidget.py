@@ -22,9 +22,15 @@ from VisoarStitchTab			import *
 from VisoarAnalyzeTab			import *
 from ViSOARUIWidget             import *
 from ViSOARQuickNDVI             import *
-from slampy.sync     import VisoarMoveDataWidget
+from slampy.sync_gui     import VisoarMoveDataWidget
+from slampy.slam_2d     import *
 
-from slam2dWidget 				import *
+
+# commented
+# from slampy.slam_2d_gui     import *
+
+
+#from slam2dWidget 				import *
 from gmail_visoar				import *
 
 class MyViewerWidget(QWidget):
@@ -49,6 +55,18 @@ class MyViewerWidget(QWidget):
         #print('combobox new tab: ' + str(self.parent.tabNewStitching.comboBoxNewTab.currentIndex()))
         self.comboBoxATab.setToolTip('Sensor/Image mode for input images')
         self.toolbar.addWidget(self.comboBoxATab)
+        #self.comboBoxATab.setGeometry(200, 150, 200, 50)
+        # self.comboBoxATab.setFixedSize(400, 100)
+        # self.comboBoxATab.setFixedWidth(400)
+        # self.comboBoxATab.setFixedHeight(100)
+        # self.comboBoxATab.setMinimumContentsLength(100)
+
+        width = self.comboBoxATab.minimumSizeHint().width()
+        self.comboBoxATab.setMinimumWidth(width)
+
+        #self.comboBoxATab.setSizePolicy(QSizePolicy.Preferred, self.comboBoxATab.sizePolicy().verticalPolicy())
+        #self.comboBoxATab.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+        #self.comboBoxATab.setSizeAdjustPolicy(QComboBox.AdjustToContents)
 
         self.comboBoxATabScripts = QComboBox(self)
         # self.buttons.comboBoxATabScripts.setToolTip('Sensor/Image mode for input images')
@@ -72,12 +90,12 @@ class MyViewerWidget(QWidget):
         self.toolbar.addWidget(self.openMyMapWidget, alignment=Qt.AlignRight)
         #self.toolbar.addStretch(10)
 
-        self.resetView = createPushButton("", lambda: self.resetView())
-        self.resetView.setToolTip('Reset Viewpoint to see full mosaic')
-        self.resetView.setIcon(QIcon('icons/resetView.png'))
-        fixButtonsLookFeel(self.resetView)
+        self.resetViewBtn = createPushButton("", lambda: self.resetView())
+        self.resetViewBtn.setToolTip('Reset Viewpoint to see full mosaic')
+        self.resetViewBtn.setIcon(QIcon('icons/resetView.png'))
+        fixButtonsLookFeel(self.resetViewBtn)
         #self.resetView.setStyleSheet(WHITE_PUSH_BUTTON)
-        self.toolbar.addWidget(self.resetView, alignment=Qt.AlignRight)
+        self.toolbar.addWidget(self.resetViewBtn, alignment=Qt.AlignRight)
 
         self.sublayout.addLayout(self.toolbar)
 
@@ -99,8 +117,8 @@ class MyViewerWidget(QWidget):
 
     def resetView(self):
         db = self.viewer.getDataset()
-        if len(self.visoarLayerList) > 0:
-            for alayer in self.visoarLayerList:
+        if len(self.parent.visoarLayerList) > 0:
+            for alayer in self.parent.visoarLayerList:
                 # for all layers not google should do a union of all boxes
                 if alayer.name != 'google' and db.getChild(alayer.name):
                     db2 = self.viewer2.getDataset()
@@ -117,17 +135,17 @@ class MyViewerWidget(QWidget):
                     return
 
         elif db.getChild("visus"):
-            db2 = self.viewer2.getDataset()
+            #db2 = self.viewer2.getDataset()
             # Causes a crash
             # db.setEnableAnnotations(False)
             # if (db2):
             #     db2.setEnableAnnotations(False)
             box = db.getChild("visus").getDatasetBounds().toAxisAlignedBox()
             self.viewer.getGLCamera().guessPosition(box)
-            self.viewer2.getGLCamera().guessPosition(box)
+            #self.viewer2.getGLCamera().guessPosition(box)
         else:
             self.viewer.guessGLCameraPosition()
-            self.viewer2.guessGLCameraPosition()
+            #self.viewer2.guessGLCameraPosition()
 
     def openLayersWindow(self):
         v = VisoarLayerView(self.parent, self.parent.visoarLayerList, self.viewer)
@@ -269,7 +287,7 @@ class ViSOARUIWidget(QWidget):
         self.app_dir = os.getcwd()
 
         self.USER_TAB_UI = False
-
+        self.visoarLayerList = []
         self.START_TAB = 0
         self.NEW_STITCH_TAB = 1
         self.NEW_TIME_SERIES_TAB = 2
@@ -384,7 +402,11 @@ class ViSOARUIWidget(QWidget):
         self.openfilenameLabel.setTextInteractionFlags(Qt.TextSelectableByMouse)
 
         if self.ADD_VIEWER:
-             self.slam_widget = Slam2DWidget(self)
+            self.slam_widget = Slam2DWidget()
+            self.slam_widget.setStyleSheet(LOOK_AND_FEEL)
+            self.slam_widget.progress_bar.bar.setStyleSheet(PROGRESSBAR_LOOK_AND_FEEL)
+            self.slam_widget.progress_bar.bar.setMinimumWidth(300)
+            self.slam = Slam2D()
 
         self.visoarUserLibraryData = VisoarUserLibraryData(self.userFileHistory)
 
@@ -464,7 +486,8 @@ class ViSOARUIWidget(QWidget):
         self.layout.addWidget(self.tabs)
         # _stdout = sys.stdout
         # _stderr = sys.stderr
-        logger = Logger(terminal=sys.stdout, filename="~visusslam.log", qt_callback=self.printLog)
+        print('Amy add logging...')
+        #logger = Logger(terminal=sys.stdout, filename="~visusslam.log", qt_callback=self.printLog)
         # sys.stdout = logger
         # sys.stderr = logger
 
@@ -530,6 +553,7 @@ class ViSOARUIWidget(QWidget):
                         self.tabAskDest.destNametextbox.setText(self.projectInfo.srcDir.strip())
                         self.projectInfo.projDir = self.projectInfo.srcDir.strip()
                         self.projectInfo.projDirNDVI = self.projectInfo.srcDirNDVI.strip()
+                        self.projectInfo.cache_dir = os.path.join(self.projectInfo.projDir, 'VisusSlamFiles')
                         self.tabs.setCurrentIndex(self.ASKNAME_TAB)
                 else:
                     print('AfterAskSource')
@@ -542,6 +566,7 @@ class ViSOARUIWidget(QWidget):
                         self.projectInfo.projName = tempName
                         self.tabAskDest.destNametextbox.setText(self.projectInfo.srcDir.strip())
                         self.projectInfo.projDir = self.projectInfo.srcDir.strip()
+                        self.projectInfo.cache_dir = os.path.join(self.projectInfo.projDir, 'VisusSlamFiles')
                         self.tabs.setCurrentIndex(self.ASKNAME_TAB)
 
         elif s == 'AfterAskName':
@@ -583,8 +608,9 @@ class ViSOARUIWidget(QWidget):
                                                                  self.projectInfo.projDirNDVI,
                                                                  self.projectInfo.srcDirNDVI)
                         self.changeViewStitching()
-                        self.slam_widget.setDefaults(generate_bbox=self.generate_bbox,
-                                                     color_matching=self.color_matching, blending_exp=self.blending_exp)
+                        print("Note to self, taking out slam default changes")
+                        #self.slam_widget.setDefaults(generate_bbox=self.generate_bbox,
+                        #                             color_matching=self.color_matching, blending_exp=self.blending_exp)
                         self.tabs.setCurrentIndex(self.STITCHING_VIEW_TAB)
                         self.startViSUSSLAM()
                     else:
@@ -612,8 +638,9 @@ class ViSOARUIWidget(QWidget):
                                                              self.projectInfo.srcDirNDVI)
                     #self.enableViewStitching()
                     self.changeViewStitching()
-                    self.slam_widget.setDefaults(generate_bbox=self.generate_bbox,
-                                                        color_matching=self.color_matching, blending_exp=self.blending_exp)
+                    #AAG Slam removal
+                    #self.slam_widget.setDefaults(generate_bbox=self.generate_bbox,
+                    #                                    color_matching=self.color_matching, blending_exp=self.blending_exp)
                     self.tabs.setCurrentIndex(self.STITCHING_VIEW_TAB)
                     self.startViSUSSLAM()
 
@@ -671,6 +698,10 @@ class ViSOARUIWidget(QWidget):
 
     def setAndRunSlam(self, image_dir, cache_dir=None, telemetry=None, plane=None, calibration=None,
                       physic_box=None):
+        self.slam = Slam2D()
+        self.slam.setImageDirectory(image_dir,  cache_dir= cache_dir, telemetry=telemetry, plane=plane, calibration=calibration, physic_box=physic_box)
+        self.slam_widget.run(self.slam)
+        self.slam_widget.slam.run()
         #
         # if not image_dir:
         #     print("Showing choose directory dialog")
@@ -688,51 +719,51 @@ class ViSOARUIWidget(QWidget):
 
         Assert(os.path.isdir(image_dir))
         self.log.clear()
-        self.generate_bbox = False
-        self.color_matching = False
-        self.blending_exp = "output=voronoi()"
+        # self.generate_bbox = False
+        # self.color_matching = False
+        # self.blending_exp = "output=voronoi()"
+        #
+        # self.cache_dir = cache_dir
+        # self.image_dir = image_dir
+        #
+        # os.makedirs(self.cache_dir, exist_ok=True)
+        #
+        # self.provider, all_images = CreateProvider(self.image_dir)
+        # self.provider.cache_dir = self.cache_dir
+        # # self.provider.progress_bar = self.progress_bar
+        # self.provider.telemetry = telemetry
+        # self.provider.plane = plane
+        # self.provider.calibration = calibration
+        # self.provider.setImages(all_images)
+        #
+        # TryRemoveFiles(self.cache_dir + '/~*')
+        #
+        # full = self.generateImage(self.provider.images[0])
+        # array = Array.fromNumPy(full, TargetDim=2)
+        # width = array.getWidth()
+        # height = array.getHeight()
+        # dtype = array.dtype
+        #
+        # # self.slam=Slam2D(width,height,dtype, self.provider.calibration,self.cache_dir)
+        # self.slam = Slam2DCode(width, height, dtype, self.provider.calibration, self.cache_dir,
+        #                        generate_bbox=self.generate_bbox,
+        #                        color_matching=self.color_matching, blending_exp=self.blending_exp, enable_svg=False,
+        #                        enable_color_matching=False)
+        # self.slam.debug_mode = False
+        # self.slam.generateImage = self.generateImage
+        # # self.slam.startAction = self.startAction
+        # # self.slam.advanceAction = self.advanceAction
+        # # self.slam.endAction = self.endAction
+        # # self.slam.showEnergy = self.showEnergy
+        # # self.slam.physic_box= BoxNd.fromString(physic_box)
+        # self.slam.physic_box = BoxNd.fromString(physic_box) if physic_box else None
+        # for img in self.provider.images:
+        #     camera = self.slam.addCamera(img)
+        #     self.slam.createIdx(camera)
+        # # self.refreshViewer() #Amy Added.. trying to get
 
-        self.cache_dir = cache_dir
-        self.image_dir = image_dir
-
-        os.makedirs(self.cache_dir, exist_ok=True)
-
-        self.provider, all_images = CreateProvider(self.image_dir)
-        self.provider.cache_dir = self.cache_dir
-        # self.provider.progress_bar = self.progress_bar
-        self.provider.telemetry = telemetry
-        self.provider.plane = plane
-        self.provider.calibration = calibration
-        self.provider.setImages(all_images)
-
-        TryRemoveFiles(self.cache_dir + '/~*')
-
-        full = self.generateImage(self.provider.images[0])
-        array = Array.fromNumPy(full, TargetDim=2)
-        width = array.getWidth()
-        height = array.getHeight()
-        dtype = array.dtype
-
-        # self.slam=Slam2D(width,height,dtype, self.provider.calibration,self.cache_dir)
-        self.slam = Slam2DCode(width, height, dtype, self.provider.calibration, self.cache_dir,
-                               generate_bbox=self.generate_bbox,
-                               color_matching=self.color_matching, blending_exp=self.blending_exp, enable_svg=False,
-                               enable_color_matching=False)
-        self.slam.debug_mode = False
-        self.slam.generateImage = self.generateImage
-        # self.slam.startAction = self.startAction
-        # self.slam.advanceAction = self.advanceAction
-        # self.slam.endAction = self.endAction
-        # self.slam.showEnergy = self.showEnergy
-        # self.slam.physic_box= BoxNd.fromString(physic_box)
-        self.slam.physic_box = BoxNd.fromString(physic_box) if physic_box else None
-        for img in self.provider.images:
-            camera = self.slam.addCamera(img)
-            self.slam.createIdx(camera)
-        # self.refreshViewer() #Amy Added.. trying to get
-
-        self.slam.initialSetup()
-        self.slam.run()
+        #self.slam.initialSetup()
+        #self.slam.run()
         self.setUpRClone()
 
     def createRGBNDVI_MIDX(self):
@@ -1513,7 +1544,7 @@ class ViSOARUIWidget(QWidget):
         if not self.projectInfo.srcDir:
             self.projectInfo.srcDir = self.projectInfo.projDir
 
-        self.slam_widget.setImageDirectory(image_dir=self.projectInfo.srcDir, cache_dir=self.projectInfo.projDir)
+        self.slam.setImageDirectory(image_dir=self.projectInfo.srcDir, cache_dir=os.path.join(self.projectInfo.projDir, 'VisusSlamFiles'))
         # self.parent.onChange(self.parent.STITCHING_VIEW_TAB)
         # except:
         # self.parent.tabs.setCurrentIndex(self.parent.START_TAB)
@@ -1642,7 +1673,7 @@ class ViSOARUIWidgetFull(ViSOARUIWidget):
 
         self.inputMode = "R G B"
         self.projectInfo = VisoarProject()
-        self.visoarLayerList = []
+
 
         self.userFileHistory = os.path.join(os.getcwd(), 'userFileHistory.xml')
 
@@ -1724,6 +1755,10 @@ class ViSOARUIWidgetFull(ViSOARUIWidget):
         self.logo.setText('')
         if self.ADD_VIEWER:
             self.slam_widget = Slam2DWidget(self)
+            self.slam_widget.setStyleSheet(LOOK_AND_FEEL)
+            self.slam_widget.progress_bar.bar.setStyleSheet(PROGRESSBAR_LOOK_AND_FEEL)
+            self.slam_widget.progress_bar.bar.setMinimumWidth(300)
+            self.slam = Slam2D()
 
         self.visoarUserLibraryData = VisoarUserLibraryData(self.userFileHistory)
 
