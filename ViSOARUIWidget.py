@@ -431,16 +431,17 @@ class ViSOARUIWidget(QWidget):
             self.tabStitcher = VisoarStitchTabWidget(self)  # QWidget()
             self.tabViewer = VisoarAnalyzeTabWidget(self)  # QWidget()
 
-        # self.log = QTextEdit()
-        # self.log.setLineWrapMode(QTextEdit.NoWrap)
-        self.log = QTextEdit(self, readOnly=True)
-        self.log.ensureCursorVisible()
-        self.log.setLineWrapColumnOrWidth(500)
-        self.log.setLineWrapMode(QTextEdit.FixedPixelWidth)
-        self.log.setFixedWidth(400)
-        self.log.setFixedHeight(150)
-        self.log.move(30, 100)
-        #
+
+        self.logTab = QTextEdit()
+        self.logTab.setLineWrapMode(QTextEdit.NoWrap)
+        self.logTab = QTextEdit(self, readOnly=True)
+        self.logTab.ensureCursorVisible()
+        self.logTab.setLineWrapColumnOrWidth(500)
+        self.logTab.setLineWrapMode(QTextEdit.FixedPixelWidth)
+        self.logTab.setFixedWidth(400)
+        self.logTab.setFixedHeight(150)
+        self.logTab.move(30, 100)
+
         # self.ASKSENSOR_TAB = 0
         # self.ASKSOURCE_TAB = 1
         # self.ASKSOURCERGBNDVI_TAB = 2
@@ -481,7 +482,7 @@ class ViSOARUIWidget(QWidget):
         self.tabs.addWidget(self.tabAskSourceRGBNDVI)
         self.tabs.addWidget(self.tabMoveDataFromCards)
         self.tabs.addWidget(self.tabQuickNDVI)
-        self.tabs.addWidget(self.log)
+        self.tabs.addWidget(self.logTab)
 
         self.tabs.setCurrentIndex(0)
 
@@ -694,7 +695,7 @@ class ViSOARUIWidget(QWidget):
         self.slam.setImageDirectory(image_dir = image_dir,  cache_dir= cache_dir, telemetry=telemetry, plane=plane, calibration=calibration, physic_box=physic_box)
         retSlamSetup = self.slam_widget.run(self.slam)
         retSlamRan = self.slam_widget.slam.run()
-        self.log.clear()
+        self.logTab.clear()
         #self.setUpRClone()
         #These run functions above should return values of success.. but they don't
         return True, True

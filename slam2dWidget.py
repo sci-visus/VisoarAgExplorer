@@ -52,7 +52,7 @@ class Slam2DWidgetForVisoar(Slam2DWidget):
 
 		self.zoom_on_dataset = False
 		self.show_annotations = False
-		self.show_progress_bar = False
+		self.show_progress_bar = True
 		self.add_run_button = False
 		self.viewer_open_filename = "visus.midx"
 
