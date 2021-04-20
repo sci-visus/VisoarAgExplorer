@@ -60,16 +60,3 @@ class Slam2DWidgetForVisoar(Slam2DWidget):
 		self.setStyleSheet(LOOK_AND_FEEL)
 		self.progress_bar.bar.setStyleSheet(PROGRESSBAR_LOOK_AND_FEEL)
 		self.progress_bar.bar.setMinimumWidth(300)
-		self.redirect_log = GuiRedirectLog()
-		self.redirect_log.setCallback(self.printLog)
-
-		super(ExceptionHandler, self).__init__()
-		sys.__excepthook__ = sys.excepthook
-		sys.excepthook = self.handler
-
-	# handler
-	def handler(self, exctype, value, traceback):
-		sys.stdout=sys.__stdout__
-		sys.stderr=sys.__stderr__
-		sys.excepthook=sys.__excepthook__
-		sys.excepthook(exctype, value, traceback)
