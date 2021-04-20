@@ -46,7 +46,7 @@ from lookAndFeel  				import *
 # //////////////////////////////////////////////////////////////////////////////
 class Slam2DWidgetForVisoar(Slam2DWidget):
 	# constructor
-	def __init__(self):
+	def __init__(self): 
 		super(Slam2DWidget, self).__init__()
 		self.redirect_log = GuiRedirectLog()
 		self.redirect_log.setCallback(self.printLog)
@@ -57,3 +57,4 @@ class Slam2DWidgetForVisoar(Slam2DWidget):
 		self.add_progress_bar = True
 		self.viewer_open_filename = "visus.midx"
 		self.createGui()
+ 

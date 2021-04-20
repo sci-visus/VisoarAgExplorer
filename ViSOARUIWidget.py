@@ -403,12 +403,14 @@ class ViSOARUIWidget(QWidget):
 
         if self.ADD_VIEWER:
             self.slam_widget = Slam2DWidgetForVisoar()
-            self.slam_widget.setStyleSheet(LOOK_AND_FEEL)
-            self.slam_widget.progress_bar.bar.setStyleSheet(PROGRESSBAR_LOOK_AND_FEEL)
-            self.slam_widget.progress_bar.bar.setMinimumWidth(300)
+            # self.slam_widget.setStyleSheet(LOOK_AND_FEEL)
+            # self.slam_widget.progress_bar.bar.setStyleSheet(PROGRESSBAR_LOOK_AND_FEEL)
+            # self.slam_widget.progress_bar.bar.setMinimumWidth(300)
+            # self.slam_widget.setStyleSheet(LOOK_AND_FEEL)
             self.slam = Slam2D()
             self.slam.enable_svg = False
             #self.slam_widget.slam = self.slam
+
 
         self.visoarUserLibraryData = VisoarUserLibraryData(self.userFileHistory)
 

@@ -51,15 +51,14 @@ class ExceptionHandler(QtCore.QObject):
 	# __init__
 	def __init__(self):
 		super(ExceptionHandler, self).__init__()
-		sys.__excepthook__ = sys.excepthook
+		self.__excepthook__ = sys.excepthook
 		sys.excepthook = self.handler
 
 	# handler
 	def handler(self, exctype, value, traceback):
-		sys.stdout=sys.__stdout__
-		sys.stderr=sys.__stderr__
-		sys.excepthook=sys.__excepthook__
+		sys.excepthook=self.__excepthook__
 		sys.excepthook(exctype, value, traceback)
+		
 
 # ////////////////////////////////////////////////////////////////////////////////////////////
 def Main():
