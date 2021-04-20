@@ -691,6 +691,9 @@ class ViSOARUIWidget(QWidget):
 
     def setAndRunSlam(self, image_dir, cache_dir=None, telemetry=None, plane=None, calibration=None,
                       physic_box=None):
+        self.slam = None
+        self.slam = Slam2D()
+        self.slam.enable_svg = False
         self.slam.setImageDirectory(image_dir = image_dir,  cache_dir= cache_dir, telemetry=telemetry, plane=plane, calibration=calibration, physic_box=physic_box)
         retSlamSetup = self.slam_widget.run(self.slam)
         retSlamRan = self.slam_widget.slam.run()
@@ -1460,7 +1463,6 @@ class ViSOARUIWidget(QWidget):
 
         self.tabs.setCurrentIndex(self.START_TAB)
         self.update()
-
         #clear out strings:
         self.projectInfo.reset()
         self.viewer.clearAll()

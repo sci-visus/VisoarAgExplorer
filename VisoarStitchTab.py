@@ -202,8 +202,7 @@ class VisoarStitchTabWidget(QWidget):
             popUP('RGB Stitched', 'RGB Stitched.  Ready to Stitch NDVI \n')
 
             #Had to create a new slam2d here because the camera numbers needed to be reset
-            self.parent.slam =  Slam2D()
-            self.slam.enable_svg = False
+
             retSlamSetup2, retSlamRan2 = self.parent.setAndRunSlam(image_dir= self.parent.projectInfo.srcDirNDVI,
                                                       cache_dir= os.path.join(self.parent.projectInfo.srcDirNDVI, 'VisusSlamFiles'),
                                                       telemetry=os.path.join(self.parent.projectInfo.srcDirNDVI, 'VisusSlamFiles/metadata.json'),
