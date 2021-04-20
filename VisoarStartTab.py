@@ -139,6 +139,7 @@ class VisoarStartTabWidget(QWidget):
 
 
     def loadFromUserLibrary(self):
+        self.parent.tabLoad.LoadFromFile()
         self.parent.enableViewLoad()
         self.parent.changeViewLoad()
 

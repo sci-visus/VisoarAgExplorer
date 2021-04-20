@@ -614,7 +614,14 @@ class ViSOARUIWidget(QWidget):
                         #self.slam_widget.setDefaults(generate_bbox=self.generate_bbox,
                         #                             color_matching=self.color_matching, blending_exp=self.blending_exp)
                         self.tabs.setCurrentIndex(self.STITCHING_VIEW_TAB)
-                        self.startViSUSSLAM()
+
+                        if self.stitchAlreadyDone():
+                            self.enableViewStitching()
+                            self.goToAnalyticsTab()
+                        else:
+                            self.enableViewStitching()
+                            self.changeViewStitching()
+                            self.startViSUSSLAM()
                     else:
                         errorStr = 'Please Provide a unique directory for the destination, different from RGB or NDVI source directories  \n'
                         self.tabAskDest.createErrorLabel.setText(errorStr)
@@ -644,7 +651,13 @@ class ViSOARUIWidget(QWidget):
                     #self.slam_widget.setDefaults(generate_bbox=self.generate_bbox,
                     #                                    color_matching=self.color_matching, blending_exp=self.blending_exp)
                     self.tabs.setCurrentIndex(self.STITCHING_VIEW_TAB)
-                    self.startViSUSSLAM()
+                    if self.stitchAlreadyDone():
+                        self.enableViewStitching()
+                        self.goToAnalyticsTab()
+                    else:
+                        self.enableViewStitching()
+                        self.changeViewStitching()
+                        self.startViSUSSLAM()
 
                 print('end of AfterAskDest')
                 #self.tabAskDest.destNametextbox.setText('')
@@ -655,6 +668,10 @@ class ViSOARUIWidget(QWidget):
             self.tabs.setCurrentIndex(self.ANALYTICS_TAB)
         else:
             print(s)
+
+    def stitchAlreadyDone(self):
+        # return os.path.exists(os.path.join(self.parent.projectInfo.projDir, 'VisusSlamFiles', 'visus.midx'))
+        return os.path.exists(os.path.join(self.projectInfo.projDir, 'VisusSlamFiles', 'idx', '0000.bin'))
 
     def startProcessing(self):
 
