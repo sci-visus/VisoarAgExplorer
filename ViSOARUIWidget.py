@@ -404,10 +404,18 @@ class ViSOARUIWidget(QWidget):
 
         if self.ADD_VIEWER:
             self.slam_widget = Slam2DWidget()
-            self.slam_widget.setStyleSheet(LOOK_AND_FEEL)
+            self.slam_widget=Slam2DWidget()
+            self.slam_widget.add_run_button=False
+            self.slam_widget.show_progress_bar=False
+            self.slam_widget.zoom_on_dataset=False
+            self.slam_widget.show_annotations=False
+            self.slam_widget.viewer_open_filename="visus.midx"
+            self.slam_widget.createGui()
             self.slam_widget.progress_bar.bar.setStyleSheet(PROGRESSBAR_LOOK_AND_FEEL)
             self.slam_widget.progress_bar.bar.setMinimumWidth(300)
+            self.slam_widget.setStyleSheet(LOOK_AND_FEEL)
             self.slam = Slam2D()
+
 
         self.visoarUserLibraryData = VisoarUserLibraryData(self.userFileHistory)
 

@@ -22,20 +22,20 @@ class GuiRedirectLog(QtCore.QObject):
 		self.log=open(filename,'w')
 		self.callback=None
 		self.messages=[]
-		sys.__stdout__     = sys.stdout
-		sys.__stderr__     = sys.stderr
-		sys.__excepthook__ = sys.excepthook
+		self.__stdout__     = sys.stdout
+		self.__stderr__     = sys.stderr
+		self.__excepthook__ = sys.excepthook
 		sys.stdout=self
-		sys.stderr=self
+		sys.stderr=self # if you cannot see the error comment this line
 		sys.excepthook = self.excepthook
 
 	# handler
 	def excepthook(self, exctype, value, traceback):
-		sys.stdout    =sys.__stdout__
-		sys.stderr    =sys.__stderr__
-		sys.excepthook=sys.__excepthook__
+		sys.stdout    =self.__stdout__
+		sys.stderr    =self.__stderr__
+		sys.excepthook=self.__excepthook__
 		sys.excepthook(exctype, value, traceback)
-
+		
 	# setCallback
 	def setCallback(self, value):
 		self.callback=value
@@ -83,7 +83,7 @@ class Slam2DWidget(QWidget):
 		self.zoom_on_dataset=True
 		self.show_annotations=True
 		self.add_run_button=True
-		self.add_progress_bar=True		
+		self.show_progress_bar=True		
 		self.viewer_open_filename="google.midx"
 
 	# createGui
@@ -114,8 +114,9 @@ class Slam2DWidget(QWidget):
 			run_slam=CreatePushButton("Run",lambda: self.onRunClicked())
 			toolbar.addWidget(run_slam)
 			
-		if self.add_progress_bar:
-			self.progress_bar=ProgressLine()
+		# the progress bar should be constructed because it's used in VisoarAgExplorer
+		self.progress_bar=ProgressLine()
+		if self.show_progress_bar:
 			toolbar.addLayout(self.progress_bar)
 
 		toolbar.addStretch(1)
@@ -203,7 +204,7 @@ class Slam2DWidget(QWidget):
 		pref.bShowLogs=False
 		self.viewer.setPreferences(pref)
 			
-		if not self.show_annotations:
+		if self.show_annotations:
 			db=self.viewer.getDataset()
 			db.setEnableAnnotations(False)
 

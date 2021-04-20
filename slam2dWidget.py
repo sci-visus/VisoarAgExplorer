@@ -723,7 +723,7 @@ class ExceptionHandler(QtCore.QObject):
 		sys.stderr=sys.__stderr__
 		sys.excepthook=sys.__excepthook__
 		sys.excepthook(exctype, value, traceback)
-
+		
 # //////////////////////////////////////////////////////////////////////////////
 if True:
 

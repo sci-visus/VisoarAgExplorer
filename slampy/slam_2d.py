@@ -110,20 +110,20 @@ class RedirectLog:
 		super().__init__()
 		os.makedirs(os.path.dirname(filename), exist_ok=True)
 		self.log=open(filename,'w')
-		sys.__stdout__     = sys.stdout
-		sys.__stderr__     = sys.stderr
-		sys.__excepthook__ = sys.excepthook
+		self.__stdout__     = sys.stdout
+		self.__stderr__     = sys.stderr
+		self.__excepthook__ = sys.excepthook
 		sys.stdout=self
 		sys.stderr=self
 		sys.excepthook = self.excepthook
 
 	# handler
 	def excepthook(self, exctype, value, traceback):
-		sys.stdout    =sys.__stdout__
-		sys.stderr    =sys.__stderr__
-		sys.excepthook=sys.__excepthook__
+		sys.stdout    =self.__stdout__
+		sys.stderr    =self.__stderr__
+		sys.excepthook=self.__excepthook__
 		sys.excepthook(exctype, value, traceback)
-
+		
 	# write
 	def write(self, msg):
 		msg=msg.replace("\n", "\n" + str(datetime.datetime.now())[0:-7] + " ")
