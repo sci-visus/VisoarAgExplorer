@@ -161,7 +161,7 @@ class VisoarStitchTabWidget(QWidget):
         print('-0-0-0-0-0-0-0-0-0-0-')
         print(dataset.attrib['physic_box'])
         print('-0-0-0-0-0-0-0-0-0-0-')
-        return str(dataset.attrib['physic_box'])
+        return BoxNd.fromString(str(dataset.attrib['physic_box']))
 
     def run(self):
         #try:

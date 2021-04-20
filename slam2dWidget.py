@@ -43,18 +43,26 @@ from PyQt5.QtWidgets                  import QTableWidget,QTableWidgetItem
 #from analysis_scripts			import *
 from lookAndFeel  				import *
 
+
 # //////////////////////////////////////////////////////////////////////////////
 class Slam2DWidgetForVisoar(Slam2DWidget):
 	# constructor
 	def __init__(self): 
 		super(Slam2DWidget, self).__init__()
-		self.redirect_log = GuiRedirectLog()
-		self.redirect_log.setCallback(self.printLog)
 
 		self.zoom_on_dataset = False
 		self.show_annotations = False
+		self.show_progress_bar = True
 		self.add_run_button = False
-		self.add_progress_bar = True
 		self.viewer_open_filename = "visus.midx"
+		self.redirect_log = GuiRedirectLog()
+		self.redirect_log.setCallback(self.printLog)
+
 		self.createGui()
- 
+		self.redirect_log = GuiRedirectLog()
+		self.redirect_log.setCallback(self.printLog)
+
+
+		self.setStyleSheet(LOOK_AND_FEEL)
+		self.progress_bar.bar.setStyleSheet(PROGRESSBAR_LOOK_AND_FEEL)
+		self.progress_bar.bar.setMinimumWidth(300)
