@@ -933,7 +933,7 @@ class ViSOARUIWidget(QWidget):
         if len(self.visoarLayerList) > 0:
             for alayer in self.visoarLayerList:
                 #for all layers not google should do a union of all boxes
-                if alayer.name!= 'google' and db.getChild(alayer.name):
+                if alayer.name!= 'google' and (db is not None) and db.getChild(alayer.name):
                     db2 = self.viewer2.getDataset()
                     # try:
                     #     if db:

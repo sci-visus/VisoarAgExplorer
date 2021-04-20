@@ -13,7 +13,7 @@ from PyQt5.QtWidgets                  import QWidget, QMessageBox, QGroupBox, QS
 
 from PyQt5.QtWidgets                  import QTableWidget,QTableWidgetItem
 
-
+from slampy.slam_2d                 import *
 class VisoarStitchTabWidget(QWidget):
     def __init__(self, parent):
         super(QWidget, self).__init__(parent)
@@ -197,6 +197,13 @@ class VisoarStitchTabWidget(QWidget):
             self.parent.openfilenameLabelS.setText(
                 "Starting to Stitch: " +  self.parent.projectInfo.srcDirNDVI)
 
+            #Pause here and load RGB dataset and show it:
+            self.parent.slam_widget.refreshViewer()
+            popUP('RGB Stitched', 'RGB Stitched.  Ready to Stitch NDVI \n')
+
+            #Had to create a new slam2d here because the camera numbers needed to be reset
+            self.parent.slam =  Slam2D()
+            self.slam.enable_svg = False
             retSlamSetup2, retSlamRan2 = self.parent.setAndRunSlam(image_dir= self.parent.projectInfo.srcDirNDVI,
                                                       cache_dir= os.path.join(self.parent.projectInfo.srcDirNDVI, 'VisusSlamFiles'),
                                                       telemetry=os.path.join(self.parent.projectInfo.srcDirNDVI, 'VisusSlamFiles/metadata.json'),
