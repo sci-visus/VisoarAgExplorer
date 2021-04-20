@@ -86,6 +86,7 @@ class Slam2DWidget(QWidget):
 		self.add_progress_bar=True		
 		self.viewer_open_filename="google.midx"
 
+
 	# createGui
 	def createGui(self):
 		
@@ -205,7 +206,7 @@ class Slam2DWidget(QWidget):
 			
 		if not self.show_annotations:
 			db=self.viewer.getDataset()
-			db.setEnableAnnotations(False)
+			#db.setEnableAnnotations(False)  #AAG: I always get a crash here with VISOAR Ag Explorer
 
 		# focus on slam dataset (not google world)
 		if self.zoom_on_dataset:

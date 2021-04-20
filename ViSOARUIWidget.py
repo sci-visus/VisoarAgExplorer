@@ -31,7 +31,7 @@ from slampy.slam_2d_gui             import *
 # from slampy.slam_2d_gui     import *
 
 
-#from slam2dWidget 				import *
+from slam2dWidget 				import *
 from gmail_visoar				import *
 
 class MyViewerWidget(QWidget):
@@ -269,7 +269,6 @@ class MyViewer(Viewer):
             self.open(url)
         self.on_camera_change = None
 
-
     # glCameraChangeEvent
     def glCameraChangeEvent(self):
         super(MyViewer, self).glCameraChangeEvent()
@@ -403,11 +402,13 @@ class ViSOARUIWidget(QWidget):
         self.openfilenameLabel.setTextInteractionFlags(Qt.TextSelectableByMouse)
 
         if self.ADD_VIEWER:
-            self.slam_widget = Slam2DWidget()
+            self.slam_widget = Slam2DWidgetForVisoar()
             self.slam_widget.setStyleSheet(LOOK_AND_FEEL)
             self.slam_widget.progress_bar.bar.setStyleSheet(PROGRESSBAR_LOOK_AND_FEEL)
             self.slam_widget.progress_bar.bar.setMinimumWidth(300)
             self.slam = Slam2D()
+            self.slam.enable_svg = False
+            #self.slam_widget.slam = self.slam
 
         self.visoarUserLibraryData = VisoarUserLibraryData(self.userFileHistory)
 
@@ -548,7 +549,7 @@ class ViSOARUIWidget(QWidget):
                         errorStr = 'Please Provide both RGB and NDVI directories or go back home and use a different sensor type\n'
                         self.tabAskSource.createErrorLabel.setText(errorStr)
                     else:
-                        tempName = os.path.basename(os.path.normpath(self.projectInfo.srcDir))
+                        tempName = datetime.now().strftime("%Y%m%d-%H%M%S_")+os.path.basename(os.path.normpath(self.projectInfo.srcDir))
                         self.tabAskName.projNametextbox.setText(tempName)
                         self.projectInfo.projName = tempName
                         self.tabAskDest.destNametextbox.setText(self.projectInfo.srcDir.strip())
@@ -562,7 +563,7 @@ class ViSOARUIWidget(QWidget):
                         errorStr = 'Please Provide a directory of images or click on the load tab to load a dataset you\'ve already stitched\n'
                         self.tabAskSource.createErrorLabel.setText(errorStr)
                     else:
-                        tempName = os.path.basename(os.path.normpath(self.projectInfo.srcDir))
+                        tempName = datetime.now().strftime("%Y%m%d-%H%M%S_")+os.path.basename(os.path.normpath(self.projectInfo.srcDir))
                         self.tabAskName.projNametextbox.setText(tempName)
                         self.projectInfo.projName = tempName
                         self.tabAskDest.destNametextbox.setText(self.projectInfo.srcDir.strip())
@@ -688,85 +689,15 @@ class ViSOARUIWidget(QWidget):
         self.tabs.setCurrentIndex(self.LOAD_TAB)
         self.update()
 
-    def generateImage(self, img):
-        t1 = Time.now()
-        print("Generating image", img.filenames[0])
-        generated = self.provider.generateImage(img)
-        ret = InterleaveChannels(generated)
-        print("done", img.id, "range", ComputeImageRange(ret), "shape", ret.shape, "dtype", ret.dtype, "in",
-              t1.elapsedMsec() / 1000, "msec")
-        return ret
-
     def setAndRunSlam(self, image_dir, cache_dir=None, telemetry=None, plane=None, calibration=None,
                       physic_box=None):
-        self.slam = Slam2D()
-        self.slam.enable_svg = False
-        self.slam.setImageDirectory(image_dir,  cache_dir= cache_dir, telemetry=telemetry, plane=plane, calibration=calibration, physic_box=physic_box)
-        self.slam_widget.run(self.slam)
-        self.slam_widget.slam.run()
-        #
-        # if not image_dir:
-        #     print("Showing choose directory dialog")
-        #     image_dir = QFileDialog.getExistingDirectory(self, "Choose directory...", "", QFileDialog.ShowDirsOnly)
-        #     if not image_dir:
-        #         return
-        #
-        # # by default cached files go inside
-        # if not cache_dir:
-        #     cache_dir = os.path.abspath(os.path.join(image_dir, "./VisusSlamFiles"))
-        #
-        # # avoid recursions
-        # if self.image_dir == image_dir and self.cache_dir == cache_dir:
-        #     return
-
-        Assert(os.path.isdir(image_dir))
+        self.slam.setImageDirectory(image_dir = image_dir,  cache_dir= cache_dir, telemetry=telemetry, plane=plane, calibration=calibration, physic_box=physic_box)
+        retSlamSetup = self.slam_widget.run(self.slam)
+        retSlamRan = self.slam_widget.slam.run()
         self.log.clear()
-        # self.generate_bbox = False
-        # self.color_matching = False
-        # self.blending_exp = "output=voronoi()"
-        #
-        # self.cache_dir = cache_dir
-        # self.image_dir = image_dir
-        #
-        # os.makedirs(self.cache_dir, exist_ok=True)
-        #
-        # self.provider, all_images = CreateProvider(self.image_dir)
-        # self.provider.cache_dir = self.cache_dir
-        # # self.provider.progress_bar = self.progress_bar
-        # self.provider.telemetry = telemetry
-        # self.provider.plane = plane
-        # self.provider.calibration = calibration
-        # self.provider.setImages(all_images)
-        #
-        # TryRemoveFiles(self.cache_dir + '/~*')
-        #
-        # full = self.generateImage(self.provider.images[0])
-        # array = Array.fromNumPy(full, TargetDim=2)
-        # width = array.getWidth()
-        # height = array.getHeight()
-        # dtype = array.dtype
-        #
-        # # self.slam=Slam2D(width,height,dtype, self.provider.calibration,self.cache_dir)
-        # self.slam = Slam2DCode(width, height, dtype, self.provider.calibration, self.cache_dir,
-        #                        generate_bbox=self.generate_bbox,
-        #                        color_matching=self.color_matching, blending_exp=self.blending_exp, enable_svg=False,
-        #                        enable_color_matching=False)
-        # self.slam.debug_mode = False
-        # self.slam.generateImage = self.generateImage
-        # # self.slam.startAction = self.startAction
-        # # self.slam.advanceAction = self.advanceAction
-        # # self.slam.endAction = self.endAction
-        # # self.slam.showEnergy = self.showEnergy
-        # # self.slam.physic_box= BoxNd.fromString(physic_box)
-        # self.slam.physic_box = BoxNd.fromString(physic_box) if physic_box else None
-        # for img in self.provider.images:
-        #     camera = self.slam.addCamera(img)
-        #     self.slam.createIdx(camera)
-        # # self.refreshViewer() #Amy Added.. trying to get
-
-        #self.slam.initialSetup()
-        #self.slam.run()
-        self.setUpRClone()
+        #self.setUpRClone()
+        #These run functions above should return values of success.. but they don't
+        return True, True
 
     def createRGBNDVI_MIDX(self):
         # This function assumes that slam has been run on teh RGB and NDVI directories, resulting in two MIDX files
@@ -1545,9 +1476,11 @@ class ViSOARUIWidget(QWidget):
 
         if not self.projectInfo.srcDir:
             self.projectInfo.srcDir = self.projectInfo.projDir
-        self.slam.enable_svg = False
-        self.slam.setImageDirectory(image_dir=self.projectInfo.srcDir, cache_dir=os.path.join(self.projectInfo.projDir, 'VisusSlamFiles'))
-        # self.parent.onChange(self.parent.STITCHING_VIEW_TAB)
+
+        #retSlamSetup, retSlamRan = self.setAndRunSlam(image_dir=self.projectInfo.srcDir, cache_dir=os.path.join(self.projectInfo.projDir, 'VisusSlamFiles'))
+        # self.slam.enable_svg = False
+        # self.slam.setImageDirectory(image_dir=self.projectInfo.srcDir, cache_dir=os.path.join(self.projectInfo.projDir, 'VisusSlamFiles'))
+        # # self.parent.onChange(self.parent.STITCHING_VIEW_TAB)
         # except:
         # self.parent.tabs.setCurrentIndex(self.parent.START_TAB)
         #     self.parent.onChange(self.parent.START_TAB)
@@ -1558,8 +1491,9 @@ class ViSOARUIWidget(QWidget):
         if self.DEBUG:
             print('startViSUSSLAM finished')
 
-        import time
-        time.sleep(3)
+        #import time
+        #time.sleep(3)
+        print('Amy Check this' )
         self.tabStitcher.run()
 
     def saveJSONFile(self):
@@ -1644,210 +1578,211 @@ class ViSOARUIWidget(QWidget):
         # db = self.viewer2.getDataset()
         # db.setEnableAnnotations(value)
 
-
-class ViSOARUIWidgetFull(ViSOARUIWidget):
-    def __init__(self, parent):
-        super(ViSOARUIWidget, self).__init__(parent)
-        self.app_dir = os.getcwd()
-
-        self.USER_TAB_UI = False
-
-        self.START_TAB = 0
-        self.NEW_STITCH_TAB = 1
-        self.NEW_TIME_SERIES_TAB = 2
-        self.LOAD_TAB = 3
-        self.STITCHING_VIEW_TAB = 4
-        self.ANALYTICS_TAB = 5
-        self.ASKSENSOR_TAB = 6
-        self.ASKSOURCE_TAB = 7
-        self.ASKNAME_TAB = 8
-        self.ASKDEST_TAB = 9
-        self.ASKSOURCERGBNDVI_TAB = 10
-        self.MOVE_DATA_TAB = 11
-        self.BATCH_PROCESS_TAB = 12
-
-        self.copySourceBool = False
-        self.SHOW_GOGGLE_MAP = False
-        self.ANNOTATIONS_MODE = False
-
-        self.isWINDOWS = (sys.platform.startswith("win") or
-                          (sys.platform == 'cli' and os.name == 'nt'))
-
-        self.inputMode = "R G B"
-        self.projectInfo = VisoarProject()
-
-
-        self.userFileHistory = os.path.join(os.getcwd(), 'userFileHistory.xml')
-
-        self.scriptNames = MASTER_SCRIPT_LIST
-        self.LINK_CAMERAS = True
-
-        self.generate_bbox = False
-        self.color_matching = False
-        self.blending_exp = "output=voronoi()"
-
-        self.loadWidgetDict = {}
-        self.loadLabelsWidgetDict = {}
-
-        if os.path.exists(self.userFileHistory):
-            print('All app settings will be saved to: ' + self.userFileHistory)
-        else:
-            f = open(self.userFileHistory, "wt")
-            today = datetime.now()
-            todayFormated = today.strftime("%Y%m%d_%H%M%S")
-            f.write('<data>\n' +
-                    '\t<project>\n' +
-                    '\t\t<projName>TestData</projName>\n' +
-                    '\t\t<projDir>./data/TestData</projDir>\n' +
-                    '\t\t<srcDir>./data/TestData</srcDir>\n' +
-                    '\t\t<createdAt>' + todayFormated + '</createdAt>\n' +
-                    '\t\t<updatedAt>' + todayFormated + '</updatedAt>\n' +
-                    '\t</project>\n' +
-                    '</data>\n')
-            f.close()
-        self.DEBUG = True
-        self.ADD_VIEWER = True  # Flag for removing viewers for testing
-
-        self.openfilenameLabelS = QLabel()
-        self.openfilenameLabelS.resize(480, 40)
-        self.openfilenameLabelS.setStyleSheet(
-            "min-height:30; min-width:180; padding:0px; background-color: #ffffff; color: rgb(0, 0, 0);  border: 0px")
-
-        self.openfilenameLabel = QLabel()
-        self.openfilenameLabel.resize(480, 40)
-        self.openfilenameLabel.setStyleSheet(
-            "min-height:30; min-width:180; padding:0px; background-color: #ffffff; color: rgb(0, 0, 0);  border: 0px")
-        self.openfilenameLabel.setTextInteractionFlags(Qt.TextSelectableByMouse)
-        if self.ADD_VIEWER:
-            self.viewerW = MyViewerWidget(self)
-            self.viewerW2 = MyViewerWidget(self)
-            self.viewer = self.viewerW.viewer  # MyViewer()
-            self.viewer2 = self.viewerW2.viewer  # MyViewer()
-
-            # self.viewer.hide()
-            self.viewer.setMinimal()
-            self.viewer2.setMinimal()
-
-            self.cam1 = self.viewer.getGLCamera()
-            self.cam2 = self.viewer2.getGLCamera()
-
-            # disable smoothing
-            if isinstance(self.cam1, GLOrthoCamera): self.cam1.toggleDefaultSmooth()
-            if isinstance(self.cam2, GLOrthoCamera): self.cam2.toggleDefaultSmooth()
-
-            self.viewer.on_camera_change = lambda: self.onCameraChange12()
-            self.viewer2.on_camera_change = lambda: self.onCameraChange21()
-            # self.viewer_subwin = sip.wrapinstance(FromCppQtWidget(self.viewer.c_ptr()), QtWidgets.QMainWindow)
-            # self.viewer_subwin2 = sip.wrapinstance(FromCppQtWidget(self.viewer2.c_ptr()), QtWidgets.QMainWindow)
-            self.viewer_subwin = self.viewerW.viewer_subwin
-            self.viewer_subwin2 = self.viewerW2.viewer_subwin
-
-        else:
-            self.viewer_subwin = QWidget(self)
-
-        self.pythonScriptingWindow = PythonScriptWindow(self)
-        self.pythonScriptingWindow.resize(600, 640)
-
-        self.logo = QPushButton('', self)
-        self.logo.setStyleSheet(NOBACKGROUND_PUSH_BUTTON)
-        ##-- self.logo.setStyleSheet("QPushButton {border-style: outset; border-width: 0px;color:#ffffff}");
-        self.logo.setIcon(QIcon(os.path.join(self.app_dir, 'icons', 'visoar_logo.png')))
-        self.logo.setIconSize(QSize(480, 214))
-
-        self.logo.setText('')
-        if self.ADD_VIEWER:
-            self.slam_widget = Slam2DWidget(self)
-            self.slam_widget.setStyleSheet(LOOK_AND_FEEL)
-            self.slam_widget.progress_bar.bar.setStyleSheet(PROGRESSBAR_LOOK_AND_FEEL)
-            self.slam_widget.progress_bar.bar.setMinimumWidth(300)
-            self.slam = Slam2D()
-
-        self.visoarUserLibraryData = VisoarUserLibraryData(self.userFileHistory)
-
-        self.layout = QVBoxLayout(self)
-
-        self.tabAskSensor = VisoarAskSensor(self)
-        self.tabAskSource = VisoarAskSource(self)
-        self.tabAskSourceRGBNDVI = VisoarAskSourceRGBNDVI(self)
-        self.tabAskName = VisoarAskName(self)
-        self.tabAskDest = VisoarAskDest(self)
-
-        self.tabStart = VisoarStartTabWidget(self)  # QWidget()
-        self.tabNewStitching = VisoarNewTabWidget(self)  # QWidget()
-        self.tabNewTimeSeries = VisoarNewTimeSeriesTabWidget(self)  # QWidget()
-        self.tabLoad = VisoarLoadTabWidget(self)  # QWidget()
-
-        #self.tabBatchProcess = VisoarBatchProcessWidget(self)  # QWidget()
-        self.tabMoveDataFromCards = VisoarMoveDataWidget(self)  # QWidget()
-
-        if self.ADD_VIEWER:
-            self.tabStitcher = VisoarStitchTabWidget(self)  # QWidget()
-            self.tabViewer = VisoarAnalyzeTabWidget(self)  # QWidget()
-
-        if self.USER_TAB_UI:
-            # Initialize tab screen
-            self.tabs = QTabWidget()
-            self.tabs.resize(600, 600)
-
-            self.mySetTabStyle()
-            self.tabs.addTab(self.tabStart, "ViSOAR")
-            # homeicon = QIcon('icons/House.png')#, alignment=Qt.AlignCenter)
-            # homeicon = QIcon('icons/VisoarEye80x80.png')#, alignment=Qt.AlignCenter)
-            # self.tabs.setTabIcon(self.START_TAB, homeicon)
-
-            self.tabs.addTab(self.tabNewStitching, "Stitch A New Mosaic")
-            # homeicon = QIcon('icons/puzzleT.png')#, alignment=Qt.AlignCenter)
-            # self.tabs.setTabIcon(self.NEW_STITCH_TAB, homeicon)
-
-            self.tabs.setIconSize(QSize(100, 100))
-
-            self.tabs.addTab(self.tabNewTimeSeries, "Create Time Series")
-
-            self.tabs.addTab(self.tabLoad, "Load Project")
-            if self.ADD_VIEWER:
-                self.tabs.addTab(self.tabStitcher, "Stitcher")
-                self.tabs.addTab(self.tabViewer, "Analytics")
-            self.tabs.currentChanged.connect(self.onTabChange)  # changed!
-
-            # self.tabs.setTabEnabled(2,False)
-            if (self.USER_TAB_UI):
-                self.tabs.setTabEnabled(self.ANALYTICS_TAB, False)
-
-            self.tabs.setCurrentIndex(self.START_TAB)
-            self.tabs.currentChanged.connect(self.onChange)  # changed!
-        else:
-            self.leftlist = QListWidget()
-            self.leftlist.insertItem(self.START_TAB, 'Start')
-            self.leftlist.insertItem(self.NEW_STITCH_TAB, 'One Screen New')
-            self.leftlist.insertItem(self.NEW_TIME_SERIES_TAB, 'Create Time Series')
-            self.leftlist.insertItem(self.LOAD_TAB, 'Load Dataset')
-            self.leftlist.insertItem(self.STITCHING_VIEW_TAB, 'Stich Moasic')
-            self.leftlist.insertItem(self.ANALYTICS_TAB, 'Viewer')
-            self.leftlist.insertItem(self.ASKSENSOR_TAB, 'Sensor')
-            self.leftlist.insertItem(self.ASKSOURCE_TAB, 'Image Directory')
-            self.leftlist.insertItem(self.ASKNAME_TAB, 'Project Name')
-            self.leftlist.insertItem(self.ASKDEST_TAB, 'Save Directory')
-            self.leftlist.insertItem(self.ASKSOURCERGBNDVI_TAB, 'RGB and NDVI Image Directory')
-            self.leftlist.insertItem(self.MOVE_DATA_TAB, 'Move Data from Drone Cards')
-            self.leftlist.currentRowChanged.connect(self.display)
-
-            # use stack
-            self.tabs = QStackedWidget()
-
-            self.tabs.addWidget(self.tabStart)
-            self.tabs.addWidget(self.tabNewStitching)
-            self.tabs.addWidget(self.tabNewTimeSeries)
-            self.tabs.addWidget(self.tabLoad)
-            self.tabs.addWidget(self.tabStitcher)
-            self.tabs.addWidget(self.tabViewer)
-            self.tabs.addWidget(self.tabAskSensor)
-            self.tabs.addWidget(self.tabAskSource)
-            self.tabs.addWidget(self.tabAskName)
-            self.tabs.addWidget(self.tabAskDest)
-            self.tabs.addWidget(self.tabAskSourceRGBNDVI)
-            self.tabs.addWidget(self.tabMoveDataFromCards)
-
-            self.tabs.setCurrentIndex(0)
-
-            # Add layout of tabs to self
-        self.layout.addWidget(self.tabs)
+#
+# class ViSOARUIWidgetFull(ViSOARUIWidget):
+#     def __init__(self, parent):
+#         super(ViSOARUIWidget, self).__init__(parent)
+#         self.app_dir = os.getcwd()
+#
+#         self.USER_TAB_UI = False
+#
+#         self.START_TAB = 0
+#         self.NEW_STITCH_TAB = 1
+#         self.NEW_TIME_SERIES_TAB = 2
+#         self.LOAD_TAB = 3
+#         self.STITCHING_VIEW_TAB = 4
+#         self.ANALYTICS_TAB = 5
+#         self.ASKSENSOR_TAB = 6
+#         self.ASKSOURCE_TAB = 7
+#         self.ASKNAME_TAB = 8
+#         self.ASKDEST_TAB = 9
+#         self.ASKSOURCERGBNDVI_TAB = 10
+#         self.MOVE_DATA_TAB = 11
+#         self.BATCH_PROCESS_TAB = 12
+#
+#         self.copySourceBool = False
+#         self.SHOW_GOGGLE_MAP = False
+#         self.ANNOTATIONS_MODE = False
+#
+#         self.isWINDOWS = (sys.platform.startswith("win") or
+#                           (sys.platform == 'cli' and os.name == 'nt'))
+#
+#         self.inputMode = "R G B"
+#         self.projectInfo = VisoarProject()
+#
+#
+#         self.userFileHistory = os.path.join(os.getcwd(), 'userFileHistory.xml')
+#
+#         self.scriptNames = MASTER_SCRIPT_LIST
+#         self.LINK_CAMERAS = True
+#
+#         self.generate_bbox = False
+#         self.color_matching = False
+#         self.blending_exp = "output=voronoi()"
+#
+#         self.loadWidgetDict = {}
+#         self.loadLabelsWidgetDict = {}
+#
+#         if os.path.exists(self.userFileHistory):
+#             print('All app settings will be saved to: ' + self.userFileHistory)
+#         else:
+#             f = open(self.userFileHistory, "wt")
+#             today = datetime.now()
+#             todayFormated = today.strftime("%Y%m%d_%H%M%S")
+#             f.write('<data>\n' +
+#                     '\t<project>\n' +
+#                     '\t\t<projName>TestData</projName>\n' +
+#                     '\t\t<projDir>./data/TestData</projDir>\n' +
+#                     '\t\t<srcDir>./data/TestData</srcDir>\n' +
+#                     '\t\t<createdAt>' + todayFormated + '</createdAt>\n' +
+#                     '\t\t<updatedAt>' + todayFormated + '</updatedAt>\n' +
+#                     '\t</project>\n' +
+#                     '</data>\n')
+#             f.close()
+#         self.DEBUG = True
+#         self.ADD_VIEWER = True  # Flag for removing viewers for testing
+#
+#         self.openfilenameLabelS = QLabel()
+#         self.openfilenameLabelS.resize(480, 40)
+#         self.openfilenameLabelS.setStyleSheet(
+#             "min-height:30; min-width:180; padding:0px; background-color: #ffffff; color: rgb(0, 0, 0);  border: 0px")
+#
+#         self.openfilenameLabel = QLabel()
+#         self.openfilenameLabel.resize(480, 40)
+#         self.openfilenameLabel.setStyleSheet(
+#             "min-height:30; min-width:180; padding:0px; background-color: #ffffff; color: rgb(0, 0, 0);  border: 0px")
+#         self.openfilenameLabel.setTextInteractionFlags(Qt.TextSelectableByMouse)
+#         if self.ADD_VIEWER:
+#             self.viewerW = MyViewerWidget(self)
+#             self.viewerW2 = MyViewerWidget(self)
+#             self.viewer = self.viewerW.viewer  # MyViewer()
+#             self.viewer2 = self.viewerW2.viewer  # MyViewer()
+#
+#             # self.viewer.hide()
+#             self.viewer.setMinimal()
+#             self.viewer2.setMinimal()
+#
+#             self.cam1 = self.viewer.getGLCamera()
+#             self.cam2 = self.viewer2.getGLCamera()
+#
+#             # disable smoothing
+#             if isinstance(self.cam1, GLOrthoCamera): self.cam1.toggleDefaultSmooth()
+#             if isinstance(self.cam2, GLOrthoCamera): self.cam2.toggleDefaultSmooth()
+#
+#             self.viewer.on_camera_change = lambda: self.onCameraChange12()
+#             self.viewer2.on_camera_change = lambda: self.onCameraChange21()
+#             # self.viewer_subwin = sip.wrapinstance(FromCppQtWidget(self.viewer.c_ptr()), QtWidgets.QMainWindow)
+#             # self.viewer_subwin2 = sip.wrapinstance(FromCppQtWidget(self.viewer2.c_ptr()), QtWidgets.QMainWindow)
+#             self.viewer_subwin = self.viewerW.viewer_subwin
+#             self.viewer_subwin2 = self.viewerW2.viewer_subwin
+#
+#         else:
+#             self.viewer_subwin = QWidget(self)
+#
+#         self.pythonScriptingWindow = PythonScriptWindow(self)
+#         self.pythonScriptingWindow.resize(600, 640)
+#
+#         self.logo = QPushButton('', self)
+#         self.logo.setStyleSheet(NOBACKGROUND_PUSH_BUTTON)
+#         ##-- self.logo.setStyleSheet("QPushButton {border-style: outset; border-width: 0px;color:#ffffff}");
+#         self.logo.setIcon(QIcon(os.path.join(self.app_dir, 'icons', 'visoar_logo.png')))
+#         self.logo.setIconSize(QSize(480, 214))
+#
+#         self.logo.setText('')
+#         if self.ADD_VIEWER:
+#             self.slam_widget = Slam2DWidgetForVisoar(self)
+#             self.slam_widget.setStyleSheet(LOOK_AND_FEEL)
+#             self.slam_widget.progress_bar.bar.setStyleSheet(PROGRESSBAR_LOOK_AND_FEEL)
+#             self.slam_widget.progress_bar.bar.setMinimumWidth(300)
+#             self.slam = Slam2D()
+#             self.slam_widget.slam = self.slam
+#
+#         self.visoarUserLibraryData = VisoarUserLibraryData(self.userFileHistory)
+#
+#         self.layout = QVBoxLayout(self)
+#
+#         self.tabAskSensor = VisoarAskSensor(self)
+#         self.tabAskSource = VisoarAskSource(self)
+#         self.tabAskSourceRGBNDVI = VisoarAskSourceRGBNDVI(self)
+#         self.tabAskName = VisoarAskName(self)
+#         self.tabAskDest = VisoarAskDest(self)
+#
+#         self.tabStart = VisoarStartTabWidget(self)  # QWidget()
+#         self.tabNewStitching = VisoarNewTabWidget(self)  # QWidget()
+#         self.tabNewTimeSeries = VisoarNewTimeSeriesTabWidget(self)  # QWidget()
+#         self.tabLoad = VisoarLoadTabWidget(self)  # QWidget()
+#
+#         #self.tabBatchProcess = VisoarBatchProcessWidget(self)  # QWidget()
+#         self.tabMoveDataFromCards = VisoarMoveDataWidget(self)  # QWidget()
+#
+#         if self.ADD_VIEWER:
+#             self.tabStitcher = VisoarStitchTabWidget(self)  # QWidget()
+#             self.tabViewer = VisoarAnalyzeTabWidget(self)  # QWidget()
+#
+#         if self.USER_TAB_UI:
+#             # Initialize tab screen
+#             self.tabs = QTabWidget()
+#             self.tabs.resize(600, 600)
+#
+#             self.mySetTabStyle()
+#             self.tabs.addTab(self.tabStart, "ViSOAR")
+#             # homeicon = QIcon('icons/House.png')#, alignment=Qt.AlignCenter)
+#             # homeicon = QIcon('icons/VisoarEye80x80.png')#, alignment=Qt.AlignCenter)
+#             # self.tabs.setTabIcon(self.START_TAB, homeicon)
+#
+#             self.tabs.addTab(self.tabNewStitching, "Stitch A New Mosaic")
+#             # homeicon = QIcon('icons/puzzleT.png')#, alignment=Qt.AlignCenter)
+#             # self.tabs.setTabIcon(self.NEW_STITCH_TAB, homeicon)
+#
+#             self.tabs.setIconSize(QSize(100, 100))
+#
+#             self.tabs.addTab(self.tabNewTimeSeries, "Create Time Series")
+#
+#             self.tabs.addTab(self.tabLoad, "Load Project")
+#             if self.ADD_VIEWER:
+#                 self.tabs.addTab(self.tabStitcher, "Stitcher")
+#                 self.tabs.addTab(self.tabViewer, "Analytics")
+#             self.tabs.currentChanged.connect(self.onTabChange)  # changed!
+#
+#             # self.tabs.setTabEnabled(2,False)
+#             if (self.USER_TAB_UI):
+#                 self.tabs.setTabEnabled(self.ANALYTICS_TAB, False)
+#
+#             self.tabs.setCurrentIndex(self.START_TAB)
+#             self.tabs.currentChanged.connect(self.onChange)  # changed!
+#         else:
+#             self.leftlist = QListWidget()
+#             self.leftlist.insertItem(self.START_TAB, 'Start')
+#             self.leftlist.insertItem(self.NEW_STITCH_TAB, 'One Screen New')
+#             self.leftlist.insertItem(self.NEW_TIME_SERIES_TAB, 'Create Time Series')
+#             self.leftlist.insertItem(self.LOAD_TAB, 'Load Dataset')
+#             self.leftlist.insertItem(self.STITCHING_VIEW_TAB, 'Stich Moasic')
+#             self.leftlist.insertItem(self.ANALYTICS_TAB, 'Viewer')
+#             self.leftlist.insertItem(self.ASKSENSOR_TAB, 'Sensor')
+#             self.leftlist.insertItem(self.ASKSOURCE_TAB, 'Image Directory')
+#             self.leftlist.insertItem(self.ASKNAME_TAB, 'Project Name')
+#             self.leftlist.insertItem(self.ASKDEST_TAB, 'Save Directory')
+#             self.leftlist.insertItem(self.ASKSOURCERGBNDVI_TAB, 'RGB and NDVI Image Directory')
+#             self.leftlist.insertItem(self.MOVE_DATA_TAB, 'Move Data from Drone Cards')
+#             self.leftlist.currentRowChanged.connect(self.display)
+#
+#             # use stack
+#             self.tabs = QStackedWidget()
+#
+#             self.tabs.addWidget(self.tabStart)
+#             self.tabs.addWidget(self.tabNewStitching)
+#             self.tabs.addWidget(self.tabNewTimeSeries)
+#             self.tabs.addWidget(self.tabLoad)
+#             self.tabs.addWidget(self.tabStitcher)
+#             self.tabs.addWidget(self.tabViewer)
+#             self.tabs.addWidget(self.tabAskSensor)
+#             self.tabs.addWidget(self.tabAskSource)
+#             self.tabs.addWidget(self.tabAskName)
+#             self.tabs.addWidget(self.tabAskDest)
+#             self.tabs.addWidget(self.tabAskSourceRGBNDVI)
+#             self.tabs.addWidget(self.tabMoveDataFromCards)
+#
+#             self.tabs.setCurrentIndex(0)
+#
+#             # Add layout of tabs to self
+#         self.layout.addWidget(self.tabs)

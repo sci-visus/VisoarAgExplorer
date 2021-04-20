@@ -67,11 +67,12 @@ class StartWindow(QMainWindow):
 		#self.viewer.hide()
 		self.viewer.setMinimal()
 
-		self.slam_widget = Slam2DWidget(self)
+		self.slam_widget = Slam2DWidgetForVisoar(self)
 		self.slam_widget.setStyleSheet(LOOK_AND_FEEL)
 		self.slam_widget.progress_bar.bar.setStyleSheet(PROGRESSBAR_LOOK_AND_FEEL)
 		self.slam_widget.progress_bar.bar.setMinimumWidth(300)
 		self.slam = Slam2D()
+		self.slam_widget.slam = self.slam
 
 		#self.tab_widget = MyTabWidget(self)
 		#self.setCentralWidget(self.tab_widget)
