@@ -1,6 +1,12 @@
 # VisoarAgExplorer
 VisoarAgExplorer Python Interface
 
+#Get a copy of the 
+
+    visus_google.py 
+    
+    file from the developers by emailing Amy
+
 #Install zip  
 
 - For Windows:   TBP
@@ -48,7 +54,7 @@ Documentation for  OpenVisus if above fails `https://github.com/sci-visus/OpenVi
 Then grab this code:
 
 ```
-git clone https://github.com/amygooch/VisoarAgExplorer.git
+git clone https://github.com/sci-visus/VisoarAgExplorer.git
 ```
 
 
@@ -127,3 +133,7 @@ python -m OpenVisus viewer
 ```
 brew install exiftool zbar 
 ```
+
+# Visus_google.py and other secrets
+Because we are enabling uploading to google, one needs a copy of the certificate validation infomation
+Ask the developers for a copy of the files
