@@ -207,7 +207,7 @@ class Slam2DWidget(QWidget):
 			
 		if self.show_annotations:
 			db=self.viewer.getDataset()
-			#db.setEnableAnnotations(False)  #AAG: I always get a crash here with VISOAR Ag Explorer
+			db.setEnableAnnotations(False)  #AAG: I always get a crash here with VISOAR Ag Explorer
 
 		# focus on slam dataset (not google world)
 		if self.zoom_on_dataset:
