@@ -55,6 +55,8 @@ class Slam2DWidgetForVisoar(Slam2DWidget):
 		self.show_progress_bar = True
 		self.add_run_button = False
 		self.viewer_open_filename = "visus.midx"
+		self.redirect_log = GuiRedirectLog()
+		self.redirect_log.setCallback(self.printLog)
 
 		self.createGui()
 		self.setStyleSheet(LOOK_AND_FEEL)
