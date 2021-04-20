@@ -59,45 +59,42 @@ class GuiRedirectLog(QtCore.QObject):
 	def flush(self):
 		sys.__stdout__.flush()
 		self.log.flush()
+		
+# //////////////////////////////////////////////////////////////////////////////
+def CreatePushButton(text,callback=None, img=None ):
+	ret=QPushButton(text)
+	ret.setAutoDefault(False)
+	if callback:
+		ret.clicked.connect(callback)
+	if img:
+		ret.setIcon(QtGui.QIcon(img))
+	return ret
+		
+
 
 # //////////////////////////////////////////////////////////////////////////////
-class Slam2DWindow(QMainWindow):
+class Slam2DWidget(QWidget):
 
 	# constructor
 	def __init__(self):
-		super(Slam2DWindow, self).__init__()
-		ShowSplash()
+		super(QWidget, self).__init__()
 		self.redirect_log=GuiRedirectLog()
-		self.redirect_log.setCallback(self.printLog)	
-		self.createGui()
-		self.showMaximized()	
-
-	# createPushButton
-	def createPushButton(self,text,callback=None, img=None ):
-		ret=QPushButton(text)
-		#ret.setStyleSheet("QPushButton{background: transparent;}");
-		ret.setAutoDefault(False)
-		if callback:
-			ret.clicked.connect(callback)
-		if img:
-			ret.setIcon(QtGui.QIcon(img))
-		return ret
+		self.redirect_log.setCallback(self.printLog)
+		self.zoom_on_dataset=True
+		self.show_annotations=True
+		self.add_run_button=True
+		self.add_progress_bar=True		
+		self.viewer_open_filename="google.midx"
 
 	# createGui
 	def createGui(self):
-
-		self.setWindowTitle("Visus SLAM")
-
-		class Buttons : pass
-		self.buttons=Buttons
-
+		
 		# create widgets
 		self.viewer=Viewer()
 		self.viewer.setMinimal()
 		viewer_subwin = sip.wrapinstance(FromCppQtWidget(self.viewer.c_ptr()), QtWidgets.QMainWindow)	
 
 		self.google_maps = QWebEngineView()
-		self.progress_bar=ProgressLine()
 		self.preview=PreviewImage()
 
 		self.log = QTextEdit()
@@ -112,10 +109,14 @@ class Slam2DWindow(QMainWindow):
 
 		# toolbar
 		toolbar=QHBoxLayout()
-		self.buttons.run_slam=self.createPushButton("Run",lambda: self.onRunClicked())
-
-		toolbar.addWidget(self.buttons.run_slam)
-		toolbar.addLayout(self.progress_bar)
+		
+		if self.add_run_button:
+			run_slam=CreatePushButton("Run",lambda: self.onRunClicked())
+			toolbar.addWidget(run_slam)
+			
+		if self.add_progress_bar:
+			self.progress_bar=ProgressLine()
+			toolbar.addLayout(self.progress_bar)
 
 		toolbar.addStretch(1)
 		main_layout.addLayout(toolbar)
@@ -127,11 +128,9 @@ class Slam2DWindow(QMainWindow):
 
 		main_layout.addWidget(center,1)
 		main_layout.addWidget(self.log)
+		
+		self.setLayout(main_layout)
 
-		central_widget = QFrame()
-		central_widget.setLayout(main_layout)
-		central_widget.setFrameShape(QFrame.NoFrame)
-		self.setCentralWidget(central_widget)
 
 	# onRunClicked
 	def onRunClicked(self):
@@ -156,21 +155,24 @@ class Slam2DWindow(QMainWindow):
 	# startAction
 	def startAction(self,N,message):
 		print(message)
-		self.progress_bar.setRange(0,N)
-		self.progress_bar.setMessage(message)
-		self.progress_bar.setValue(0)
-		self.progress_bar.show()
-		self.processEvents()
+		if self.progress_bar:
+			self.progress_bar.setRange(0,N)
+			self.progress_bar.setMessage(message)
+			self.progress_bar.setValue(0)
+			self.progress_bar.show()
+			self.processEvents()
 
 	# advanceAction
 	def advanceAction(self,I):
-		self.progress_bar.setValue(max(I,self.progress_bar.value()))
-		self.processEvents()
+		if self.progress_bar:
+			self.progress_bar.setValue(max(I,self.progress_bar.value()))
+			self.processEvents()
 
 	# endAction
 	def endAction(self):
-		self.progress_bar.hide()
-		self.processEvents()
+			if self.progress_bar:
+				self.progress_bar.hide()
+				self.processEvents()
 
 	# showMessageBox
 	def showMessageBox(self,msg):
@@ -188,7 +190,7 @@ class Slam2DWindow(QMainWindow):
 
 	# refreshViewer
 	def refreshViewer(self,fieldname="output=voronoi()"):
-		url=self.slam.cache_dir+"/google.midx"
+		url=self.slam.cache_dir+"/" + self.viewer_open_filename
 		self.viewer.open(url)
 		# make sure the RenderNode get almost RGB components
 		self.viewer.setFieldName(fieldname)	
@@ -200,14 +202,16 @@ class Slam2DWindow(QMainWindow):
 		pref.bShowDataflow=False
 		pref.bShowLogs=False
 		self.viewer.setPreferences(pref)
-
-		# don't show annotations
-		db=self.viewer.getDataset()
-		db.setEnableAnnotations(False)
+			
+		if not self.show_annotations:
+			db=self.viewer.getDataset()
+			db.setEnableAnnotations(False)
 
 		# focus on slam dataset (not google world)
-		box=db.getChild("visus").getDatasetBounds().toAxisAlignedBox()
-		self.viewer.getGLCamera().guessPosition(box)
+		if self.zoom_on_dataset:
+			db=self.viewer.getDataset()
+			box=db.getChild("visus").getDatasetBounds().toAxisAlignedBox()
+			self.viewer.getGLCamera().guessPosition(box)
 
 	# refreshGoogleMaps
 	def refreshGoogleMaps(self):
@@ -241,7 +245,28 @@ class Slam2DWindow(QMainWindow):
 		slam.showEnergy=self.showEnergy
 		self.refreshGoogleMaps()
 		self.refreshViewer()
-		self.setWindowTitle("num_images({}) width({}) height({}) dtype({}) ".format(len(self.slam.provider.images),self.slam.width, self.slam.height, self.slam.dtype.toString()))
-		HideSplash()
-		QApplication.instance().exec()
 
+# //////////////////////////////////////////////////////////////////////////////
+class Slam2DWindow(QMainWindow):		
+	
+	# constructor
+	def __init__(self):
+		super(QMainWindow, self).__init__()
+		self.setWindowTitle("Visus SLAM")
+		self.widget=Slam2DWidget()
+		self.widget.add_run_button=True
+		self.widget.add_progress_bar=True
+		self.widget.zoom_on_dataset=True
+		self.widget.show_annotations=True
+		self.widget.viewer_open_filename="google.midx"
+		self.widget.createGui()
+		self.setCentralWidget(self.widget)
+		self.showMaximized()	
+		ShowSplash()
+		
+	# run
+	def run(self,slam):
+		self.setWindowTitle("num_images({}) width({}) height({}) dtype({}) ".format(len(slam.provider.images),slam.width, slam.height, slam.dtype.toString()))
+		self.widget.run(slam)
+		HideSplash()	
+		QApplication.instance().exec()
