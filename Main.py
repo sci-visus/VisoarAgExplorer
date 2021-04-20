@@ -56,9 +56,9 @@ class ExceptionHandler(QtCore.QObject):
 
 	# handler
 	def handler(self, exctype, value, traceback):
-		sys.excepthook = self.__excepthook__
+		sys.excepthook=self.__excepthook__
 		sys.excepthook(exctype, value, traceback)
-
+		
 
 # ////////////////////////////////////////////////////////////////////////////////////////////
 def Main():
