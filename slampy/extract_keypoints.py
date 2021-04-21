@@ -23,7 +23,8 @@ class ExtractKeyPoints:
 		keypoints=[]
 		history=[]
 		while True:
-
+			if not self.akaze_threshold:
+				self.akaze_threshold = .1
 			self.detector.setThreshold(self.akaze_threshold)
 			keypoints=self.detector.detect(energy)
 			N = len(keypoints)
@@ -35,12 +36,12 @@ class ExtractKeyPoints:
 				print("Failed to extract keypoints")
 				return ([],[])
 
-			if self.min_num_keypoints>0 and N < self.min_num_keypoints : 
-				self.akaze_threshold *= 0.8 
-				continue 
+			if self.min_num_keypoints>0.001 and N < self.min_num_keypoints :
+				self.akaze_threshold *= 0.8
+				continue
 
-			if self.max_num_keypoints>0 and N > self.max_num_keypoints : 
-				self.akaze_threshold *= 1.2 
+			if self.max_num_keypoints>0.001 and N > self.max_num_keypoints :
+				self.akaze_threshold *= 1.2
 				continue
 
 			break

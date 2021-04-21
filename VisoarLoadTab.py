@@ -877,6 +877,8 @@ class VisoarLoadTabWidget(QWidget):
         return ret1
 
     def addToLayerViewer(self, filename):
+
+
         # Need to parse the midx
         #look over sub datasets and see if the url ends in midx
         #if it does, add it to the layer list
@@ -893,5 +895,10 @@ class VisoarLoadTabWidget(QWidget):
             print(aurl)
             print(aname)
             self.parent.visoarLayerList.append(VisoarLayer(aurl,aname,row))
+
+        if len(self.parent.visoarLayerList) == 0:
+            #self.parent.visoarLayerList.append(VisoarLayer(os.path.join(self.parent.projectInfo.cache_dir, 'google.midx'), 'google.midx', 0))
+            self.parent.visoarLayerList.append(VisoarLayer(os.path.join(self.parent.projectInfo.cache_dir, 'visus.midx'), 'visus.midx', 0))
+        print(self.parent.visoarLayerList)
 
 

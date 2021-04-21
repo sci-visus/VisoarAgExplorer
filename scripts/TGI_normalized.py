@@ -61,9 +61,9 @@ cmap = matplotlib.colors.LinearSegmentedColormap.from_list(name='my_colormap', c
 
 colors = ["red","darkorange", "gold", "lawngreen", "green","green"]
 cmap1 = matplotlib.colors.LinearSegmentedColormap.from_list("mycmap", cdict)
-nodes = [0.0, 0.2, 0.5, 0.8,0.9, 1.0]
+nodes = [0.0, 0.2, 0.3, 0.5,0.9, 1.0]
 cmap2 = matplotlib.colors.LinearSegmentedColormap.from_list("mycmap", list(zip(nodes, colors)))
-out =  cmap(gray)
+out =  cmap2(gray)
 
 ###############################################
 ###   To return our your output image (out) ###

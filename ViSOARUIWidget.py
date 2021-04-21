@@ -47,6 +47,7 @@ class MyViewerWidget(QWidget):
         self.comboBoxATab = QComboBox(self)
         self.comboBoxATab.addItem("R G B")
         self.comboBoxATab.addItem("R G NIR")
+        self.comboBoxATab.addItem("O C NIR (MapIR)")
         self.comboBoxATab.addItem("NIR G B (agrocam)")
         self.comboBoxATab.addItem("R NIR (Sentera NDVI)")
         self.comboBoxATab.addItem("RedEdge NIR (Sentera NDRE)")
@@ -203,6 +204,8 @@ class MyViewerWidget(QWidget):
 
         if self.comboBoxATab.currentText() == 'R NIR (Sentera NDVI)':
             scriptName = 'NDVI_Sentera'
+        elif self.comboBoxATab.currentText() == 'O C NIR (MapIR)':
+            scriptName = 'OCNIR_MAPIR'
         elif self.comboBoxATab.currentText() == 'RedEdge NIR (Sentera NDRE)':
             scriptName = 'NDRE_Sentera'
         else:
@@ -229,6 +232,13 @@ class MyViewerWidget(QWidget):
             self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'TGI', True)
             self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'TGI_Threshold', True)
             self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'TGI_normalized', True)
+        elif (self.parent.inputMode == "O C NIR (MapIR)"):
+            self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI', True)
+            self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI_Agrocam', True)
+            self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI_Threshold', True)
+            self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'TGI', False)
+            self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'TGI_Threshold', False)
+            self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'TGI_normalized', False)
         elif (self.parent.inputMode == "R NIR (Sentera NDVI)"):
             self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI', True)
             self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI_Agrocam', True)
