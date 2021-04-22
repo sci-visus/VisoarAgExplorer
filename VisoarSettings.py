@@ -527,32 +527,39 @@ class VisoarUserLibraryData():
         # print (tree.getroot())
         root = tree.getroot()
         for project in root.iterfind('project'):
+            #print(project.attrib)
             projName = project.find('projName').text
             projDir = project.find('projDir').text
-            if (project.find('srcDir')):
+            if (project.find('srcDir'))!=None:
                 srcDir= project.find('srcDir').text
             else:
                 srcDir = ''
-            if (project.find('projDirNDVI')):
+            if (project.find('projDirNDVI'))!=None:
                 projDirNDVI = project.find('projDirNDVI').text
             else:
                 projDirNDVI = ''
-            if (project.find('srcDirNDVI')):
+            if (project.find('srcDirNDVI'))!=None:
                 srcDirNDVI= project.find('srcDirNDVI').text
             else:
                 srcDirNDVI = ''
-            if (project.find('cache_dir')):
+            if (project.find('cache_dir'))!=None:
                 cache_dir = os.path.join(projDir, 'VisusSlamFiles')
             else:
-                cache_dir = ''
-            if project.find('createdAt'):
-                createdAt = project.find('createdAt').text
+                 cache_dir = ''
+            if project.find('createdAt')!=None:
+                mydt = project.find('createdAt').text
+                myformat = "%Y%m%d_%H%M%S"
+                createdAt = datetime.strptime(mydt,myformat).strftime('%m/%d/%y')
+
             else:
-                createdAt = ''
-            if project.find('updatedAt'):
-                updatedAt = project.find('updatedAt').text
+                 createdAt = ''
+            if project.find('updatedAt')!=None:
+                mydt = project.find('updatedAt').text
+                myformat = "%Y%m%d_%H%M%S"
+                updatedAt = datetime.strptime(mydt, myformat).strftime('%m/%d/%y')
+                # updatedAt = datetime.fromtimestamp(int(project.find('updatedAt').text)).strftime("%Y%m%d_%H%M%S")
             else:
-                updatedAt =''
+                 updatedAt =''
 
 
             vProj = VisoarProject()
