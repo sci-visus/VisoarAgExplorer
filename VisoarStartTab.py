@@ -27,7 +27,9 @@ class VisoarStartTabWidget(QWidget):
             pass
 
         self.layout = QVBoxLayout()
+        self.choicelayoutveryTop = QHBoxLayout()
         self.choicelayoutTop = QHBoxLayout()
+
         self.choicelayout = QHBoxLayout()
         self.choicelayoutBottom = QHBoxLayout()
 
@@ -35,14 +37,14 @@ class VisoarStartTabWidget(QWidget):
 
         self.buttons = Buttons
 
-        # self.buttonCheckForUpdates = QPushButton('Check For Updates', self)
-        # self.buttonCheckForUpdates.resize(180, 40)
-        # self.buttonCheckForUpdates.clicked.connect(lambda: checkForUpdates (self))
-        # self.buttonCheckForUpdates.setStyleSheet(GREEN_PUSH_BUTTON)
-        # self.buttonCheckForUpdates.resize(self.buttonCheckForUpdates.sizeHint().width(), self.buttonCheckForUpdates.sizeHint().height())
-        # self.choicelayoutTop.addStretch(True)
-        # self.choicelayoutTop.addWidget(self.buttonCheckForUpdates, alignment=Qt.AlignLeft)
-        # self.choicelayoutTop.addStretch(True)
+        self.buttonCheckForUpdates = QPushButton('Check For Updates', self)
+        self.buttonCheckForUpdates.resize(180, 40)
+        self.buttonCheckForUpdates.clicked.connect(lambda: checkForUpdates (self))
+        self.buttonCheckForUpdates.setStyleSheet(GREEN_PUSH_BUTTON)
+        self.buttonCheckForUpdates.resize(self.buttonCheckForUpdates.sizeHint().width(), self.buttonCheckForUpdates.sizeHint().height())
+        self.choicelayoutveryTop.addStretch(True)
+        self.choicelayoutveryTop.addWidget(self.buttonCheckForUpdates, alignment=Qt.AlignLeft)
+        self.choicelayoutveryTop.addStretch(True)
 
         self.buttonMoveCardData = QPushButton('Process Drone Memory Card', self)
         self.buttonMoveCardData.resize(180, 40)
@@ -100,6 +102,8 @@ class VisoarStartTabWidget(QWidget):
         self.choicelayoutBottom.addWidget(self.buttonQuick, alignment=Qt.AlignCenter)
         self.choicelayoutBottom.addStretch(True)
 
+        self.layout.addStretch(True)
+        self.layout.addLayout(self.choicelayoutveryTop)
         self.layout.addStretch(True)
         self.layout.addLayout(self.choicelayoutTop)
         self.layout.addStretch(True)

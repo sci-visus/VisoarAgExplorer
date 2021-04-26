@@ -32,21 +32,23 @@ import xml.dom.minidom
 
 def checkForUpdates(parent, log=None):
     print("Checking for updates")
-
     import git
     ThisDir = os.path.dirname(os.path.realpath(__file__))
-    g = git.Git(os.path.join(ThisDir, ".."))
-    retcode = g.pull('origin', 'master')
-    if retcode.startswith('Already'):
-        message = "Software is already updated"
-        if log:
-            log.print(message)
-        QMessageBox.about(parent, "Ok", message)
-    else:
-        message = "Software has been updated. You NEED TO RESTART"
-        if log:
-            log.print(message)
-        QMessageBox.about(parent, "Error", message)
+    g = git.Git( ThisDir )
+    try:
+        retcode = g.pull('origin', 'master')
+        if retcode.startswith('Already'):
+            message = "Software is already updated"
+            if log:
+                log.print(message)
+            QMessageBox.about(parent, "Ok", message)
+        else:
+            message = "Software has been updated. You NEED TO RESTART"
+            if log:
+                log.print(message)
+            QMessageBox.about(parent, "Error", message)
+    except :
+        QMessageBox.about(parent, "Error", 'Error with git')
 
 
 # createButton
