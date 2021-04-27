@@ -336,7 +336,8 @@ class ViSOARUIWidget(QWidget):
         self.generate_bbox = False
         self.color_matching = False
         self.blending_exp = "output=voronoi()"
-
+        self.stitchTime = 0
+        self.stitchNumImages = 0
 
         self.dir_of_rgb_source = "/Volumes/ViSUSAg/DirOfDirs"
         self.dir_of_nir_source = ""
@@ -719,15 +720,20 @@ class ViSOARUIWidget(QWidget):
     def setAndRunSlam(self, image_dir, cache_dir=None, telemetry=None, plane=None, calibration=None,
                       physic_box=None):
         self.slam = None
+        start = time.time()
         self.slam = Slam2D()
         self.slam.enable_svg = False
         self.slam.setImageDirectory(image_dir = image_dir,  cache_dir= cache_dir, telemetry=telemetry, plane=plane, calibration=calibration, physic_box=physic_box)
         retSlamSetup = self.slam_widget.run(self.slam)
         retSlamRan = self.slam_widget.slam.run()
+        end = time.time()
+        print(end - start)
+        self.stitchTime = end - start
+        self.stitchNumImages = len(self.slam.images)
         self.logTab.clear()
         #self.setUpRClone()
         #These run functions above should return values of success.. but they don't
-        return True, True
+        return True, True #, end - start
 
     def createRGBNDVI_MIDX(self):
         # This function assumes that slam has been run on teh RGB and NDVI directories, resulting in two MIDX files
@@ -925,7 +931,9 @@ class ViSOARUIWidget(QWidget):
     # //////////////////////////////////////////////////////////////////////////////
 
     def goToAnalyticsTab(self):
-        self.openfilenameLabel.setText("Viewing: " + self.projectInfo.projDir + "/" + self.projectInfo.projName)
+        self.openfilenameLabel.setText("Viewing: " + self.projectInfo.projDir + "/" + self.projectInfo.projName+ " stitched "+ str(self.stitchNumImages)+" images in "+str(self.stitchTime/60)+" minutes")
+        self.openfilenameLabelS.setText("Viewing: " + self.projectInfo.projDir + "/" + self.projectInfo.projName+ " stitched "+ str(self.stitchNumImages)+" images in "+str(self.stitchTime/60)+" minutes")
+        print("Viewing: " + self.projectInfo.projDir + "/" + self.projectInfo.projName+ " stitched "+ str(self.stitchNumImages)+" images in "+str(self.stitchTime/60)+" minutes")
         self.addScriptActionCombobox(self.tabViewer.buttons.comboBoxATabScripts)
         # self.visusGoogleWebAuth = VisusGoogleWebAutho()
         self.tabViewer.buttons.comboBoxATab.setCurrentIndex(self.tabNewStitching.comboBoxNewTab.currentIndex())
@@ -1308,8 +1316,16 @@ class ViSOARUIWidget(QWidget):
             self.tabs.setTabEnabled(self.STITCHING_VIEW_TAB, False)
         elif self.USER_TAB_UI:
             self.tabs.setTabEnabled(self.STITCHING_VIEW_TAB, True)
-        self.openfilenameLabel.setText(self.projectInfo.cache_dir)
-        self.openfilenameLabelS.setText(self.projectInfo.cache_dir)
+        if (self.stitchNumImages > 0):
+            self.openfilenameLabel.setText(
+                "Viewing: " + self.projectInfo.projDir + "/" + self.projectInfo.projName + " stitched " + str(
+                    self.stitchNumImages) + " images in " + str(self.stitchTime / 60) + " minutes")
+            self.openfilenameLabelS.setText(
+                "Viewing: " + self.projectInfo.projDir + "/" + self.projectInfo.projName + " stitched " + str(
+                    self.stitchNumImages) + " images in " + str(self.stitchTime / 60) + " minutes")
+        else:
+            self.openfilenameLabel.setText(self.projectInfo.cache_dir)
+            self.openfilenameLabelS.setText(self.projectInfo.cache_dir)
         googlefile = os.path.join(self.projectInfo.cache_dir,  'google.midx')
         self.midxfilename = os.path.join(self.projectInfo.cache_dir, 'visus.midx')
         if self.SHOW_GOGGLE_MAP and os.path.exists(googlefile):
@@ -1471,7 +1487,15 @@ class ViSOARUIWidget(QWidget):
             self.tabs.setTabEnabled(self.ANALYTICS_TAB, enabledView)
 
     def changeViewAnalytics(self):
-        self.openfilenameLabel.setText(os.path.join(self.projectInfo.projDir, self.projectInfo.projName))
+        if (self.stitchNumImages > 0):
+            self.openfilenameLabel.setText(
+                "Viewing: " + self.projectInfo.projDir + "/" + self.projectInfo.projName + " stitched " + str(
+                    self.stitchNumImages) + " images in " + str(self.stitchTime / 60) + " minutes")
+            self.openfilenameLabelS.setText(
+                "Viewing: " + self.projectInfo.projDir + "/" + self.projectInfo.projName + " stitched " + str(
+                    self.stitchNumImages) + " images in " + str(self.stitchTime / 60) + " minutes")
+        else:
+            self.openfilenameLabel.setText(os.path.join(self.projectInfo.projDir, self.projectInfo.projName))
         self.tabs.setCurrentIndex(self.ANALYTICS_TAB)
 
     def goHome(self):
