@@ -728,7 +728,7 @@ class ViSOARUIWidget(QWidget):
         retSlamRan = self.slam_widget.slam.run()
         end = time.time()
         print(end - start)
-        self.stitchTime = end - start
+        self.stitchTime = "{:.2f}".format((end - start)/60.0)
         self.stitchNumImages = len(self.slam.images)
         self.logTab.clear()
         #self.setUpRClone()
@@ -931,9 +931,9 @@ class ViSOARUIWidget(QWidget):
     # //////////////////////////////////////////////////////////////////////////////
 
     def goToAnalyticsTab(self):
-        self.openfilenameLabel.setText("Viewing: " + self.projectInfo.projDir + "/" + self.projectInfo.projName+ " stitched "+ str(self.stitchNumImages)+" images in "+str(self.stitchTime/60)+" minutes")
-        self.openfilenameLabelS.setText("Viewing: " + self.projectInfo.projDir + "/" + self.projectInfo.projName+ " stitched "+ str(self.stitchNumImages)+" images in "+str(self.stitchTime/60)+" minutes")
-        print("Viewing: " + self.projectInfo.projDir + "/" + self.projectInfo.projName+ " stitched "+ str(self.stitchNumImages)+" images in "+str(self.stitchTime/60)+" minutes")
+        self.openfilenameLabel.setText("Viewing: " + self.projectInfo.projDir + "/" + self.projectInfo.projName+ " stitched "+ str(self.stitchNumImages)+" images in "+ self.stitchTime +" minutes")
+        self.openfilenameLabelS.setText("Viewing: " + self.projectInfo.projDir + "/" + self.projectInfo.projName+ " stitched "+ str(self.stitchNumImages)+" images in "+ self.stitchTime +" minutes")
+        print("Viewing: " + self.projectInfo.projDir + "/" + self.projectInfo.projName+ " stitched "+ str(self.stitchNumImages)+" images in "+self.stitchTime+" minutes")
         self.addScriptActionCombobox(self.tabViewer.buttons.comboBoxATabScripts)
         # self.visusGoogleWebAuth = VisusGoogleWebAutho()
         self.tabViewer.buttons.comboBoxATab.setCurrentIndex(self.tabNewStitching.comboBoxNewTab.currentIndex())
@@ -1319,10 +1319,10 @@ class ViSOARUIWidget(QWidget):
         if (self.stitchNumImages > 0):
             self.openfilenameLabel.setText(
                 "Viewing: " + self.projectInfo.projDir + "/" + self.projectInfo.projName + " stitched " + str(
-                    self.stitchNumImages) + " images in " + str(self.stitchTime / 60) + " minutes")
+                    self.stitchNumImages) + " images in " +  self.stitchTime   + " minutes")
             self.openfilenameLabelS.setText(
                 "Viewing: " + self.projectInfo.projDir + "/" + self.projectInfo.projName + " stitched " + str(
-                    self.stitchNumImages) + " images in " + str(self.stitchTime / 60) + " minutes")
+                    self.stitchNumImages) + " images in " + self.stitchTime  + " minutes")
         else:
             self.openfilenameLabel.setText(self.projectInfo.cache_dir)
             self.openfilenameLabelS.setText(self.projectInfo.cache_dir)
@@ -1490,16 +1490,18 @@ class ViSOARUIWidget(QWidget):
         if (self.stitchNumImages > 0):
             self.openfilenameLabel.setText(
                 "Viewing: " + self.projectInfo.projDir + "/" + self.projectInfo.projName + " stitched " + str(
-                    self.stitchNumImages) + " images in " + str(self.stitchTime / 60) + " minutes")
+                    self.stitchNumImages) + " images in " +  self.stitchTime  + " minutes")
             self.openfilenameLabelS.setText(
                 "Viewing: " + self.projectInfo.projDir + "/" + self.projectInfo.projName + " stitched " + str(
-                    self.stitchNumImages) + " images in " + str(self.stitchTime / 60) + " minutes")
+                    self.stitchNumImages) + " images in " + self.stitchTime   + " minutes")
         else:
             self.openfilenameLabel.setText(os.path.join(self.projectInfo.projDir, self.projectInfo.projName))
         self.tabs.setCurrentIndex(self.ANALYTICS_TAB)
 
     def goHome(self):
         self.BATCH_MODE = False
+        self.stitchTime = 0
+        self.stitchNumImages =0
         self.tabAskDest.destNametextbox.setText('')
         self.tabAskDest.createErrorLabel.setText('')
         # self.tabAskName.projNametextbox.setText('')
