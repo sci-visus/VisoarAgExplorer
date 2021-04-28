@@ -185,14 +185,14 @@ class Slam2DWidget(QWidget):
 	def showEnergy(self,camera,energy):
 
 		if self.slam.debug_mode:
-			SaveImage(self.slam.cache_dir+"/generated/%04d.%d.tif" % (camera.id,camera.keypoints.size()), energy)
+			SaveImage(os.path.join(self.slam.cache_dir,"generated","%04d.%d.tif" % (camera.id,camera.keypoints.size()), energy))
 
 		self.preview.showPreview(energy,"Extracting keypoints image(%d/%d) #keypoints(%d)" % (camera.id,len(self.slam.provider.images),camera.keypoints.size()))
 		self.processEvents()
 
 	# refreshViewer
 	def refreshViewer(self,fieldname="output=voronoi()"):
-		url=self.slam.cache_dir+"/" + self.viewer_open_filename
+		url=os.path.join(self.slam.cache_dir, self.viewer_open_filename)
 		self.viewer.open(url)
 		# make sure the RenderNode get almost RGB components
 		self.viewer.setFieldName(fieldname)	
