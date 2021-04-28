@@ -591,22 +591,29 @@ class VisoarUserLibraryData():
 
             mb = QMessageBox()
             mb.setStyleSheet(LOOK_AND_FEEL)
+            #mb.setStyleSheet(POPUP_LOOK_AND_FEEL)
             mb.setWindowTitle("Error: Special Character")
             mb.setText(
-                  "Your project directory path has special characters.\n  We suggest you rename your directory.\tDo want to us to rename it, you will rename it yourself, or continue at your peril leaving the file name alone and potentially crashing this applicaiton?")
+                  "Your project directory path has special characters.\nWe suggest you rename your directory.\n\nDo want: us to rename it, rename it yourself, or continue at your peril leaving the offending string alone and potentially crashing this application?")
             ybtn = mb.addButton('Automatically Rename', QMessageBox.ApplyRole)
             nbtn = mb.addButton('I will rename it', QMessageBox.RejectRole)
             abtn = mb.addButton('Continue at my Peril', QMessageBox.NoRole)
             cbtn = mb.addButton('Cancel', QMessageBox.YesRole)
+            #mb.setStyleSheet("QPushButton {padding: 3px;}")
+            width = ybtn.fontMetrics().boundingRect(text).width()
+            #btn.setMinimumWidth(width)
+            ybtn.setMinimumWidth(width)
+            nbtn.setMinimumWidth(width)
+            abtn.setMinimumWidth(width)
+            cbtn.setMinimumWidth(width)
+
             ret = mb.exec()
             if mb.clickedButton() == abtn:
                 print('Continue at my Peril0')
             elif mb.clickedButton() == ybtn:
                 print('Automatically Rename')
                 from slugify import slugify
-                newstring = slugify(newstring,separator = '_' )  # 'Any-text'
-                #new_string = re.sub('[^A-z0-9 .-]', '', newstring).replace(" ", "_")
-                #newstring = ''.join(filter(str.isalnum, filestr))
+                newstring = slugify(newstring,separator = '_' )
                 if os.path.isdir(text):
                     popUP('Renaming directory: ', 'Renaming directory: '+text+' to '+ os.path.join(dir,newstring))
                     os.rename(text, os.path.join(dir, newstring))
@@ -626,7 +633,7 @@ class VisoarUserLibraryData():
         if os.path.isdir(text):
             newstring = os.path.join(dir, newstring)
 
-        return   newstring
+        return newstring
 
 
 
