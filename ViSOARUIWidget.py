@@ -811,8 +811,8 @@ class ViSOARUIWidget(QWidget):
         if self.DEBUG:
             print('Images Added')
 
-    def checkSpecialChar_in_dir(self, text):
-        return self.visoarUserLibraryData.check_splcharacter_directory(text)
+    def checkSpecialChar(self, text):
+        return self.visoarUserLibraryData.check_splcharacter(text)
 
 
     def checkNameOriginal(self, name):
@@ -820,6 +820,7 @@ class ViSOARUIWidget(QWidget):
 
     def setProjName(self):
         self.projectInfo.projName = self.tabAskName.projNametextbox.text()
+        self.projectInfo.projName = self.checkSpecialChar(self.projectInfo.projName )
         checkName = self.checkNameOriginal(self.projectInfo.projName)
 
         if  (not self.projectInfo.projName.strip() == "") and checkName:
@@ -850,7 +851,7 @@ class ViSOARUIWidget(QWidget):
             self.projectInfo.srcDir = str(
                 QFileDialog.getExistingDirectory(self, "Select Directory containing Images"))
             #self.projectInfo.projDir = self.projectInfo.srcDir
-            self.projectInfo.srcDir = self.checkSpecialChar_in_dir(self.projectInfo.srcDir)
+            self.projectInfo.srcDir = self.checkSpecialChar(self.projectInfo.srcDir)
             print(self.projectInfo.srcDir)
             self.tabAskSource.curDir2.setText(self.projectInfo.srcDir)
             self.tabAskSource.buttonAddImagesSource.setStyleSheet(WHITE_PUSH_BUTTON)

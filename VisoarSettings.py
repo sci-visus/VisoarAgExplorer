@@ -575,8 +575,12 @@ class VisoarUserLibraryData():
             vProj.update(projName, projDir, cache_dir, srcDir,createdAt,updatedAt,projDirNDVI, srcDirNDVI)
             self.projects.append(vProj)
 
-    def check_splcharacter_directory(self,text):
-        dir, filestr = os.path.split(text)
+    def check_splcharacter(self,text):
+        import re
+        if os.path.isdir(text):
+            dir, filestr = os.path.split(text)
+        else:
+            filestr = text
         string_check = re.compile('[@!#$%^&*()<>?/\|}{~:]')
         newstring = filestr
         from string import ascii_letters, digits
@@ -599,9 +603,15 @@ class VisoarUserLibraryData():
                 print('Continue at my Peril0')
             elif mb.clickedButton() == ybtn:
                 print('Automatically Rename')
-                newstring = ''.join(filter(str.isalnum, filestr))
-                popUP('Renaming directory: ', 'Renaming directory: '+text+' to '+ os.path.join(dir,newstring))
-                os.rename(text, os.path.join(dir,newstring))
+                from slugify import slugify
+                newstring = slugify(newstring,separator = '_' )  # 'Any-text'
+                #new_string = re.sub('[^A-z0-9 .-]', '', newstring).replace(" ", "_")
+                #newstring = ''.join(filter(str.isalnum, filestr))
+                if os.path.isdir(text):
+                    popUP('Renaming directory: ', 'Renaming directory: '+text+' to '+ os.path.join(dir,newstring))
+                    os.rename(text, os.path.join(dir, newstring))
+                else:
+                    popUP('Renaming string: ', 'Renaming string: '+text+' to '+  newstring)
             elif mb.clickedButton() == nbtn:
                 print('I Will Rename it myself')
                 self.parent.goHome()
@@ -612,7 +622,11 @@ class VisoarUserLibraryData():
                 self.parent.goHome()
         else:
             print("Text hasn't special characters.")
-        return  os.path.join(dir,newstring)
+
+        if os.path.isdir(text):
+            newstring = os.path.join(dir, newstring)
+
+        return   newstring
 
 
 
