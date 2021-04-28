@@ -241,6 +241,7 @@ QMessageBox {
 QMessageBox QLabel {
     color: #045951;
     background-color: #ffffff;
+    min-width: 800px;
 }
 
 QRadioButton {
