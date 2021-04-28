@@ -594,7 +594,7 @@ class VisoarUserLibraryData():
             #mb.setStyleSheet(POPUP_LOOK_AND_FEEL)
             mb.setWindowTitle("Error: Special Character")
             mb.setText(
-                  "Your project directory path has special characters.\nWe suggest you rename your directory.\n\nDo want: us to rename it, rename it yourself, or continue at your peril leaving the offending string alone and potentially crashing this application?")
+                  "Your project directory path has special characters.\n\nDo want: us to rename it, rename it yourself, or continue at your peril leaving the offending string alone and potentially crashing this application?")
             ybtn = mb.addButton('Automatically Rename', QMessageBox.ApplyRole)
             nbtn = mb.addButton('I will rename it', QMessageBox.RejectRole)
             abtn = mb.addButton('Continue at my Peril', QMessageBox.NoRole)
@@ -605,7 +605,8 @@ class VisoarUserLibraryData():
             ybtn.setMinimumWidth(width)
             nbtn.setMinimumWidth(width)
             abtn.setMinimumWidth(width)
-            cbtn.setMinimumWidth(width)
+            # cbtn.setMinimumWidth(width)
+
 
             ret = mb.exec()
             if mb.clickedButton() == abtn:
