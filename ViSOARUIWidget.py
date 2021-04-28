@@ -812,7 +812,7 @@ class ViSOARUIWidget(QWidget):
             print('Images Added')
 
     def checkSpecialChar(self, text):
-        return self.visoarUserLibraryData.check_splcharacter(text)
+        return self.check_splcharacter(text)
 
 
     def checkNameOriginal(self, name):
@@ -1847,3 +1847,68 @@ class ViSOARUIWidget(QWidget):
 #
 #             # Add layout of tabs to self
 #         self.layout.addWidget(self.tabs)
+
+
+    def check_splcharacter(self,text):
+        import re
+        if os.path.isdir(text):
+            dir, filestr = os.path.split(text)
+        else:
+            filestr = text
+        string_check = re.compile('[@!#$%^&*()<>?/\|}{~:]')
+        newstring = filestr
+        from string import ascii_letters, digits
+        #if just want to test for ascii and digits, do if set(text).difference(ascii_letters + digits) returns true for anything by ascii and digits
+
+        if  '\''  in filestr or '\"' in filestr  or string_check.search(filestr) != None:
+            popUP('Error: Special Character', 'ERROR: your directory or name contains special cha')
+
+            mb = QMessageBox()
+            mb.setStyleSheet(LOOK_AND_FEEL)
+            #mb.setStyleSheet(POPUP_LOOK_AND_FEEL)
+            mb.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+            mb.setWindowTitle("Error: Special Character")
+            mb.setText(
+                  "Your project directory path has special characters.\n\nDo want: us to rename it, rename it yourself, or continue at your peril leaving the offending string alone and potentially crashing this application?")
+            ybtn = mb.addButton('Automatically Rename', QMessageBox.ApplyRole)
+            # nbtn = mb.addButton('I will rename it', QMessageBox.RejectRole)
+            # abtn = mb.addButton('Continue at my Peril', QMessageBox.NoRole)
+            cbtn = mb.addButton('Cancel', QMessageBox.YesRole)
+            #mb.setStyleSheet("QPushButton {padding: 3px;}")
+            width = ybtn.fontMetrics().boundingRect(text).width()
+            #btn.setMinimumWidth(width)
+            ybtn.setMinimumWidth(width)
+            # nbtn.setMinimumWidth(width)
+            # abtn.setMinimumWidth(width)
+            cbtn.setMinimumWidth(width)
+            mb.setFixedWidth(600)
+
+            ret = mb.exec()
+            # if mb.clickedButton() == abtn:
+            #     print('Continue at my Peril0')
+            # el
+            if mb.clickedButton() == ybtn:
+                print('Automatically Rename')
+                from slugify import slugify
+                newstring = slugify(newstring,separator = '_' )
+                if os.path.isdir(text):
+                    popUP('Renaming directory: ', 'Renaming directory: '+text+' to '+ os.path.join(dir,newstring))
+                    os.rename(text, os.path.join(dir, newstring))
+                else:
+                    popUP('Renaming string: ', 'Renaming string: '+text+' to '+  newstring)
+            # elif mb.clickedButton() == nbtn:
+            #     print('I Will Rename it myself')
+            #     self.goHome()
+            elif mb.clickedButton() == cbtn:
+                print('Continue at my Peril')
+            else:
+                print('Cancel')
+                self.goHome()
+        else:
+            print("Text hasn't special characters.")
+
+        if os.path.isdir(text):
+            newstring = os.path.join(dir, newstring)
+
+        return newstring
+
