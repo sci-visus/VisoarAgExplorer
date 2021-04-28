@@ -575,7 +575,49 @@ class VisoarUserLibraryData():
             vProj.update(projName, projDir, cache_dir, srcDir,createdAt,updatedAt,projDirNDVI, srcDirNDVI)
             self.projects.append(vProj)
 
+    def check_splcharacter_directory(self,text):
+        dir, filestr = os.path.split(text)
+        string_check = re.compile('[@!#$%^&*()<>?/\|}{~:]')
+        newstring = filestr
+        from string import ascii_letters, digits
+        #if just want to test for ascii and digits, do if set(text).difference(ascii_letters + digits) returns true for anything by ascii and digits
+
+        if  '\''  in filestr or '\"' in filestr  or string_check.search(filestr) != None:
+            popUP('Error: Special Character', 'ERROR: your directory or name contains special cha')
+
+            mb = QMessageBox()
+            mb.setStyleSheet(LOOK_AND_FEEL)
+            mb.setWindowTitle("Error: Special Character")
+            mb.setText(
+                  "Your project directory path has special characters.\n  We suggest you rename your directory.\tDo want to us to rename it, you will rename it yourself, or continue at your peril leaving the file name alone and potentially crashing this applicaiton?")
+            ybtn = mb.addButton('Automatically Rename', QMessageBox.ApplyRole)
+            nbtn = mb.addButton('I will rename it', QMessageBox.RejectRole)
+            abtn = mb.addButton('Continue at my Peril', QMessageBox.NoRole)
+            cbtn = mb.addButton('Cancel', QMessageBox.YesRole)
+            ret = mb.exec()
+            if mb.clickedButton() == abtn:
+                print('Continue at my Peril0')
+            elif mb.clickedButton() == ybtn:
+                print('Automatically Rename')
+                newstring = ''.join(filter(str.isalnum, filestr))
+                popUP('Renaming directory: ', 'Renaming directory: '+text+' to '+ os.path.join(dir,newstring))
+                os.rename(text, os.path.join(dir,newstring))
+            elif mb.clickedButton() == nbtn:
+                print('I Will Rename it myself')
+                self.parent.goHome()
+            elif mb.clickedButton() == cbtn:
+                print('Continue at my Peril')
+            else:
+                print('Cancel')
+                self.parent.goHome()
+        else:
+            print("Text hasn't special characters.")
+        return  os.path.join(dir,newstring)
+
+
+
     def isUniqueName(self, name):
+
         original = True
         tree = ET.ElementTree(file=self.userFileHistory)
         root = tree.getroot()
