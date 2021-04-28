@@ -1866,7 +1866,7 @@ class ViSOARUIWidget(QWidget):
             mb = QMessageBox()
             #mb.setStyleSheet(LOOK_AND_FEEL)
             #mb.setStyleSheet(POPUP_LOOK_AND_FEEL)
-            mb.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+            #mb.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
             mb.setWindowTitle("Error: Special Character")
             mb.setText(
                   "Your project directory path has special characters.\n\nDo want: us to rename it, rename it yourself, or continue at your peril leaving the offending string alone and potentially crashing this application?")
