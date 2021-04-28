@@ -1870,10 +1870,11 @@ class ViSOARUIWidget(QWidget):
             mb.setWindowTitle("Error: Special Character")
             mb.setText(
                   "Your project directory path has special characters.\n\nDo want: us to rename it or cancel and you can rename it yourself?")
-            ybtn = mb.addButton('Automatically Rename', QMessageBox.ApplyRole)
+            cbtn = mb.addButton('Cancel', QMessageBox.NoRole)
+
+            ybtn = mb.addButton('Automatically Rename', QMessageBox.YesRole)
             # nbtn = mb.addButton('I will rename it', QMessageBox.RejectRole)
             # abtn = mb.addButton('Continue at my Peril', QMessageBox.NoRole)
-            cbtn = mb.addButton('Cancel', QMessageBox.YesRole)
             #mb.setStyleSheet("QPushButton {padding: 3px;}")
             #width = ybtn.fontMetrics().boundingRect(text).width()
             #btn.setMinimumWidth(width)
