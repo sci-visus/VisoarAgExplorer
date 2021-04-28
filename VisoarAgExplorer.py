@@ -15,10 +15,12 @@ if (sys.platform.startswith('win')):
 else:
     if os.path.exists("/Users/amygooch/"):
         LOCAL_DIR="/Users/amygooch/"
-        os.makedirs(os.path.join(LOCAL_DIR, 'visoar_sync_files'))
+        if not os.path.exists(os.path.join(LOCAL_DIR, 'visoar_sync_files')):
+            os.makedirs(os.path.join(LOCAL_DIR, 'visoar_sync_files'))
     else:
         LOCAL_DIR =  os.getcwd()
-        os.makedirs(os.path.join(LOCAL_DIR, 'visoar_sync_files'))
+        if not os.path.exists(os.path.join(LOCAL_DIR, 'visoar_sync_files')):
+            os.makedirs(os.path.join(LOCAL_DIR, 'visoar_sync_files'))
 
 T1=datetime.datetime.now()
 
