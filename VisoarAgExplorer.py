@@ -9,9 +9,16 @@ from ViSOARUIWidget import *
 from slampy.utils import *
 # memory card -> local directory
 if (sys.platform.startswith('win')):
-	LOCAL_DIR="c:/visoar_files"
+    LOCAL_DIR="c:/visoar_files"
+    if not os.path.exists(LOCAL_DIR):
+        os.makedirs(LOCAL_DIR)
 else:
-	LOCAL_DIR="/Users/amygooch/"
+    if os.path.exists("/Users/amygooch/"):
+        LOCAL_DIR="/Users/amygooch/"
+        os.makedirs(os.path.join(LOCAL_DIR, 'visoar_sync_files'))
+    else:
+        LOCAL_DIR =  os.getcwd()
+        os.makedirs(os.path.join(LOCAL_DIR, 'visoar_sync_files'))
 
 T1=datetime.datetime.now()
 
