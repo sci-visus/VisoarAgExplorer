@@ -437,18 +437,25 @@ class VisoarProject():
             #popUP('File not found', 'Could not find file: \n' + os.path.join(os.path.join(projDir, 'VisusSlamFiles', 'visus.midx')+ '\nThis error is due to errors in the userFileHistory.xml not matching the content on disk.'))
             #This error is due to errors in the userhistory not matching the content on disk
             return False
-        tree = ET.parse(os.path.join(self.projDir, 'VisusSlamFiles', 'visus.midx'))
-        wrapperdataset = tree.getroot()
-        count = 0
-        for visusfile in wrapperdataset.iterfind('dataset'):
-            if visusfile.attrib['name'] == 'google':
-                print('found google')
+        try:
+            tree = ET.parse(os.path.join(self.projDir, 'VisusSlamFiles', 'visus.midx'))
+            wrapperdataset = tree.getroot()
+            count = 0
+            for visusfile in wrapperdataset.iterfind('dataset'):
+                if visusfile.attrib['name'] == 'google':
+                    print('found google')
+                else:
+                    count = count + 1
+            if count > 1:
+                return True
             else:
-                count = count + 1
-        if count > 1:
-            return True
-        else:
+                return False
+        except:
+            self.parent.popUP('Does Project Have Layers',
+                  'Error in Does Project Have Layers')
             return False
+
+
     # def setSrcDirNDVI(self,dir):
     #     self.srcDirNDVI = dir
     #     self.projDirNDVI =  os.path.join(self.projDir,'NDVI')

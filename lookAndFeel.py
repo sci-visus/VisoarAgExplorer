@@ -598,7 +598,11 @@ WHITE_PUSH_BUTTON = """QPushButton {
 		border-width: 1px;
 		color: #045951;
 		background-color: #ffffff;
-		padding: 10px 10px 10px 10px;
+		padding-left: 40px;
+		padding-right: 40px;
+		padding-top: 10px;
+		padding-bottom: 10px;
+		text-align:center
 	}
 	QPushButton:pressed { 
 		background-color:  #e6e6e6
