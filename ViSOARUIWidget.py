@@ -1864,7 +1864,7 @@ class ViSOARUIWidget(QWidget):
             popUP('Error: Special Character', 'ERROR: your directory or name contains special cha')
 
             mb = QMessageBox()
-            mb.setStyleSheet(LOOK_AND_FEEL)
+            #mb.setStyleSheet(LOOK_AND_FEEL)
             #mb.setStyleSheet(POPUP_LOOK_AND_FEEL)
             mb.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
             mb.setWindowTitle("Error: Special Character")
