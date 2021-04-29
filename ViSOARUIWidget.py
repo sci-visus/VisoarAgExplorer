@@ -47,7 +47,7 @@ class MyViewerWidget(QWidget):
         self.comboBoxATab = QComboBox(self)
         self.comboBoxATab.addItem("R G B")
         self.comboBoxATab.addItem("R G NIR")
-        self.comboBoxATab.addItem("O C NIR (MapIR)")
+        self.comboBoxATab.addItem("MapIR only (OCNIR)")
         self.comboBoxATab.addItem("NIR G B (agrocam)")
         self.comboBoxATab.addItem("R NIR (Sentera NDVI)")
         self.comboBoxATab.addItem("RedEdge NIR (Sentera NDRE)")
@@ -204,8 +204,8 @@ class MyViewerWidget(QWidget):
 
         if self.comboBoxATab.currentText() == 'R NIR (Sentera NDVI)':
             scriptName = 'NDVI_Sentera'
-        elif self.comboBoxATab.currentText() == 'O C NIR (MapIR)':
-            scriptName = 'OCNIR_MAPIR'
+        elif self.comboBoxATab.currentText() == 'MapIR only (OCNIR)':
+            scriptName = 'NDVI_MAPIR'
         elif self.comboBoxATab.currentText() == 'RedEdge NIR (Sentera NDRE)':
             scriptName = 'NDRE_Sentera'
         else:
@@ -232,7 +232,7 @@ class MyViewerWidget(QWidget):
             self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'TGI', True)
             self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'TGI_Threshold', True)
             self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'TGI_normalized', True)
-        elif (self.parent.inputMode == "O C NIR (MapIR)"):
+        elif (self.parent.inputMode == "MapIR only (OCNIR)"):
             self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI', True)
             self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI_Agrocam', True)
             self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI_Threshold', True)
@@ -336,7 +336,7 @@ class ViSOARUIWidget(QWidget):
         self.generate_bbox = False
         self.color_matching = False
         self.blending_exp = "output=voronoi()"
-        self.stitchTime = 0
+        self.stitchTime = "0"
         self.stitchNumImages = 0
 
         self.dir_of_rgb_source = "/Volumes/ViSUSAg/DirOfDirs"
@@ -520,7 +520,7 @@ class ViSOARUIWidget(QWidget):
             self.tabs.setCurrentIndex(self.NEW_TIME_SERIES_TAB )
         elif s=='AfterAskSensor':
             print('AfterAskSensor')
-            if self.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam':
+            if self.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam' or self.tabAskSensor.comboBoxNewTab.currentText() == 'MAPIR and RGB':
                 self.tabs.setCurrentIndex(self.ASKSOURCERGBNDVI_TAB)
             else:
                 self.tabs.setCurrentIndex(self.ASKSOURCE_TAB)
@@ -530,7 +530,7 @@ class ViSOARUIWidget(QWidget):
         elif s == 'AfterAskSource':
             if self.BATCH_MODE:
                 self.dir_of_rgb_source = self.tabAskSource.curDir2.text()
-                if self.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam':
+                if self.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam' or (self.tabAskSensor.comboBoxNewTab.currentText() == 'MAPIR and RGB'):
                     self.dir_of_nir_source = self.tabAskSource.curDir2.text()
                     print('AfterAskSource')
                     if (not self.dir_of_rgb_source.strip()) or (not self.dir_of_nir_source):
@@ -554,7 +554,7 @@ class ViSOARUIWidget(QWidget):
                         self.tabAskDest.destNametextbox.setText('')
                         self.tabs.setCurrentIndex(self.ASKDEST_TAB)
             else:
-                if self.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam':
+                if self.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam' or (self.tabAskSensor.comboBoxNewTab.currentText() == 'MAPIR and RGB'):
                     print('AfterAskSource')
                     if not self.projectInfo.srcDir.strip() or not self.projectInfo.srcDirNDVI.strip():
                         errorStr = 'Please Provide both RGB and NDVI directories or go back home and use a different sensor type\n'
@@ -594,14 +594,14 @@ class ViSOARUIWidget(QWidget):
                 self.tabs.setCurrentIndex(self.LOG_TAB)
                 self.update()
 
-                if self.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam':
+                if self.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam' or (self.tabAskSensor.comboBoxNewTab.currentText() == 'MAPIR and RGB'):
                     self.dir_of_result = self.destNametextbox
                     # self.projectInfo.projDir = self.projectInfo.srcDir
                     # self.projectInfo.projDirNDVI = self.projectInfo.srcDirNDVI
 
                 self.startProcessing()
             else:
-                if self.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam':
+                if self.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam' or (self.tabAskSensor.comboBoxNewTab.currentText() == 'MAPIR and RGB'):
                     self.saveDir = self.projectInfo.projDir
                     #self.projectInfo.projDir = self.projectInfo.srcDir
                     #self.projectInfo.projDirNDVI = self.projectInfo.srcDirNDVI
@@ -626,13 +626,13 @@ class ViSOARUIWidget(QWidget):
                         #                             color_matching=self.color_matching, blending_exp=self.blending_exp)
                         self.tabs.setCurrentIndex(self.STITCHING_VIEW_TAB)
 
-                        if self.stitchAlreadyDone():
-                            self.enableViewStitching()
-                            self.goToAnalyticsTab()
-                        else:
-                            self.enableViewStitching()
-                            self.changeViewStitching()
-                            self.startViSUSSLAM()
+                        # if self.stitchAlreadyDone():
+                        #     self.enableViewStitching()
+                        #     self.goToAnalyticsTab()
+                        # else:
+                        self.enableViewStitching()
+                        self.changeViewStitching()
+                        self.startViSUSSLAM()
                     else:
                         errorStr = 'Please Provide a unique directory for the destination, different from RGB or NDVI source directories  \n'
                         self.tabAskDest.createErrorLabel.setText(errorStr)
@@ -717,15 +717,35 @@ class ViSOARUIWidget(QWidget):
         self.tabs.setCurrentIndex(self.LOAD_TAB)
         self.update()
 
+    def emailTrouble(self, logfile):
+        from io import StringIO
+        import logging
+        print('dumping IO due to exception')
+        log_stream = StringIO()
+        logging.basicConfig(stream=log_stream, level=logging.INFO)
+        logging.error("Exception occurred", exc_info=True)
+        send_email_crash_notification(log_stream.getvalue(), logfile)
+
     def setAndRunSlam(self, image_dir, cache_dir=None, telemetry=None, plane=None, calibration=None,
                       physic_box=None):
         self.slam = None
         start = time.time()
         self.slam = Slam2D()
         self.slam.enable_svg = False
-        self.slam.setImageDirectory(image_dir = image_dir,  cache_dir= cache_dir, telemetry=telemetry, plane=plane, calibration=calibration, physic_box=physic_box)
-        retSlamSetup = self.slam_widget.run(self.slam)
-        retSlamRan = self.slam_widget.slam.run()
+        self.logFile = os.path.join(cache_dir+"/~visusslam.log")
+        self.slam_widget.redirect_log = RedirectLog(self.logFile)
+
+        if  (not os.path.exists(cache_dir)) or (not os.path.exists(os.path.join(cache_dir, 'idx', '0000.bin'))):
+            try:
+                self.slam.setImageDirectory(image_dir = image_dir,  cache_dir= cache_dir, telemetry=telemetry, plane=plane, calibration=calibration, physic_box=physic_box)
+                 #Here we could ask whether you want to restitch or use old stitch
+                retSlamSetup = self.slam_widget.run(self.slam)
+                self.slam_widget.onRunClicked()
+                retSlamRan = self.slam_widget.slam.run()
+            except:
+                self.emailTrouble(self.logFile)
+        else:
+            self.slam_widget.slam = self.slam
         end = time.time()
         print(end - start)
         self.stitchTime = "{:.2f}".format((end - start)/60.0)
@@ -954,10 +974,10 @@ class ViSOARUIWidget(QWidget):
         except ValueError:
             print("Could not convert data to an integer.")
         except AttributeError as error:
-            print('AttributError: ' + error + sys.exc_info()[0])
+            print('AttributError: ' + str(error) + str(sys.exc_info()[0]))
             raise
         except:
-            print("Unexpected error:", sys.exc_info()[0])
+            print("Unexpected error:"+ str(sys.exc_info()[0]))
             raise
         if self.DEBUG:
             print('goToAnalyticsTab finished')
@@ -1341,13 +1361,13 @@ class ViSOARUIWidget(QWidget):
             self.midxfilename = os.path.join(self.projectInfo.cache_dir, 'visus.midx')
             self.shutOffSHowGoogleMap()
 
-        if self.projectInfo.projDirNDVI and (self.projectInfo.projDirNDVI != "" or self.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam'):
-            if self.SHOW_GOGGLE_MAP and os.path.exists(googlefile):
-                rgbfilename = os.path.join(self.projectInfo.projDir, 'VisusSlamFiles','google.midx')
-                ndvifilename = os.path.join(self.projectInfo.projDirNDVI, 'VisusSlamFiles','google.midx')
-            else:
-                rgbfilename = os.path.join(self.projectInfo.projDir, 'VisusSlamFiles', 'visus.midx')
-                ndvifilename = os.path.join(self.projectInfo.projDirNDVI, 'VisusSlamFiles', 'visus.midx')
+        if self.projectInfo.projDirNDVI and (self.projectInfo.projDirNDVI != "" or self.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam') or (self.tabAskSensor.comboBoxNewTab.currentText() == 'MAPIR and RGB'):
+            # if self.SHOW_GOGGLE_MAP and os.path.exists(googlefile):
+            #     rgbfilename = os.path.join(self.projectInfo.projDir, 'VisusSlamFiles','google.midx')
+            #     ndvifilename = os.path.join(self.projectInfo.projDirNDVI, 'VisusSlamFiles','google.midx')
+            # else:
+            rgbfilename = os.path.join(self.projectInfo.projDir, 'VisusSlamFiles', 'visus.midx')
+            ndvifilename = os.path.join(self.projectInfo.projDirNDVI, 'VisusSlamFiles', 'visus.midx')
 
             ret1 = self.viewer.open(rgbfilename)
             ret2 = self.viewer2.open(ndvifilename)
@@ -1506,7 +1526,7 @@ class ViSOARUIWidget(QWidget):
 
     def goHome(self):
         self.BATCH_MODE = False
-        self.stitchTime = 0
+        self.stitchTime = "0"
         self.stitchNumImages =0
         self.tabAskDest.destNametextbox.setText('')
         self.tabAskDest.createErrorLabel.setText('')

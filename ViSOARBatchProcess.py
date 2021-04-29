@@ -315,7 +315,7 @@ class VisoarAgExplorerBatchProcessWidget(ViSOARUIWidget):
         # implement next button on stacked view, s = current tab, need to move to what comes next
         if s == 'AfterAskSensor':
             print('AfterAskSensor')
-            if self.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam':
+            if (self.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam') or (self.tabAskSensor.comboBoxNewTab.currentText() == 'MAPIR and RGB'):
                 self.tabs.setCurrentIndex(self.ASKSOURCERGBNDVI_TAB)
             else:
                 self.tabs.setCurrentIndex(self.ASKSOURCE_TAB)
@@ -323,7 +323,7 @@ class VisoarAgExplorerBatchProcessWidget(ViSOARUIWidget):
             self.tabAskDest.destNametextbox.setText(self.dir_of_result)
         elif s == 'AfterAskSource':
             self.dir_of_rgb_source =  self.tabAskSource.curDir2.text()
-            if self.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam':
+            if self.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam' or (self.tabAskSensor.comboBoxNewTab.currentText() == 'MAPIR and RGB'):
                 self.dir_of_nir_source = self.tabAskSource.curDir2.text()
                 print('AfterAskSource')
                 if (not self.dir_of_rgb_source.strip()) or (not self.dir_of_nir_source ):
@@ -358,7 +358,7 @@ class VisoarAgExplorerBatchProcessWidget(ViSOARUIWidget):
             self.tabs.setCurrentIndex(self.LOG_TAB)
             self.update()
 
-            if self.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam':
+            if self.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam' or (self.tabAskSensor.comboBoxNewTab.currentText() == 'MAPIR and RGB'):
                 self.dir_of_result = self.destNametextbox
                 # self.projectInfo.projDir = self.projectInfo.srcDir
                 # self.projectInfo.projDirNDVI = self.projectInfo.srcDirNDVI
@@ -423,6 +423,7 @@ class VisoarAgExplorerBatchProcessWidget(ViSOARUIWidget):
                           physic_box=None):
         self.slam.setImageDirectory(image_dir,  cache_dir= cache_dir, telemetry=telemetry, plane=plane, calibration=calibration, physic_box=physic_box)
         retSlamSetup = self.slam_widget.run(self.slam)
+        self.slam_widget.onRunClicked()
         retSlamRan = self.slam_widget.slam.run()
         self.setUpRClone()
 

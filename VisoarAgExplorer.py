@@ -24,6 +24,9 @@ else:
 
 T1=datetime.datetime.now()
 
+
+
+
 # IMPORTANT for WIndows
 # Mixing C++ Qt5 and PyQt5 won't work in Windows/DEBUG mode
 # because forcing the use of PyQt5 means to use only release libraries (example: Qt5Core.dll)
@@ -210,6 +213,7 @@ def Main(argv):
         print('Main after splash close')
 
     app.exec()
+
     # GuiModule.execApplication()
     if DEBUG:
         print('Main after app exec')
@@ -226,7 +230,14 @@ def Main(argv):
 
 # //////////////////////////////////////////////
 if __name__ == '__main__':
-    Main(sys.argv)
+    try:
+        Main(sys.argv)
+    except:
+        print('dumping IO due to exception')
+        log_stream = StringIO()
+        logging.basicConfig(stream=log_stream, level=logging.INFO)
+        logging.error("Exception occurred", exc_info=True)
+        send_email_crash_notification(log_stream.getvalue())
 
 # 	<<project>
 # 	<projName> "Project2" </projName>

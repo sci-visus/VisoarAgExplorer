@@ -73,8 +73,10 @@ class ViSOARGradientMapViewWidget(QDialog):
         MODE="NDVI"
         if (MODE == "RGB"):
             script = self.gradient.makeNewScriptRGB()
-        else:
+        elif (MODE == 'AGROCAM'):
             script = self.gradient.makeNewScriptAgrocam()
+        else:
+            script = self.gradient.makeNewScriptMAPIR()
 
         self.parent.runThisScript(script, self.viewer)
 

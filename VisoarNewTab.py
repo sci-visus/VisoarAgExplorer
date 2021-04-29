@@ -130,8 +130,9 @@ class VisoarAskSensor(QWidget):
 
         self.comboBoxNewTab = QComboBox(self)
         self.comboBoxNewTab.addItem("R G B")
-        self.comboBoxNewTab.addItem("O C NIR (MapIR)")
+        self.comboBoxNewTab.addItem("MAPIR and RGB")
         self.comboBoxNewTab.addItem("Agrocam")
+        self.comboBoxNewTab.addItem("MapIR only (OCNIR)")
         self.comboBoxNewTab.addItem("R G NIR")
         self.comboBoxNewTab.addItem("R NIR (Sentera NDVI)")
         self.comboBoxNewTab.addItem("RedEdge NIR (Sentera NDRE)")
@@ -628,7 +629,7 @@ class VisoarNewTabWidget(QWidget):
 
         self.comboBoxNewTab = QComboBox(self)
         self.comboBoxNewTab.addItem("R G B")
-        self.comboBoxNewTab.addItem("O C NIR (MapIR)")
+        self.comboBoxNewTab.addItem("MapIR only (OCNIR)")
         self.comboBoxNewTab.addItem("R G NIR")
         self.comboBoxNewTab.addItem("R NIR (Sentera NDVI)")
         self.comboBoxNewTab.addItem("RedEdge NIR (Sentera NDRE)")

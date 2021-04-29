@@ -62,7 +62,7 @@ class VisoarAnalyzeTabWidget(QWidget):
 
         self.buttons.comboBoxATab = QComboBox(self)
         self.buttons.comboBoxATab.addItem("R G B")
-        self.buttons.comboBoxATab.addItem("O C NIR (MapIR)")
+        self.buttons.comboBoxATab.addItem("MapIR only (OCNIR)")
         self.buttons.comboBoxATab.addItem("R G NIR")
         self.buttons.comboBoxATab.addItem("R NIR (Sentera NDVI)")
         self.buttons.comboBoxATab.addItem("RedEdge NIR (Sentera NDRE)")
@@ -389,7 +389,7 @@ class VisoarAnalyzeTabWidget(QWidget):
             self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'NDVI_Threshold', True)
             self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'TGI', False)
             self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'TGI_Threshold', False)
-        elif (self.parent.inputMode == "O C NIR (MapIR)"):
+        elif (self.parent.inputMode == "MapIR only (OCNIR)"):
             self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'NDVI', True)
             self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'NDVI_Threshold', True)
             self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'TGI', False)

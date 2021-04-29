@@ -14,6 +14,7 @@ from PyQt5.QtWidgets                  import QWidget, QMessageBox, QGroupBox, QS
 from PyQt5.QtWidgets                  import QTableWidget,QTableWidgetItem
 
 from slampy.slam_2d                 import *
+from gmail_visoar                   import send_email_crash_notification
 class VisoarStitchTabWidget(QWidget):
     def __init__(self, parent):
         super(QWidget, self).__init__(parent)
@@ -164,9 +165,10 @@ class VisoarStitchTabWidget(QWidget):
         return BoxNd.fromString(str(dataset.attrib['physic_box']))
 
     def run(self):
+
         #try:
         self.parent.openfilenameLabelS.setText("Starting to Stitch: "+ self.parent.projectInfo.srcDir )
-        if self.parent.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam':
+        if self.parent.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam' or (self.parent.tabAskSensor.comboBoxNewTab.currentText() == 'MAPIR and RGB'):
             print("Note to self, taking out slam default changes")
             #            self.parent.slam_widget.setDefaults(color_matching=self.color_matching)
             if not (os.path.exists(os.path.join(self.parent.projectInfo.srcDir, 'VisusSlamFiles'))):
@@ -185,14 +187,15 @@ class VisoarStitchTabWidget(QWidget):
 
             #Now, we have to parse the midx from the RGB data set and send it into the NDVI one:
             # <dataset typename='IdxMultipleDataset' logic_box='0 33219 0 9355' physic_box='0.18167907760636232 0.18178016271080077 0.63092731395604973 0.63093683616193741'>
-            physbox = self.getPhysicsBoxFromMIDX(os.path.join(self.parent.projectInfo.srcDir, 'VisusSlamFiles', 'visus.midx'))
+            if self.parent.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam':
+                physbox = self.getPhysicsBoxFromMIDX(os.path.join(self.parent.projectInfo.srcDir, 'VisusSlamFiles', 'visus.midx'))
 
-            from shutil import copyfile
-            if (os.path.exists(self.parent.projectInfo.srcDirNDVI)):
-                if not (os.path.exists(os.path.join(self.parent.projectInfo.srcDirNDVI,'VisusSlamFiles'))):
-                    os.makedirs(os.path.join(self.parent.projectInfo.srcDirNDVI,'VisusSlamFiles'))
-                copyfile(os.path.join( self.parent.projectInfo.srcDir, 'VisusSlamFiles','metadata.json'),
-                        os.path.join(self.parent.projectInfo.srcDirNDVI, 'VisusSlamFiles','metadata.json'))
+                from shutil import copyfile
+                if (os.path.exists(self.parent.projectInfo.srcDirNDVI)):
+                    if not (os.path.exists(os.path.join(self.parent.projectInfo.srcDirNDVI,'VisusSlamFiles'))):
+                        os.makedirs(os.path.join(self.parent.projectInfo.srcDirNDVI,'VisusSlamFiles'))
+                    copyfile(os.path.join( self.parent.projectInfo.srcDir, 'VisusSlamFiles','metadata.json'),
+                            os.path.join(self.parent.projectInfo.srcDirNDVI, 'VisusSlamFiles','metadata.json'))
 
             self.parent.openfilenameLabelS.setText(
                 "Starting to Stitch: " +  self.parent.projectInfo.srcDirNDVI)
@@ -202,11 +205,17 @@ class VisoarStitchTabWidget(QWidget):
             popUP('RGB Stitched', 'RGB Stitched.  Ready to Stitch NDVI \n')
 
             #Had to create a new slam2d here because the camera numbers needed to be reset
-
-            retSlamSetup2, retSlamRan2 = self.parent.setAndRunSlam(image_dir= self.parent.projectInfo.srcDirNDVI,
+            if self.parent.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam':
+                retSlamSetup2, retSlamRan2 = self.parent.setAndRunSlam(image_dir= self.parent.projectInfo.srcDirNDVI,
                                                       cache_dir= os.path.join(self.parent.projectInfo.srcDirNDVI, 'VisusSlamFiles'),
                                                       telemetry=os.path.join(self.parent.projectInfo.srcDirNDVI, 'VisusSlamFiles/metadata.json'),
                                                       physic_box=physbox)
+            else:
+                retSlamSetup2, retSlamRan2 = self.parent.setAndRunSlam(image_dir=self.parent.projectInfo.srcDirNDVI,
+                                                                       cache_dir=os.path.join(
+                                                                           self.parent.projectInfo.srcDirNDVI,
+                                                                           'VisusSlamFiles'))
+
             self.parent.createRGBNDVI_MIDX()
         else:
             print("Note to self, taking out slam default changes")
@@ -226,7 +235,15 @@ class VisoarStitchTabWidget(QWidget):
             else:
                 popUP('Slam failed','ERROR 101: Visus Slam failed')
                 self.parent.enableViewNewStitch()
-        # except:
-        #    popUP('Slam failed', 'ERROR 102: Visus Slam failed')
+    # except:
+    #         from io import StringIO
+    #         import logging
+    #         print('dumping IO due to exception')
+    #         log_stream = StringIO()
+    #         logging.basicConfig(stream=log_stream, level=logging.INFO)
+    #         logging.error("Exception occurred", exc_info=True)
+    #         send_email_crash_notification(log_stream.getvalue())
+
+    #    popUP('Slam failed', 'ERROR 102: Visus Slam failed')
         #    self.parent.changeViewNewStitch()
         #    return False
