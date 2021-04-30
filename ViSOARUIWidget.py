@@ -276,7 +276,11 @@ class MyViewer(Viewer):
         self.name = name
         self.setBackgroundColor( Color(0, 0, 0, 255))
         if url:
-            self.open(url)
+            try:
+                self.open(url)
+            except:
+                popUP('Error', 'Error ViSOARUIWidget 280 loading: {0}'.format(url))
+
         self.on_camera_change = None
 
     # glCameraChangeEvent
@@ -507,6 +511,45 @@ class ViSOARUIWidget(QWidget):
         if self.DEBUG:
             print('ViSOARTabWidget init finished')
 
+    def getSrcDir(self, RGB=True ):
+        if (RGB):
+            return self.projectInfo.srcDir
+        else:
+            return self.projectInfo.srcDirNDVI
+    def getProjDir(self, RGB=True, TIMESERIES = False):
+        if TIMESERIES or RGB:
+            return self.projectInfo.projDir
+        else:
+            return self.projectInfo.projDirNDVI
+
+    def getCacheDir(self, RGB=True, TIMESERIES = False):
+        if TIMESERIES:
+            return os.path.join(self.projectInfo.projDir, 'VisusSlamFiles')
+        else:
+            return os.path.join(self.projectInfo.srcDir, 'VisusSlamFiles')
+    def getMidxPath(self, RGB=True, TIMESERIES = False):
+        if (RGB):
+            return os.path.join(self.projectInfo.srcDir, 'VisusSlamFiles', 'visus.midx')
+        else:
+            return os.path.join(self.projectInfo.projDir, 'VisusSlamFiles', 'visus.midx')
+    def getGoogleMidxPath(self, RGB=True, TIMESERIES = False):
+        if (RGB):
+            return os.path.join(self.projectInfo.srcDir, 'VisusSlamFiles', 'google.midx')
+        else:
+            return os.path.join(self.projectInfo.projDir, 'VisusSlamFiles', 'google.midx')
+
+
+
+#Three Cases:
+    # if RGB and NDVI
+    # then midx holds both and is in projdir
+    #  each dataset's midx is in srcdir and srcdirndvi
+    # if Time series:
+    # then midx holds both and is in projdir
+    #  each dataset's midx referenced in that midx
+    # just single, then srcdir, srcdir, cachedir = srcdir/VisusSlamFiles
+
+
     def display(self, i):
         self.tabs.setCurrentIndex(i)
 
@@ -541,7 +584,17 @@ class ViSOARUIWidget(QWidget):
                         # self.tabAskName.projNametextbox.setText(tempName)
                         self.projectInfo.projName = tempName
                         self.tabAskDest.destNametextbox.setText('')
-                        self.tabs.setCurrentIndex(self.ASKDEST_TAB)
+                        #self.tabs.setCurrentIndex(self.ASKDEST_TAB)
+                        self.tabs.setCurrentIndex(self.LOG_TAB)
+                        self.update()
+
+                        if self.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam' or (
+                                self.tabAskSensor.comboBoxNewTab.currentText() == 'MAPIR and RGB'):
+                            self.dir_of_result = self.destNametextbox
+                            # self.projectInfo.projDir = self.projectInfo.srcDir
+                            # self.projectInfo.projDirNDVI = self.projectInfo.srcDirNDVI
+
+                        self.startProcessing()
                 else:
                     print('AfterAskSource')
                     if not self.dir_of_rgb_source.strip():
@@ -552,7 +605,17 @@ class ViSOARUIWidget(QWidget):
                         # self.tabAskName.projNametextbox.setText(tempName)
                         self.projectInfo.projName = tempName
                         self.tabAskDest.destNametextbox.setText('')
-                        self.tabs.setCurrentIndex(self.ASKDEST_TAB)
+                        #self.tabs.setCurrentIndex(self.ASKDEST_TAB)
+                        self.tabs.setCurrentIndex(self.LOG_TAB)
+                        self.update()
+
+                        if self.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam' or (
+                                self.tabAskSensor.comboBoxNewTab.currentText() == 'MAPIR and RGB'):
+                            self.dir_of_result = self.destNametextbox
+                            # self.projectInfo.projDir = self.projectInfo.srcDir
+                            # self.projectInfo.projDirNDVI = self.projectInfo.srcDirNDVI
+
+                        self.startProcessing()
             else:
                 if self.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam' or (self.tabAskSensor.comboBoxNewTab.currentText() == 'MAPIR and RGB'):
                     print('AfterAskSource')
@@ -566,7 +629,7 @@ class ViSOARUIWidget(QWidget):
                         self.tabAskDest.destNametextbox.setText(self.projectInfo.srcDir.strip())
                         self.projectInfo.projDir = self.projectInfo.srcDir.strip()
                         self.projectInfo.projDirNDVI = self.projectInfo.srcDirNDVI.strip()
-                        self.projectInfo.cache_dir = os.path.join(self.projectInfo.projDir, 'VisusSlamFiles')
+                        self.projectInfo.cache_dir = self.getCacheDir(  TIMESERIES = True) # os.path.join(self.projectInfo.projDir, 'VisusSlamFiles')
                         self.tabs.setCurrentIndex(self.ASKNAME_TAB)
                 else:
                     print('AfterAskSource')
@@ -579,13 +642,19 @@ class ViSOARUIWidget(QWidget):
                         self.projectInfo.projName = tempName
                         self.tabAskDest.destNametextbox.setText(self.projectInfo.srcDir.strip())
                         self.projectInfo.projDir = self.projectInfo.srcDir.strip()
-                        self.projectInfo.cache_dir = os.path.join(self.projectInfo.projDir, 'VisusSlamFiles')
+                        self.projectInfo.cache_dir = self.getCacheDir(TIMESERIES = True)
                         self.tabs.setCurrentIndex(self.ASKNAME_TAB)
 
         elif s == 'AfterAskName':
             v = self.setProjName()
             if v:
-                self.tabs.setCurrentIndex(self.ASKDEST_TAB)
+                if self.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam' or (
+                        self.tabAskSensor.comboBoxNewTab.currentText() == 'MAPIR and RGB'):
+                    self.tabs.setCurrentIndex(self.ASKDEST_TAB)
+                else:
+                    self.projectInfo.projDir = self.projectInfo.srcDir
+                    self.projectInfo.cache_dir = self.getCacheDir(TIMESERIES=False)
+                    self.afterAskDestFn()
             print('AfterAskName')
             #self.tabAskName.projNametextbox.setText('')
 
@@ -614,25 +683,25 @@ class ViSOARUIWidget(QWidget):
 
                             if not os.path.exists(self.projectInfo.projDir):
                                 os.makedirs(self.projectInfo.projDir)
-
-                        self.visoarUserLibraryData.createProject(self.projectInfo.projName,
-                                                                 self.projectInfo.projDir,
-                                                                 self.projectInfo.srcDir,
-                                                                 self.projectInfo.projDirNDVI,
-                                                                 self.projectInfo.srcDirNDVI)
-                        self.changeViewStitching()
-                        print("Note to self, taking out slam default changes")
-                        #self.slam_widget.setDefaults(generate_bbox=self.generate_bbox,
-                        #                             color_matching=self.color_matching, blending_exp=self.blending_exp)
-                        self.tabs.setCurrentIndex(self.STITCHING_VIEW_TAB)
-
-                        # if self.stitchAlreadyDone():
-                        #     self.enableViewStitching()
-                        #     self.goToAnalyticsTab()
-                        # else:
-                        self.enableViewStitching()
-                        self.changeViewStitching()
-                        self.startViSUSSLAM()
+                        self.afterAskDestFn(   IS_TIMESERIES = True)
+                        # self.visoarUserLibraryData.createProject(self.projectInfo.projName,
+                        #                                          self.projectInfo.projDir,
+                        #                                          self.projectInfo.srcDir,
+                        #                                          self.projectInfo.projDirNDVI,
+                        #                                          self.projectInfo.srcDirNDVI)
+                        # self.changeViewStitching()
+                        # print("Note to self, taking out slam default changes")
+                        # #self.slam_widget.setDefaults(generate_bbox=self.generate_bbox,
+                        # #                             color_matching=self.color_matching, blending_exp=self.blending_exp)
+                        # self.tabs.setCurrentIndex(self.STITCHING_VIEW_TAB)
+                        #
+                        # # if self.stitchAlreadyDone():
+                        # #     self.enableViewStitching()
+                        # #     self.goToAnalyticsTab()
+                        # # else:
+                        # self.enableViewStitching()
+                        # self.changeViewStitching()
+                        # self.startViSUSSLAM()
                     else:
                         errorStr = 'Please Provide a unique directory for the destination, different from RGB or NDVI source directories  \n'
                         self.tabAskDest.createErrorLabel.setText(errorStr)
@@ -651,24 +720,7 @@ class ViSOARUIWidget(QWidget):
                         if not os.path.exists(  self.projectInfo.projDir ):
                             os.makedirs(self.projectInfo.projDir )
 
-                    self.visoarUserLibraryData.createProject(self.projectInfo.projName,
-                                                             self.projectInfo.projDir,
-                                                             self.projectInfo.srcDir,
-                                                             self.projectInfo.projDirNDVI,
-                                                             self.projectInfo.srcDirNDVI)
-                    #self.enableViewStitching()
-                    self.changeViewStitching()
-                    #AAG Slam removal
-                    #self.slam_widget.setDefaults(generate_bbox=self.generate_bbox,
-                    #                                    color_matching=self.color_matching, blending_exp=self.blending_exp)
-                    self.tabs.setCurrentIndex(self.STITCHING_VIEW_TAB)
-                    if self.stitchAlreadyDone():
-                        self.enableViewStitching()
-                        self.goToAnalyticsTab()
-                    else:
-                        self.enableViewStitching()
-                        self.changeViewStitching()
-                        self.startViSUSSLAM()
+                    self.afterAskDestFn()
 
                 print('end of AfterAskDest')
                 #self.tabAskDest.destNametextbox.setText('')
@@ -680,10 +732,34 @@ class ViSOARUIWidget(QWidget):
         else:
             print(s)
 
-    def stitchAlreadyDone(self):
-        # return os.path.exists(os.path.join(self.parent.projectInfo.projDir, 'VisusSlamFiles', 'visus.midx'))
-        return os.path.exists(os.path.join(self.projectInfo.projDir, 'VisusSlamFiles', 'idx', '0000.bin'))
+    def afterAskDestFn(self,  IS_TIMESERIES = False):
+        self.visoarUserLibraryData.createProject(self.projectInfo.projName,
+                                                 self.projectInfo.projDir,
+                                                 self.projectInfo.srcDir,
+                                                 self.projectInfo.projDirNDVI,
+                                                 self.projectInfo.srcDirNDVI)
+        # self.enableViewStitching()
+        self.changeViewStitching()
+        # AAG Slam removal
+        # self.slam_widget.setDefaults(generate_bbox=self.generate_bbox,
+        #                                    color_matching=self.color_matching, blending_exp=self.blending_exp)
+        self.tabs.setCurrentIndex(self.STITCHING_VIEW_TAB)
+        # if   self.stitchAlreadyDone(IS_TIMESERIES):
+        #     self.enableViewStitching()
+        #     self.goToAnalyticsTab()
+        # else:
+        self.enableViewStitching()
+        self.changeViewStitching()
+        self.startViSUSSLAM()
+    #
+    # def stitchAlreadyDone(self,IS_TIMESERIES):
+    #     if IS_TIMESERIES:
+    #         return os.path.exists(os.path.join(self.parent.projectInfo.projDir, 'VisusSlamFiles', 'visus.midx'))
+    #     else:
+    #
+    #     return os.path.exists(os.path.join( dir,  'idx', '0000.bin'))
 
+    #Part of batch processing
     def startProcessing(self):
 
         for aSrcPath in os.listdir(self.dir_of_rgb_source):
@@ -708,6 +784,18 @@ class ViSOARUIWidget(QWidget):
                                                              self.projectInfo.srcDirNDVI)
                 else:
                     print(self.projectInfo.cache_dir + ' MIDX already exists..')
+                    buttonReply = QMessageBox.question(self, 'Already Exists',
+                                                       "MIDX already exists, would you like to restitch it?",
+                                                       QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+                    if buttonReply == QMessageBox.Yes:
+                        self.setAndRunSlam(self.projectInfo.srcDir, cache_dir=self.projectInfo.cache_dir)
+
+                        self.visoarUserLibraryData.createProject(self.projectInfo.projName,
+                                                                 self.projectInfo.projDir,
+                                                                 self.projectInfo.srcDir,
+                                                                 self.projectInfo.projDirNDVI,
+                                                                 self.projectInfo.srcDirNDVI)
+
 
         # Load Load screen and enable viewer
         self.tabViewer.buttons.comboBoxATab.setCurrentIndex(self.tabAskSensor.comboBoxNewTab.currentIndex())
@@ -735,17 +823,33 @@ class ViSOARUIWidget(QWidget):
         self.logFile = os.path.join(cache_dir+"/~visusslam.log")
         self.slam_widget.redirect_log = RedirectLog(self.logFile)
 
-        if  (not os.path.exists(cache_dir)) or (not os.path.exists(os.path.join(cache_dir, 'idx', '0000.bin'))):
+        if (  os.path.exists(cache_dir)) and (os.path.exists(os.path.join(cache_dir, 'idx', '0000.bin'))):
+            buttonReply = QMessageBox.question(self, 'Already Exists',
+                                               "MIDX already exists, would you like to restitch it?",
+                                               QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            if buttonReply == QMessageBox.Yes:
+                #       if  (not os.path.exists(cache_dir)) or (not os.path.exists(os.path.join(cache_dir, 'idx', '0000.bin'))):
+                try:
+                    self.slam.setImageDirectory(image_dir = image_dir,  cache_dir= cache_dir, telemetry=telemetry, plane=plane, calibration=calibration, physic_box=physic_box)
+                     #Here we could ask whether you want to restitch or use old stitch
+                    retSlamSetup = self.slam_widget.run(self.slam)
+                    self.slam_widget.onRunClicked()
+                    retSlamRan = self.slam_widget.slam.run()
+                except:
+                    self.emailTrouble(self.logFile)
+            else:
+                self.slam_widget.slam = self.slam
+        else:
             try:
-                self.slam.setImageDirectory(image_dir = image_dir,  cache_dir= cache_dir, telemetry=telemetry, plane=plane, calibration=calibration, physic_box=physic_box)
-                 #Here we could ask whether you want to restitch or use old stitch
+                self.slam.setImageDirectory(image_dir=image_dir, cache_dir=cache_dir, telemetry=telemetry, plane=plane,
+                                            calibration=calibration, physic_box=physic_box)
+                # Here we could ask whether you want to restitch or use old stitch
                 retSlamSetup = self.slam_widget.run(self.slam)
                 self.slam_widget.onRunClicked()
                 retSlamRan = self.slam_widget.slam.run()
             except:
                 self.emailTrouble(self.logFile)
-        else:
-            self.slam_widget.slam = self.slam
+
         end = time.time()
         print(end - start)
         self.stitchTime = "{:.2f}".format((end - start)/60.0)
@@ -758,7 +862,7 @@ class ViSOARUIWidget(QWidget):
     def createRGBNDVI_MIDX(self):
         # This function assumes that slam has been run on teh RGB and NDVI directories, resulting in two MIDX files
         # Now we combine these together in one MIDX file
-        self.projectInfo.cache_dir = os.path.join(self.projectInfo.projDir, 'VisusSlamFiles')
+        self.projectInfo.cache_dir =  self.getCacheDir(TIMESERIES=True) #os.path.join(self.projectInfo.projDir, 'VisusSlamFiles')
         self.listOfMidxFiles = []
         self.listOfMidxFiles.append(os.path.join(self.projectInfo.srcDir, 'VisusSlamFiles', 'visus.midx'))
         self.listOfMidxFiles.append(os.path.join(self.projectInfo.srcDirNDVI, 'VisusSlamFiles','visus.midx'))
@@ -821,15 +925,15 @@ class ViSOARUIWidget(QWidget):
     def setSensor(self, st):
         self.inputMode = st
 
-    def setDestName(self):
-        self.projectInfo.projDir = str(
-            QFileDialog.getExistingDirectory(self, "Select Directory containing Images"))
-        self.tabAskDest.destNametextbox.setText(dir)
-        self.tabAskDest.buttons.create_project.show()
-        self.update()
-
-        if self.DEBUG:
-            print('Images Added')
+    # def setDestName(self):
+    #     self.projectInfo.projDir = str(
+    #         QFileDialog.getExistingDirectory(self, "Select Directory containing Images"))
+    #     self.tabAskDest.destNametextbox.setText(dir)
+    #     self.tabAskDest.buttons.create_project.show()
+    #     self.update()
+    #
+    #     if self.DEBUG:
+    #         print('Images Added')
 
     def checkSpecialChar(self, text):
         return self.check_splcharacter(text)
@@ -1232,14 +1336,14 @@ class ViSOARUIWidget(QWidget):
         if self.DEBUG:
             print('onTabChange finished')
 
-    def getDirectoryLocation(self):
-        self.projectInfo.projDir = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
-        self.curDir2.setText(self.projectInfo.projDir)
-        if not self.projNametextbox.text():
-            tempName = os.path.basename(os.path.normpath(self.projectInfo.projDir))
-            self.projNametextbox.setText(tempName)
-        if self.DEBUG:
-            print('getDirectoryLocation finished')
+    # def getDirectoryLocation(self):
+    #     self.projectInfo.projDir = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+    #     self.curDir2.setText(self.projectInfo.projDir)
+    #     if not self.projNametextbox.text():
+    #         tempName = os.path.basename(os.path.normpath(self.projectInfo.projDir))
+    #         self.projNametextbox.setText(tempName)
+    #     if self.DEBUG:
+    #         print('getDirectoryLocation finished')
 
     def addScriptActionCombobox(self, cbox):
 
@@ -1337,7 +1441,7 @@ class ViSOARUIWidget(QWidget):
         if isinstance(self.cam2, GLOrthoCamera): self.cam2.toggleDefaultSmooth()
 
     def openMIDX(self):
-        self.projectInfo.cache_dir = os.path.join(self.projectInfo.projDir, 'VisusSlamFiles')
+        #AAG04.30.2021 self.projectInfo.cache_dir = os.path.join(self.projectInfo.projDir, 'VisusSlamFiles')
         if self.projectInfo.doesProjectHaveLayers( ) and self.USER_TAB_UI:
             self.tabs.setTabEnabled(self.STITCHING_VIEW_TAB, False)
         elif self.USER_TAB_UI:
@@ -1366,14 +1470,29 @@ class ViSOARUIWidget(QWidget):
             #     rgbfilename = os.path.join(self.projectInfo.projDir, 'VisusSlamFiles','google.midx')
             #     ndvifilename = os.path.join(self.projectInfo.projDirNDVI, 'VisusSlamFiles','google.midx')
             # else:
-            rgbfilename = os.path.join(self.projectInfo.projDir, 'VisusSlamFiles', 'visus.midx')
-            ndvifilename = os.path.join(self.projectInfo.projDirNDVI, 'VisusSlamFiles', 'visus.midx')
+            rgbfilename = os.path.join(self.projectInfo.srcDir, 'VisusSlamFiles', 'visus.midx')
+            ndvifilename = os.path.join(self.projectInfo.srcDirNDVI, 'VisusSlamFiles', 'visus.midx')
+            try:
+                ret1 = self.viewer.open(rgbfilename)
+            except:
+                popUP('Error', 'Error ViSOARUIWidget 1376 loading: {0}'.format(rgbfilename))
 
-            ret1 = self.viewer.open(rgbfilename)
-            ret2 = self.viewer2.open(ndvifilename)
+            try:
+                ret2 = self.viewer2.open(ndvifilename)
+            except:
+                popUP('Error', 'Error ViSOARUIWidget 1383 loading: {0}'.format(ndvifilename))
+
         else:
-            ret1 = self.viewer.open(self.midxfilename)
-            ret2 = self.viewer2.open(self.midxfilename)
+            try:
+                ret1 = self.viewer.open(self.midxfilename)
+            except:
+                popUP('Error', 'Error ViSOARUIWidget 1389 loading: {0}'.format(self.midxfilename))
+
+            try:
+                ret2 = self.viewer2.open(self.midxfilename)
+            except:
+                popUP('Error', 'Error ViSOARUIWidget 1394 loading: {0}'.format(self.midxfilename))
+
         self.setUpCams()
         self.resetView()
         return ret1, ret2
@@ -1461,10 +1580,13 @@ class ViSOARUIWidget(QWidget):
 
     def changeViewBatchProcess(self):
         self.BATCH_MODE = True
+        self.tabAskSensor.comboBoxNewTab.setCurrentText('R G B')
         if (self.USER_TAB_UI):
-            self.tabs.setCurrentIndex(self.ASKSENSOR_TAB)
+            #self.tabs.setCurrentIndex(self.ASKSENSOR_TAB)
+            self.tabs.setCurrentIndex(self.ASKSOURCE_TAB)
         else:
-            self.tabs.setCurrentIndex(self.ASKSENSOR_TAB)
+            self.tabs.setCurrentIndex(self.ASKSOURCE_TAB)
+            #self.tabs.setCurrentIndex(self.ASKSENSOR_TAB)
 
     def enableViewBatchProcess(self,enabledView = True):
         self.BATCH_MODE = True
@@ -1526,6 +1648,7 @@ class ViSOARUIWidget(QWidget):
 
     def goHome(self):
         self.BATCH_MODE = False
+        self.slam = Slam2D()
         self.stitchTime = "0"
         self.stitchNumImages =0
         self.tabAskDest.destNametextbox.setText('')
@@ -1579,7 +1702,7 @@ class ViSOARUIWidget(QWidget):
 
     def saveJSONFile(self):
         import json
-        self.cache_dir = os.path.join(self.projectInfo.projDir, 'VisusSlamFiles')
+        #self.cache_dir = os.path.join(self.projectInfo.projDir, 'VisusSlamFiles')
         self.jsonFile = os.path.join( self.projectInfo.cache_dir,'ViSOARIDX',self.projectInfo.projName+'.json')
         print('Will write to : {0}'.format(self.jsonFile))
         path = os.path.join(self.projectInfo.cache_dir, 'ViSOARIDX')
@@ -1597,7 +1720,7 @@ class ViSOARUIWidget(QWidget):
             "cacheDir" : self.projectInfo.cache_dir,
             "createdAt": self.projectInfo.createdAt,
             "updatedAt": self.projectInfo.updatedAt,
-            "idxLocalPath": os.path.join(self.cache_dir, "ViSOARIDX" ),
+            "idxLocalPath": os.path.join(self.projectInfo.cache_dir, "ViSOARIDX" ),
             "idxFile":  self.projectInfo.projName ,
         }
 
@@ -1607,7 +1730,7 @@ class ViSOARUIWidget(QWidget):
         print('Output json file to: {0}'.format(self.jsonFile))
 
     def setUpRClone(self):
-        self.cache_dir = os.path.join(self.projectInfo.projDir, 'VisusSlamFiles')
+        self.cache_dir = self.projectInfo.cache_dir #os.path.join(self.projectInfo.projDir, 'VisusSlamFiles')
         idxpath = os.path.join(self.cache_dir, 'ViSOARIDX')
         idxzip = os.path.join(self.cache_dir, 'ViSOARIDX',self.projectInfo.projName+'.zip')
         jsonFile = os.path.join(self.cache_dir, 'ViSOARIDX',self.projectInfo.projName+'.json')

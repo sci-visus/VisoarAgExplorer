@@ -384,7 +384,7 @@ class VisoarLoadTabWidget(QWidget):
 
             projName = project.projName
             projDir = project.projDir
-            print(projName + " " + projDir)
+            #print(projName + " " + projDir)
 
             widgetName  = QTableWidgetItem(projName)
             widgetButton = QTableWidgetItem('')
@@ -538,7 +538,7 @@ class VisoarLoadTabWidget(QWidget):
                     updatedAtString =datetime.fromtimestamp(os.path.getmtime(file)).strftime('%m/%d/%Y')
                 else:
                     updatedAtString = ''
-            print(projName + " " + projDir)
+            #print(projName + " " + projDir)
             project.updatedAt = updatedAtString
 
             widgetName  = QWidget()
@@ -847,7 +847,7 @@ class VisoarLoadTabWidget(QWidget):
             popUP('ERROR', 'Could not get to file. Is the drive mounted? \n' + self.parent.projectInfo.projDir)
             self.parent.goHome()
             return
-        self.parent.projectInfo.cache_dir = os.path.join(self.parent.projectInfo.projDir, 'VisusSlamFiles')
+       #AAG04.30.2021 self.parent.projectInfo.cache_dir = os.path.join(self.parent.projectInfo.projDir, 'VisusSlamFiles')
         ret = self.parent.projectInfo.doesProjectHaveLayers( )
         if ret:
             self.parent.enableViewStitching(enabledView= False)

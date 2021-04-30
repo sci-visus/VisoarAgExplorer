@@ -223,7 +223,7 @@ class VisoarStitchTabWidget(QWidget):
             retSlamSetup, retSlamRan = self.parent.setAndRunSlam(image_dir=self.parent.projectInfo.srcDir,
                                                       cache_dir=os.path.join(self.parent.projectInfo.projDir, 'VisusSlamFiles'))
 
-            self.parent.projectInfo.cache_dir = os.path.join(self.parent.projectInfo.projDir, 'VisusSlamFiles')
+            #AAG04.30.2021 self.parent.projectInfo.cache_dir = os.path.join(self.parent.projectInfo.projDir, 'VisusSlamFiles')
             if (retSlamSetup):
                 self.buttons.goToAnalytics.setEnabled(True)
                 self.buttons.goToAnalytics.setStyleSheet(GREEN_PUSH_BUTTON)

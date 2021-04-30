@@ -366,7 +366,7 @@ class VisoarAskSourceRGBNDVI(QWidget):
 
 
     def next(self):
-        if (self.OPT_FOR_ACCEPT_ALL):
+        if (not self.OPT_FOR_ACCEPT_ALL):
             self.matchWidget.renameFilesRGBNDVI(  self.parent.projectInfo.srcDir, self.parent.projectInfo.srcDirNDVI)
         self.parent.next("AfterAskSource")
 
@@ -885,10 +885,20 @@ class VisoarNewTabWidget(QWidget):
                 print('DEBUG: createProject: read userFileHistory')
             self.parent.visoarUserLibraryData.createProject(self.parent.projectInfo.projName,self.parent.projectInfo.projDir,self.parent.projectInfo.srcDir,self.parent.projectInfo.projDirNDVI,self.parent.projectInfo.srcDirNDVI)
             print('Change tabs')
-            # Check to see if midx files exists, if it does, go to Analytics
             if self.stitchAlreadyDone():
-                self.parent.enableViewStitching()
-                self.parent.goToAnalyticsTab()
+                # Check to see if midx files exists, if it does, go to Analytics
+                buttonReply = QMessageBox.question(self, 'Already Exists',
+                                                   "MIDX already exists, would you like to restitch it?",
+                                                   QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+                if buttonReply == QMessageBox.Yes:
+                    self.parent.enableViewStitching()
+                    self.parent.changeViewStitching()
+                    print("Note to self, taking out slam default changes")
+                    #                self.parent.slam_widget.setDefaults(generate_bbox=self.parent.generate_bbox,color_matching=self.parent.color_matching,blending_exp=self.parent.blending_exp)
+                    self.parent.startViSUSSLAM()
+                else:
+                    self.parent.enableViewStitching()
+                    self.parent.goToAnalyticsTab()
             else:
                 self.parent.enableViewStitching()
                 self.parent.changeViewStitching()

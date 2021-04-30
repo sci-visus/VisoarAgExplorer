@@ -19,6 +19,7 @@ class GuiRedirectLog(QtCore.QObject):
 	# constructor
 	def __init__(self, filename="~visusslam.log", ):
 		super().__init__()
+		print('Writing log to: {0}/{1}'.format(os.getcwd(), filename))
 		self.log=open(filename,'w')
 		self.callback=None
 		self.messages=[]
