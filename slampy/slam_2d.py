@@ -150,7 +150,10 @@ class Slam2D(Slam):
 		self.calibration        = Calibration()
 		self.image_dir          = ""
 		self.cache_dir          = ""
-
+		self.progressN          = 1
+		self.progressFile       = None
+		self.progressMessage    = ""
+		
 		self.debug_mode         = False
 		self.energy_size        = 1280 
 		self.min_num_keypoints  = 3000
@@ -246,15 +249,25 @@ class Slam2D(Slam):
 	# startAction
 	def startAction(self,N,message):
 		print("Starting action",N,message,"...")
+		self.progressN = N
+		self.progressMessage = message
+		if self.progressFile is not None:
+			self.progressFile.write("%s, 0\n" % (self.progressMessage, ))
+			self.progressFile.flush()
 
 	# advanceAction
 	def advanceAction(self,I):
 		# print("Advance action",I)
-		pass
+		if self.progressFile is not None:
+			self.progressFile.write("%s, %g\n" % (self.progressMessage, I/float(self.progressN)))
+			self.progressFile.flush()
 
 	# endAction
 	def endAction(self):
 		print("End action")
+		if self.progressFile is not None:
+			self.progressFile.write("%s, 1\n" % (self.progressMessage, ))
+			self.progressFile.flush()
 
 	# showEnergy
 	def showEnergy(self,camera,energy):
@@ -726,9 +739,32 @@ class Slam2D(Slam):
 		print("done",img.id,"range",ComputeImageRange(ret),"shape",ret.shape, "dtype",ret.dtype,"in",t1.elapsedMsec(),"msec")
 		return ret
 
+	# saveGoogleMaps
+	def saveGoogleMapsHTML(self):
+	
+		images=self.images
+		if not images:
+			return
+			
+		maps=GoogleMaps()
+		maps.addPolyline([(img.lat,img.lon) for img in images],strokeColor="#FF0000")
+		
+		for I,img in enumerate(images):
+			maps.addMarker(img.filenames[0], img.lat, img.lon, color="green" if I==0 else ("red" if I==len(images)-1 else "blue"))
+			dx=math.cos(img.yaw)*0.00015
+			dy=math.sin(img.yaw)*0.00015
+			maps.addPolyline([(img.lat, img.lon),(img.lat + dx, img.lon + dy)],strokeColor="yellow")
+
+		content=maps.generateHtml()
+		
+		filename=os.path.join(self.cache_dir, "slam.html")
+		SaveTextDocument(filename,content)
+	
 	# run
 	def run(self):
 
+		self.progressFile = open(os.path.join(self.cache_dir, "~progress.txt"), "w")
+		
 		# if it's the first time, I need to find key point matches
 		if self.cameras[0].keypoints.size()==0:
 			self.convertToIdxAndExtractKeyPoints()
@@ -754,6 +790,7 @@ class Slam2D(Slam):
 		else:
 			print("Skipping bundle adjustment...")
 
+		self.saveGoogleMapsHTML()
 		self.saveMidx()
 		print("Finished")
 
