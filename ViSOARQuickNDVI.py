@@ -191,9 +191,9 @@ class ViSOARNDVIImageWidget(QWidget):
             NDVI_d = (NIR + orange)
             NDVI_d[NDVI_d == 0] = 0.01
             NDVI = NDVI_u / NDVI_d
-            #NDVI = (1+NDVI)/2
+            NDVI = (1.0+NDVI)/2.0
 
-            NDVI = cv2.normalize(NDVI, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)  # normalize data [0,1]
+            #NDVI = cv2.normalize(NDVI, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)  # normalize data [0,1]
             #gray = numpy.float32(NDVI)
             gray = NDVI
 

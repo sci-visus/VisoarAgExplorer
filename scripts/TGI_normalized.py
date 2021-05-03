@@ -43,8 +43,8 @@ blue = img[:, :, 2]
 scaleRed = (0.39 * red)
 scaleBlue = (.61 * blue)
 TGI = green - scaleRed - scaleBlue
-#TGI = (TGI + 1.0) / 2.0
-TGI = cv2.normalize(TGI, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)  # normalize data [0,1]
+TGI = (TGI + 1.0) / 2.0
+#TGI = cv2.normalize(TGI, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)  # normalize data [0,1]
 
 #gray = cv2.cvtColor(numpy.float32(TGI), cv2.COLOR_GRAY2RGB)
 gray = numpy.float32(TGI)

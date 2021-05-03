@@ -17,7 +17,7 @@ from datetime import datetime
 DEBUG = False
 ENABLE_SAVE_IDX = False
 
-MASTER_SCRIPT_LIST = ["Original", "NDVI_MAPIR","NDVI_MAPIR_normalized","TGI","TGI_normalized", "NDVI_Agrocam","NDVI", "TGI_Threshold", "NDVI_Threshold",  "Threshold"]
+MASTER_SCRIPT_LIST = ["Original", "NDVI_MAPIR_normalized","TGI","TGI_normalized", "NDVI_Agrocam","NDVI", "TGI_Threshold", "NDVI_Threshold",  "Threshold"]
 EXPERIMENTAL_SCRIPT_LIST = ["Original","NDVI_MAPIR","NDVI_MAPIR_normalized","NDVI_Agrocam","channel_1", "channel_2", "channel_3","NDVI_Sentera", "NDRE_Sentera",  "Contour", "Count", "NDVI",
                             "NDVI_Threshold", "Row", "Segment", "TGI","TGI_normalized", "TGI_alone",
                             "TGI_matplotlib", "TGI_nomatplotlib", "TGI_Threshold", "Threshold"]
