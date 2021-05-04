@@ -86,16 +86,14 @@ blue = img[:, :, 2]
 scaleRed = (0.39 * red)
 scaleBlue = (.61 * blue)
 TGI = green - scaleRed - scaleBlue
-#TGI = (TGI+1.0)/2.0
-TGI = cv2.normalize(TGI, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)  # normalize data [0,1]
+TGI = (TGI+1.0)/2.0
+#TGI = cv2.normalize(TGI, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)  # normalize data [0,1]
 
 gray = numpy.float32(TGI)
 """
         scriptEnd = """
-cmap = matplotlib.colors.LinearSegmentedColormap.from_list(name='my_colormap', colors=cdict, N=1000)
-
-cmap2 = matplotlib.colors.LinearSegmentedColormap.from_list("mycmap", list(zip(nodes, cdict)))
-out = cmap2(TGI)
+cmap = matplotlib.colors.LinearSegmentedColormap.from_list("mycmap", list(zip(nodes, cdict)))
+out = cmap(TGI)
 #out = cmap(gray)
 out = cv2.cvtColor(numpy.float32(out), cv2.COLOR_BGR2RGB)
 out = cv2.cvtColor(numpy.float32(out), cv2.COLOR_RGB2BGR)

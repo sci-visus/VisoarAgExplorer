@@ -237,7 +237,7 @@ if __name__ == '__main__':
         log_stream = StringIO()
         logging.basicConfig(stream=log_stream, level=logging.INFO)
         logging.error("Exception occurred", exc_info=True)
-        send_email_crash_notification(log_stream.getvalue())
+        send_email_crash_notification(log_stream.getvalue(), '~visusslam.log')
 
 # 	<<project>
 # 	<projName> "Project2" </projName>

@@ -201,8 +201,9 @@ class MyViewerWidget(QWidget):
             # cbox.setText('output = input')
             return
         # self.app_dir = os.getcwd()
-
-        if self.comboBoxATab.currentText() == 'R NIR (Sentera NDVI)':
+        if self.comboBoxATab.currentText() == 'R G B':
+            scriptName = 'TGI_normalized'
+        elif self.comboBoxATab.currentText() == 'R NIR (Sentera NDVI)':
             scriptName = 'NDVI_Sentera'
         elif self.comboBoxATab.currentText() == 'MapIR only (OCNIR)':
             scriptName = 'NDVI_MAPIR'
@@ -289,13 +290,19 @@ class MyViewer(Viewer):
         if self.on_camera_change:
             self.on_camera_change()
 
+def visoarLog(f,msg):
+    from datetime import datetime
+    if f is not None:
+        f.write("%s %s, 1\n" % (str(datetime.now())[0:-7] ,msg,))
+        f.flush()
+
+
 class ViSOARUIWidget(QWidget):
     def __init__(self, parent):
         super(QWidget, self).__init__(parent)
-        #self.layout = QVBoxLayout(self)
-
         self.DEBUG = True
         self.BATCH_MODE = False
+        self.redirect_log = GuiRedirectLog()
 
         self.layout = QVBoxLayout(self)
         self.app_dir = os.getcwd()
@@ -351,9 +358,13 @@ class ViSOARUIWidget(QWidget):
         self.loadLabelsWidgetDict = {}
         self.DEBUG = True
         self.ADD_VIEWER = True  # Flag for removing viewers for testing
+        self.visoarLogFilePath = os.path.join(os.getcwd(), "~visoarLog.txt")
+        self.visoarLogFile = open(self.visoarLogFilePath, "w")
+        print(os.path.join(os.getcwd(), "~visoarLog.txt"))
+        visoarLog(self.visoarLogFile, 'Start Log: ')
 
         if os.path.exists(self.userFileHistory):
-            print('All app settings will be saved to: ' + self.userFileHistory)
+            visoarLog(self.visoarLogFile, 'All app settings will be saved to: ' + self.userFileHistory)
         else:
             f = open(self.userFileHistory, "wt")
             today = datetime.now()
@@ -419,6 +430,8 @@ class ViSOARUIWidget(QWidget):
         if self.ADD_VIEWER:
             self.slam_widget = Slam2DWidgetForVisoar()
             self.slam = Slam2D()
+            #self.redirect_log.setCallback(self.slam.printLog)
+            print("Log from ViSOARUIWidget....")
             self.slam.enable_svg = False
 
             #self.slam_widget.slam = self.slam
@@ -509,7 +522,7 @@ class ViSOARUIWidget(QWidget):
         # sys.stderr = logger
 
         if self.DEBUG:
-            print('ViSOARTabWidget init finished')
+            visoarLog(self.visoarLogFile, 'ViSOARTabWidget init finished')
 
     def getSrcDir(self, RGB=True ):
         if (RGB):
@@ -556,13 +569,13 @@ class ViSOARUIWidget(QWidget):
     def next(self, s):
         #implement next button on stacked view, s = current tab, need to move to what comes next
         if s=='goToLoadData':
-            print('LoadData')
+            visoarLog(self.visoarLogFile, 'LoadData')
             self.tabs.setCurrentIndex(self.LOAD_TAB)
         elif s=='goToTimeSeries':
-            print('TimeSeries')
+            visoarLog(self.visoarLogFile, 'TimeSeries')
             self.tabs.setCurrentIndex(self.NEW_TIME_SERIES_TAB )
         elif s=='AfterAskSensor':
-            print('AfterAskSensor')
+            visoarLog(self.visoarLogFile, 'AfterAskSensor')
             if self.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam' or self.tabAskSensor.comboBoxNewTab.currentText() == 'MAPIR and RGB':
                 self.tabs.setCurrentIndex(self.ASKSOURCERGBNDVI_TAB)
             else:
@@ -575,7 +588,7 @@ class ViSOARUIWidget(QWidget):
                 self.dir_of_rgb_source = self.tabAskSource.curDir2.text()
                 if self.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam' or (self.tabAskSensor.comboBoxNewTab.currentText() == 'MAPIR and RGB'):
                     self.dir_of_nir_source = self.tabAskSource.curDir2.text()
-                    print('AfterAskSource')
+                    visoarLog(self.visoarLogFile, 'AfterAskSource')
                     if (not self.dir_of_rgb_source.strip()) or (not self.dir_of_nir_source):
                         errorStr = 'Please Provide both RGB and NDVI directories or go back home and use a different sensor type\n'
                         self.tabAskSource.createErrorLabel.setText(errorStr)
@@ -596,7 +609,7 @@ class ViSOARUIWidget(QWidget):
 
                         self.startProcessing()
                 else:
-                    print('AfterAskSource')
+                    visoarLog(self.visoarLogFile, 'AfterAskSource')
                     if not self.dir_of_rgb_source.strip():
                         errorStr = 'Please Provide a directory of directories of images \n'
                         self.tabAskSource.createErrorLabel.setText(errorStr)
@@ -618,7 +631,7 @@ class ViSOARUIWidget(QWidget):
                         self.startProcessing()
             else:
                 if self.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam' or (self.tabAskSensor.comboBoxNewTab.currentText() == 'MAPIR and RGB'):
-                    print('AfterAskSource')
+                    visoarLog(self.visoarLogFile, 'AfterAskSource')
                     if not self.projectInfo.srcDir.strip() or not self.projectInfo.srcDirNDVI.strip():
                         errorStr = 'Please Provide both RGB and NDVI directories or go back home and use a different sensor type\n'
                         self.tabAskSource.createErrorLabel.setText(errorStr)
@@ -632,7 +645,7 @@ class ViSOARUIWidget(QWidget):
                         self.projectInfo.cache_dir = self.getCacheDir(  TIMESERIES = True) # os.path.join(self.projectInfo.projDir, 'VisusSlamFiles')
                         self.tabs.setCurrentIndex(self.ASKNAME_TAB)
                 else:
-                    print('AfterAskSource')
+                    visoarLog(self.visoarLogFile, 'AfterAskSource')
                     if not self.projectInfo.srcDir.strip():
                         errorStr = 'Please Provide a directory of images or click on the load tab to load a dataset you\'ve already stitched\n'
                         self.tabAskSource.createErrorLabel.setText(errorStr)
@@ -655,7 +668,7 @@ class ViSOARUIWidget(QWidget):
                     self.projectInfo.projDir = self.projectInfo.srcDir
                     self.projectInfo.cache_dir = self.getCacheDir(TIMESERIES=False)
                     self.afterAskDestFn()
-            print('AfterAskName')
+            visoarLog(self.visoarLogFile, 'AfterAskName')
             #self.tabAskName.projNametextbox.setText('')
 
         elif s == 'AfterAskDest':
@@ -722,7 +735,7 @@ class ViSOARUIWidget(QWidget):
 
                     self.afterAskDestFn()
 
-                print('end of AfterAskDest')
+                visoarLog(self.visoarLogFile, 'end of AfterAskDest')
                 #self.tabAskDest.destNametextbox.setText('')
                 #self.tabAskName.projNametextbox.setText('')
                 #self.tabAskSource.curDir2.setText('')
@@ -808,7 +821,7 @@ class ViSOARUIWidget(QWidget):
     def emailTrouble(self, logfile):
         from io import StringIO
         import logging
-        print('dumping IO due to exception')
+        visoarLog(self.visoarLogFile, 'dumping IO due to exception')
         log_stream = StringIO()
         logging.basicConfig(stream=log_stream, level=logging.INFO)
         logging.error("Exception occurred", exc_info=True)
@@ -820,8 +833,8 @@ class ViSOARUIWidget(QWidget):
         start = time.time()
         self.slam = Slam2D()
         self.slam.enable_svg = False
-        self.logFile = os.path.join(cache_dir+"/~visusslam.log")
-        self.slam_widget.redirect_log = RedirectLog(self.logFile)
+        # self.logFile = os.path.join(cache_dir+"/~visusslam.log")
+        # self.slam_widget.redirect_log = RedirectLog(self.logFile)
 
         if (  os.path.exists(cache_dir)) and (os.path.exists(os.path.join(cache_dir, 'idx', '0000.bin'))):
             buttonReply = QMessageBox.question(self, 'Already Exists',
@@ -836,7 +849,7 @@ class ViSOARUIWidget(QWidget):
                     self.slam_widget.onRunClicked()
                     retSlamRan = self.slam_widget.slam.run()
                 except:
-                    self.emailTrouble(self.logFile)
+                    self.emailTrouble(self.visoarLogFile)
             else:
                 self.slam_widget.slam = self.slam
         else:
@@ -848,13 +861,18 @@ class ViSOARUIWidget(QWidget):
                 self.slam_widget.onRunClicked()
                 retSlamRan = self.slam_widget.slam.run()
             except:
-                self.emailTrouble(self.logFile)
+                self.emailTrouble(self.visoarLogFile)
 
         end = time.time()
         print(end - start)
         self.stitchTime = "{:.2f}".format((end - start)/60.0)
         self.stitchNumImages = len(self.slam.images)
         self.logTab.clear()
+        f2 = open("~visusslam.log", 'r')
+        # appending the contents of the stitching log to the visoar log
+        self.visoarLogFile.write(f2.read())
+        f2.close()
+
         #self.setUpRClone()
         #These run functions above should return values of success.. but they don't
         return True, True #, end - start
@@ -959,7 +977,7 @@ class ViSOARUIWidget(QWidget):
     def addImages(self):
         if self.BATCH_MODE:
             # if self.DEBUG:
-            print('DEBUG: will create Project')
+            visoarLog(self.visoarLogFile, 'DEBUG: will create Project')
             self.dir_of_rgb_source = str(
                 QFileDialog.getExistingDirectory(self, "Select Directory containing Images"))
             # self.projectInfo.projDir = self.projectInfo.srcDir
@@ -971,7 +989,7 @@ class ViSOARUIWidget(QWidget):
             self.update()
         else:
             # if self.DEBUG:
-            print('DEBUG: will create Project')
+            visoarLog(self.visoarLogFile, 'DEBUG: will create Project')
             self.projectInfo.srcDir = str(
                 QFileDialog.getExistingDirectory(self, "Select Directory containing Images"))
             #self.projectInfo.projDir = self.projectInfo.srcDir
@@ -996,7 +1014,7 @@ class ViSOARUIWidget(QWidget):
     def onChange(self, i):  # changed!
         if i == self.STITCHING_VIEW_TAB:
             if not self.projectInfo.projDir:
-                print('Project Directory is null')
+                visoarLog(self.visoarLogFile, 'Project Directory is null')
                 mb, ybtn, nbtn, abtn, cbtn = self.getLoadDataFirst(' ')
                 ret = mb.exec()
                 if mb.clickedButton() == abtn:
@@ -1012,7 +1030,7 @@ class ViSOARUIWidget(QWidget):
                     print('press else')
                     self.tabs.setCurrentIndex(self.START_TAB)
             elif self.projectInfo.doesProjectHaveLayers( ):
-                print('Project has layers...')
+                visoarLog(self.visoarLogFile, 'Project has layers...')
                 mb, ybtn, nbtn,abtn,cbtn = self.getLoadDataFirst('Datasets with multiple MIDX can not be stitched.\n')
 
                 ret = mb.exec()
@@ -1032,7 +1050,7 @@ class ViSOARUIWidget(QWidget):
                     print('press else')
                     self.tabs.setCurrentIndex(self.START_TAB)
             else:
-                print('Switching to Stitching')
+                visoarLog(self.visoarLogFile, 'Switching to Stitching')
                 #load stitching tab
                 self.tabs.setCurrentIndex(self.STITCHING_VIEW_TAB)
                 if not self.USER_TAB_UI:
@@ -1067,34 +1085,34 @@ class ViSOARUIWidget(QWidget):
         self.addScriptActionCombobox(self.tabViewer.buttons.comboBoxATabScripts)
         # self.visusGoogleWebAuth = VisusGoogleWebAutho()
         self.tabViewer.buttons.comboBoxATab.setCurrentIndex(self.tabNewStitching.comboBoxNewTab.currentIndex())
-        print('---->Loading midx from: ' + self.projectInfo.projDir)
+        visoarLog(self.visoarLogFile, '---->Loading midx from: ' + self.projectInfo.projDir)
         try:
             ret = self.tabLoad.loadMIDX()#self.projectInfo.projDir, self.projectInfo.projName, self.projectInfo.srcDir)
 
             self.changeViewAnalytics()
             #self.tabs.setCurrentIndex(self.ANALYTICS_TAB)
         except IOError as e:
-            print("I/O error({0}): {1}".format(e.errno, e.strerror))
+            visoarLog(self.visoarLogFile, "I/O error({0}): {1}".format(e.errno, e.strerror))
         except ValueError:
-            print("Could not convert data to an integer.")
+            visoarLog(self.visoarLogFile, "Could not convert data to an integer.")
         except AttributeError as error:
-            print('AttributError: ' + str(error) + str(sys.exc_info()[0]))
+            visoarLog(self.visoarLogFile, 'AttributError: ' + str(error) + str(sys.exc_info()[0]))
             raise
         except:
-            print("Unexpected error:"+ str(sys.exc_info()[0]))
+            visoarLog(self.visoarLogFile, "Unexpected error:"+ str(sys.exc_info()[0]))
             raise
         if self.DEBUG:
-            print('goToAnalyticsTab finished')
+            visoarLog(self.visoarLogFile, 'goToAnalyticsTab finished')
 
     def printLog(self, text):
         self.slam_widget.printLog(text)
         if self.DEBUG:
-            print('printLog finished')
+            visoarLog(self.visoarLogFile, 'printLog finished')
 
     def mySetTabStyle(self):
         self.tabs.setStyleSheet(TAB_LOOK)
         if self.DEBUG:
-            print('mySetTabStyle finished')
+            visoarLog(self.visoarLogFile, 'mySetTabStyle finished')
 
     def resetView(self):
         db = self.viewer.getDataset()
@@ -1129,14 +1147,14 @@ class ViSOARUIWidget(QWidget):
             self.viewer2.guessGLCameraPosition()
 
     def oneView(self):
-        print('TBI')
+        visoarLog(self.visoarLogFile, 'TBI')
         #self.viewer_subwin.hide()
         self.viewerW.hide()
         self.update()
         #self.viewer.setGLCamera(self.viewer2.getGLCamera())
 
     def sidebySideView(self):
-        print('TBI')
+        visoarLog(self.visoarLogFile, 'TBI')
         #self.viewer_subwin.show()
         self.viewerW.show()
         self.update()
@@ -1160,7 +1178,7 @@ class ViSOARUIWidget(QWidget):
 
         self.viewer2.takeSnapshot(True, fileName)
         #if self.DEBUG:
-        print('saveScreenshot finished: '+fileName)
+        visoarLog(self.visoarLogFile, 'saveScreenshot finished: '+fileName)
         popUP('Snapshot Saved', 'Saved Snapshot to: \n' + fileName)
 
     def mailScreenshot(self, withDate=True):
@@ -1180,7 +1198,7 @@ class ViSOARUIWidget(QWidget):
         self.viewer2.takeSnapshot(True, os.path.join(self.projectInfo.cache_dir, 'ViSOARIDX', self.projectInfo.projName + date_time + '.png'))
 
         if self.DEBUG:
-            print('saveScreenshot finished')
+            visoarLog(self.visoarLogFile, 'saveScreenshot finished')
         # popUP( 'Snapshot Saved', 'Saved Snapshot to: \n' + self.cache_dir+ '/'+self.projName+'IDX/'+self.projName+date_time+'.png')
         imgWPath = os.path.join(self.projectInfo.cache_dir, 'ViSOARIDX', self.projectInfo.projName + date_time + '.png')
         print(imgWPath)
@@ -1208,7 +1226,7 @@ class ViSOARUIWidget(QWidget):
                                                     self.projectInfo.projName + date_time + '.png'))
 
         if self.DEBUG:
-            print('saveScreenshot finished')
+            visoarLog(self.visoarLogFile, 'saveScreenshot finished')
         # popUP( 'Snapshot Saved', 'Saved Snapshot to: \n' + self.cache_dir+ '/'+self.projName+'IDX/'+self.projName+date_time+'.png')
         imgWPath = os.path.join(self.projectInfo.cache_dir, 'ViSOARIDX', self.projectInfo.projName + date_time + '.png')
         print(imgWPath)
@@ -1243,7 +1261,7 @@ class ViSOARUIWidget(QWidget):
             # os.system('python -m OpenVisus convert midx-to-idx '+ self.projDir + '/VisusSlamFiles/visus.midx '+ self.projDir+'.idx')
             try:
                 os.system(cmd)
-                print('convertMIDXtoIDXFile finished')
+                visoarLog(self.visoarLogFile, 'convertMIDXtoIDXFile finished')
             except:
                 print('Failed to issue command:\n\t {0}'.format(cmd))
             #print('Amy check this pathandName for binary')
@@ -1251,10 +1269,10 @@ class ViSOARUIWidget(QWidget):
 
             try:
                 os.system(cmd2)
-                print(cmd2)
-                print('ziped idx files finished')
+                visoarLog(self.visoarLogFile, cmd2)
+                visoarLog(self.visoarLogFile, 'ziped idx files finished')
             except:
-                print('Failed to issue command:\n\t {0}'.format(cmd2))
+                visoarLog(self.visoarLogFile, 'Failed to issue command:\n\t {0}'.format(cmd2))
 
             popUP('Save IDX',
                   'Saved IDX file for use on the server: \n' + os.path.join(self.cache_dir, 'ViSOARIDX',
@@ -1297,7 +1315,7 @@ class ViSOARUIWidget(QWidget):
         # 	self.buttons.show_rgb.setEnabled(True)
         # 	self.buttons.show_rgb.setStyleSheet(GREEN_PUSH_BUTTON)
         if self.DEBUG:
-            print('inputModeChanged finished')
+            visoarLog(self.visoarLogFile, 'inputModeChanged finished')
 
     # def addQuitButton(self ):
     # 	quitButton=createPushButton("Quit",
@@ -1334,7 +1352,7 @@ class ViSOARUIWidget(QWidget):
     def onTabChange(self):
         self.tabLoad.refreshLoadTab()
         if self.DEBUG:
-            print('onTabChange finished')
+            visoarLog(self.visoarLogFile, 'onTabChange finished')
 
     # def getDirectoryLocation(self):
     #     self.projectInfo.projDir = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
@@ -1354,11 +1372,11 @@ class ViSOARUIWidget(QWidget):
         cbox.currentIndexChanged.connect(partial(self.loadScript, cbox))
 
     def loadScript(self, cbox):
-        print('FUNCTION  Load Script...')
+        visoarLog(self.visoarLogFile, 'FUNCTION  Load Script...')
         scriptName = cbox.currentText()
         print(scriptName)
         if scriptName == "Original":
-            print('\tShow Original')
+            visoarLog(self.visoarLogFile, '\tShow Original')
             self.tabViewer.showRGB()
             # cbox.setText('output = input')
             return
@@ -1371,11 +1389,11 @@ class ViSOARUIWidget(QWidget):
         else:
             scriptName = cbox.currentText()
         script = getTextFromScript(os.path.join(self.app_dir, 'scripts', scriptName + '.py'))
-        print('\tGot script content is: ')
-        print(script)
+        visoarLog(self.visoarLogFile, '\tGot script content is: ')
+        visoarLog(self.visoarLogFile, script)
         if script:
             fieldname = "output=ArrayUtils.interleave(ArrayUtils.split(voronoi())[0:3])"
-            print("Running script ")
+            visoarLog(self.visoarLogFile, "Running script ")
 
             #self.viewer.setFieldName(fieldname)
             #self.viewer.setScriptingCode(script)
@@ -1383,7 +1401,8 @@ class ViSOARUIWidget(QWidget):
             self.viewer2.setScriptingCode(script)
 
             if self.DEBUG:
-                print('run script finished')
+                visoarLog(self.visoarLogFile, 'run script finished')
+        self.update()
 
     def onCameraChange12(self):
         #self.cam1 = self.viewer.getGLCamera()
@@ -1398,10 +1417,10 @@ class ViSOARUIWidget(QWidget):
     def onCameraChange(self, cam1, cam2):
         if self.LINK_CAMERAS:
             if cam1 == None:
-                print('onCameraChange: error: cam 1 is none')
+                visoarLog(self.visoarLogFile, 'onCameraChange: error: cam 1 is none')
                 return
             if cam2 == None:
-                print('onCameraChange: error: cam 2 is none')
+                visoarLog(self.visoarLogFile, 'onCameraChange: error: cam 2 is none')
                 return
             # avoid rehentrant calls
             if hasattr(self, "changing_camera") and self.changing_camera:
@@ -1675,9 +1694,6 @@ class ViSOARUIWidget(QWidget):
         # srcDir is the location of initial images
 
     def startViSUSSLAM(self):
-        print("NYI")
-        print('Need to run visusslam with projDir and srcDir')
-
         if not self.projectInfo.srcDir:
             self.projectInfo.srcDir = self.projectInfo.projDir
 
@@ -1704,7 +1720,7 @@ class ViSOARUIWidget(QWidget):
         import json
         #self.cache_dir = os.path.join(self.projectInfo.projDir, 'VisusSlamFiles')
         self.jsonFile = os.path.join( self.projectInfo.cache_dir,'ViSOARIDX',self.projectInfo.projName+'.json')
-        print('Will write to : {0}'.format(self.jsonFile))
+        visoarLog(self.visoarLogFile, 'Will write to : {0}'.format(self.jsonFile))
         path = os.path.join(self.projectInfo.cache_dir, 'ViSOARIDX')
         if not os.path.exists(path):
             os.makedirs(path)
@@ -1727,7 +1743,7 @@ class ViSOARUIWidget(QWidget):
 
         with open(self.jsonFile, 'w') as outfile:
             json.dump(data, outfile)
-        print('Output json file to: {0}'.format(self.jsonFile))
+        visoarLog(self.visoarLogFile, 'Output json file to: {0}'.format(self.jsonFile))
 
     def setUpRClone(self):
         self.cache_dir = self.projectInfo.cache_dir #os.path.join(self.projectInfo.projDir, 'VisusSlamFiles')
@@ -1758,7 +1774,7 @@ class ViSOARUIWidget(QWidget):
 
         file_object.write('\n')
         file_object.close()
-        print('Wrote crontab to: {0}'.format(crontab))
+        visoarLog(self.visoarLogFile, 'Wrote crontab to: {0}'.format(crontab))
 
     def setAnnotations(self, value):
         self.ANNOTATIONS_MODE = value

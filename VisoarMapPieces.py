@@ -70,13 +70,26 @@ class ViSOARGradientMapViewWidget(QDialog):
 
 
     def applyNewScript(self):
-        MODE="NDVI"
-        if (MODE == "RGB"):
+        MODE = self.parent.comboBoxATab.currentText()
+        if MODE == 'R G B':
             script = self.gradient.makeNewScriptRGB()
-        elif (MODE == 'AGROCAM'):
-            script = self.gradient.makeNewScriptAgrocam()
-        else:
+        elif MODE == 'R NIR (Sentera NDVI)':
             script = self.gradient.makeNewScriptMAPIR()
+            print('Error applyNewScript: NOT YET IMPLEMENTED: Sentera script')
+        elif MODE == 'MapIR only (OCNIR)':
+            script = self.gradient.makeNewScriptMAPIR()
+        elif MODE == 'RedEdge NIR (Sentera NDRE)':
+            script = self.gradient.makeNewScriptMAPIR()
+            print('Error applyNewScript: NOT YET IMPLEMENTED:RedEdge script')
+        else:
+            script = self.gradient.makeNewScriptRGB()
+        #MODE="NDVI"
+        # if (MODE == "RGB"):
+        #     script = self.gradient.makeNewScriptRGB()
+        # elif (MODE == 'AGROCAM'):
+        #     script = self.gradient.makeNewScriptAgrocam()
+        # else:
+        #     script = self.gradient.makeNewScriptMAPIR()
 
         self.parent.runThisScript(script, self.viewer)
 

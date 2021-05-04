@@ -20,8 +20,8 @@ NDVI = (NDVI+1.0)/2.0
 
 gray = numpy.float32(NDVI)
 
-cdict = [ (0.56, 0.02 ,0.02), (0.74, 0.34 ,0.04), (0.94, 0.65 ,0.27), (0.2, 0.4 ,0.0), (0.2, 0.4 ,0.0),]
-nodes1 =[0.0,0.4336917562724014,0.5053763440860215,0.5985663082437276,1.0,]
+cdict = [ "gold", "yellowgreen", "darkgreen","darkgreen"]
+nodes1 =[0.0,0.4,0.7,1.0,]
 cmap1 = matplotlib.colors.LinearSegmentedColormap.from_list("mycmap", list(zip(nodes1, cdict)))
 
 colors = ["darkred","darkred", "gold", "yellowgreen", "darkgreen","darkgreen"]
