@@ -302,7 +302,6 @@ class ViSOARUIWidget(QWidget):
         super(QWidget, self).__init__(parent)
         self.DEBUG = True
         self.BATCH_MODE = False
-        self.redirect_log = GuiRedirectLog()
 
         self.layout = QVBoxLayout(self)
         self.app_dir = os.getcwd()
