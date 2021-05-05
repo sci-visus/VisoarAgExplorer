@@ -398,7 +398,7 @@ class VisoarAgExplorerBatchProcessWidget(ViSOARUIWidget):
                                                              self.projectInfo.projDir,
                                                              self.projectInfo.srcDir,
                                                              self.projectInfo.projDirNDVI,
-                                                             self.projectInfo.srcDirNDVI)
+                                                             self.projectInfo.srcDirNDVI, sensorMode=self.inputMode)
                 else:
                     print(self.projectInfo.cache_dir+' MIDX already exists..')
                     buttonReply = QMessageBox.question(self, 'Already Exists',
@@ -411,7 +411,7 @@ class VisoarAgExplorerBatchProcessWidget(ViSOARUIWidget):
                                                                  self.projectInfo.projDir,
                                                                  self.projectInfo.srcDir,
                                                                  self.projectInfo.projDirNDVI,
-                                                                 self.projectInfo.srcDirNDVI)
+                                                                 self.projectInfo.srcDirNDVI, sensorMode=self.inputMode)
 
         #Load Load screen and enable viewer
         self.tabViewer.buttons.comboBoxATab.setCurrentIndex(self.tabAskSensor.comboBoxNewTab.currentIndex())

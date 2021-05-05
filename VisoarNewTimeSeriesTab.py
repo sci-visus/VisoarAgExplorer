@@ -252,7 +252,7 @@ class VisoarNewTimeSeriesTabWidget(QWidget):
                                                             self.parent.projectInfo.projDir,
                                                             self.parent.projectInfo.projDirNDVI,
                                                             self.parent.projectInfo.srcDirNDVI,
-
+                                                            sensorMode=self.parent.inputMode
                                                             )
 
             #open analytics

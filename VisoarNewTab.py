@@ -136,6 +136,8 @@ class VisoarAskSensor(QWidget):
         self.comboBoxNewTab.addItem("R G NIR")
         self.comboBoxNewTab.addItem("R NIR (Sentera NDVI)")
         self.comboBoxNewTab.addItem("RedEdge NIR (Sentera NDRE)")
+        self.comboBoxNewTab.addItem("Unknown")
+
         self.comboBoxNewTab.setStyleSheet(MY_COMBOX)
         self.comboBoxNewTab.currentIndexChanged.connect(lambda: self.parent.setSensor(self.comboBoxNewTab.currentText()))
         self.comboBoxNewTab.setFixedSize(100, 40)
@@ -633,6 +635,7 @@ class VisoarNewTabWidget(QWidget):
         self.comboBoxNewTab.addItem("R G NIR")
         self.comboBoxNewTab.addItem("R NIR (Sentera NDVI)")
         self.comboBoxNewTab.addItem("RedEdge NIR (Sentera NDRE)")
+        self.comboBoxNewTab.addItem("Unknown")
         self.comboBoxNewTab.setStyleSheet(MY_COMBOX)
         self.comboBoxNewTab.currentIndexChanged.connect(self.inputModeChangedNewTab)
         self.comboBoxNewTab.setFixedSize(100, 40)
@@ -883,7 +886,7 @@ class VisoarNewTabWidget(QWidget):
 
             if self.DEBUG:
                 print('DEBUG: createProject: read userFileHistory')
-            self.parent.visoarUserLibraryData.createProject(self.parent.projectInfo.projName,self.parent.projectInfo.projDir,self.parent.projectInfo.srcDir,self.parent.projectInfo.projDirNDVI,self.parent.projectInfo.srcDirNDVI)
+            self.parent.visoarUserLibraryData.createProject(self.parent.projectInfo.projName,self.parent.projectInfo.projDir,self.parent.projectInfo.srcDir,self.parent.projectInfo.projDirNDVI,self.parent.projectInfo.srcDirNDVI, sensorMode=self.parent.inputMode)
             print('Change tabs')
             if self.stitchAlreadyDone():
                 # Check to see if midx files exists, if it does, go to Analytics

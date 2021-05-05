@@ -17,7 +17,7 @@ from datetime import datetime
 DEBUG = False
 ENABLE_SAVE_IDX = False
 
-MASTER_SCRIPT_LIST = ["Original", "NDVI_MAPIR_normalized","TGI","TGI_normalized", "NDVI_Agrocam","NDVI", "TGI_Threshold", "NDVI_Threshold",  "Threshold"]
+MASTER_SCRIPT_LIST = ["Original","NDVI_MAPIR", "NDVI_MAPIR_normalized","TGI","TGI_normalized", "NDVI_Agrocam","NDVI", "TGI_Threshold", "NDVI_Threshold",  "Threshold"]
 EXPERIMENTAL_SCRIPT_LIST = ["Original","NDVI_MAPIR","NDVI_MAPIR_normalized","NDVI_Agrocam","channel_1", "channel_2", "channel_3","NDVI_Sentera", "NDRE_Sentera",  "Contour", "Count", "NDVI",
                             "NDVI_Threshold", "Row", "Segment", "TGI","TGI_normalized", "TGI_alone",
                             "TGI_matplotlib", "TGI_nomatplotlib", "TGI_Threshold", "Threshold"]
@@ -425,8 +425,9 @@ class VisoarProject():
         self.cache_dir = os.path.join(self.projDir, 'VisusSlamFiles')
         self.createdAt =  ''
         self.updatedAt = ''
+        self.sensor = ''
 
-    def update(self, projName, projDir, cache_dir, srcDir, createdAt, updatedAt, projDirNDVI,srcDirNDVI):
+    def update(self, projName, projDir, cache_dir, srcDir, createdAt, updatedAt, projDirNDVI,srcDirNDVI, sensorMode='Unknown'):
         self.projDir = projDir
         self.projName = projName
         self.srcDir = srcDir
@@ -435,6 +436,7 @@ class VisoarProject():
         self.cache_dir = cache_dir
         self.createdAt = createdAt
         self.updatedAt = updatedAt
+        self.sensor = sensorMode
 
     def reset(self):
         self.projDir = ''
@@ -445,6 +447,7 @@ class VisoarProject():
         self.cache_dir = ''
         self.createdAt = ''
         self.updatedAt = ''
+        self.sensor = ''
 
 
     def doesProjectHaveLayers(self):
@@ -516,7 +519,7 @@ class VisoarUserLibraryData():
         self.refreshProjectsFromXML()
         self.sortReversed = False
 
-    def createProject(self, projName, projDir,srcDir,projDirNDVI, srcDirNDVI):
+    def createProject(self, projName, projDir,srcDir,projDirNDVI, srcDirNDVI, sensorMode='Unknown'):
         tree = ET.parse(self.userFileHistory)
         #print(tree.getroot())
         root = tree.getroot()
@@ -529,6 +532,7 @@ class VisoarUserLibraryData():
         ET.SubElement(element, 'srcDirNDVI').text =  srcDirNDVI
         ET.SubElement(element, 'projDirNDVI').text =  projDirNDVI
         ET.SubElement(element, 'cache_dir').text = os.path.join(projDir,'VisusSlamFiles')
+        ET.SubElement(element, 'sensor').text =  sensorMode
         from datetime import datetime
         today = datetime.now()
         todayFormated = today.strftime("%Y%m%d_%H%M%S")
@@ -586,10 +590,13 @@ class VisoarUserLibraryData():
                 # updatedAt = datetime.fromtimestamp(int(project.find('updatedAt').text)).strftime("%Y%m%d_%H%M%S")
             else:
                  updatedAt =''
-
+            if project.find('sensor') != None:
+                sensor = project.find('sensor').text
+            else:
+                sensor = 'Unknown'
 
             vProj = VisoarProject()
-            vProj.update(projName, projDir, cache_dir, srcDir,createdAt,updatedAt,projDirNDVI, srcDirNDVI)
+            vProj.update(projName, projDir, cache_dir, srcDir,createdAt,updatedAt,projDirNDVI, srcDirNDVI, sensorMode = sensor)
             self.projects.append(vProj)
 
 
@@ -837,6 +844,8 @@ class VisoarUserLibraryData():
                 projectInfo.srcDirNDVI = project.find('srcDirNDVI').text
                 projectInfo.cache_dir = os.path.join(projectInfo.projDir, 'VisusSlamFiles')
                 projectInfo.createdAt = project.find('createdAt').text
+                if project.find('sensor') != None:
+                    projectInfo.sensor = project.find('sensor').text
 
                 today = datetime.now()
                 todayFormated = today.strftime("%Y%m%d_%H%M%S")

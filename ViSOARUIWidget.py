@@ -43,7 +43,7 @@ class MyViewerWidget(QWidget):
         self.viewer = MyViewer()
         self.toolbar = QHBoxLayout()
         self.sublayout = QVBoxLayout()
-
+        self.myGradientWidget = ViSOARGradientMapViewWidget(self, self.viewer )
         self.comboBoxATab = QComboBox(self)
         self.comboBoxATab.addItem("R G B")
         self.comboBoxATab.addItem("R G NIR")
@@ -51,6 +51,7 @@ class MyViewerWidget(QWidget):
         self.comboBoxATab.addItem("NIR G B (agrocam)")
         self.comboBoxATab.addItem("R NIR (Sentera NDVI)")
         self.comboBoxATab.addItem("RedEdge NIR (Sentera NDRE)")
+        self.comboBoxATab.addItem("Unknown")
         self.comboBoxATab.setStyleSheet(MY_COMBOX)
         self.comboBoxATab.currentIndexChanged.connect(self.inputModeChangedATab)
         #self.comboBoxATab.setCurrentIndex(self.parent.tabNewStitching.comboBoxNewTab.currentIndex())
@@ -74,6 +75,7 @@ class MyViewerWidget(QWidget):
         # self.buttons.comboBoxATabScripts.setToolTip('Sensor/Image mode for input images')
         self.addScriptActionCombobox(self.comboBoxATabScripts)
         self.toolbar.addWidget(self.comboBoxATabScripts)
+        self.comboBoxATab.setCurrentText("Unknown")
 
         self.openMyMapWidget = createPushButton("", lambda: self.addMyMapWidgetWindow(self.viewer))
 
@@ -105,6 +107,8 @@ class MyViewerWidget(QWidget):
         self.sublayout.addWidget(self.viewer_subwin)
         self.setLayout(self.sublayout)
 
+    def setSensor(self, sensor):
+        self.comboBoxATab.setCurrentText(sensor)
     # def hide(self):
     #     self.viewer_subwin.hide()
     #     self.openMyMapWidget.hide()
@@ -156,16 +160,9 @@ class MyViewerWidget(QWidget):
         v.activateWindow()
 
     def addMyMapWidgetWindow(self, viewer):
-        if "NDVI" in self.comboBoxATab.currentText():
-            MODE = "NDVI"
-        else:
-            MODE = "RGB"
-        print('NOTE TO AMY: its more complicated than this.. need to fix')
-
-        v = ViSOARGradientMapViewWidget(self,viewer,MODE)
-        v.show()
-        v.raise_()
-        v.activateWindow()
+        self.myGradientWidget.show()
+        self.myGradientWidget.raise_()
+        self.myGradientWidget.activateWindow()
 
     def runThisScript(self, script, viewer):
         fieldname = "output=ArrayUtils.interleave(ArrayUtils.split(voronoi())[0:3])"
@@ -184,7 +181,7 @@ class MyViewerWidget(QWidget):
 
         for item in self.parent.scriptNames:
             cbox.addItem(item)
-        cbox.setToolTip('Filter data')
+        cbox.setToolTip('Available scripts')
         cbox.setStyleSheet(MY_COMBOX)
         cbox.currentIndexChanged.connect(partial(self.loadScript, cbox))
 
@@ -192,7 +189,7 @@ class MyViewerWidget(QWidget):
         print('FUNCTION  Load Script...')
         scriptName = cbox.currentText()
         print(scriptName)
-        if scriptName == "Original":
+        if scriptName == "Original" or scriptName == "Unknown":
             print('\tShow Original')
             self.viewer.setScriptingCode(
                 """
@@ -201,12 +198,12 @@ class MyViewerWidget(QWidget):
             # cbox.setText('output = input')
             return
         # self.app_dir = os.getcwd()
-        if self.comboBoxATab.currentText() == 'R G B':
-            scriptName = 'TGI_normalized'
-        elif self.comboBoxATab.currentText() == 'R NIR (Sentera NDVI)':
+#        if self.comboBoxATab.currentText() == 'R G B':
+#            scriptName = 'TGI_normalized'
+        if self.comboBoxATab.currentText() == 'R NIR (Sentera NDVI)':
             scriptName = 'NDVI_Sentera'
-        elif self.comboBoxATab.currentText() == 'MapIR only (OCNIR)':
-            scriptName = 'NDVI_MAPIR'
+#        elif self.comboBoxATab.currentText() == 'MapIR only (OCNIR)':
+ #           scriptName = 'NDVI_MAPIR'
         elif self.comboBoxATab.currentText() == 'RedEdge NIR (Sentera NDRE)':
             scriptName = 'NDRE_Sentera'
         else:
@@ -227,13 +224,26 @@ class MyViewerWidget(QWidget):
         self.parent.inputMode = self.comboBoxATab.currentText()
 
         if (self.parent.inputMode == "R G B"):
+            self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI_MAPIR', False)
+            self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI_MAPIR_normalized', False)
             self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI', False)
             self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI_Agrocam', False)
             self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI_Threshold', False)
             self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'TGI', True)
             self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'TGI_Threshold', True)
             self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'TGI_normalized', True)
+        elif (self.parent.inputMode == "Unknown"):
+            self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI_MAPIR', True)
+            self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI_MAPIR_normalized', True)
+            self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI', True)
+            self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI_Agrocam', True)
+            self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI_Threshold', True)
+            self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'TGI', True)
+            self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'TGI_Threshold', True)
+            self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'TGI_normalized', True)
         elif (self.parent.inputMode == "MapIR only (OCNIR)"):
+            self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI_MAPIR', True)
+            self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI_MAPIR_normalized', True)
             self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI', True)
             self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI_Agrocam', True)
             self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI_Threshold', True)
@@ -241,6 +251,8 @@ class MyViewerWidget(QWidget):
             self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'TGI_Threshold', False)
             self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'TGI_normalized', False)
         elif (self.parent.inputMode == "R NIR (Sentera NDVI)"):
+            self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI_MAPIR', False)
+            self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI_MAPIR_normalized', False)
             self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI', True)
             self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI_Agrocam', True)
             self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI_Threshold', True)
@@ -248,6 +260,8 @@ class MyViewerWidget(QWidget):
             self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'TGI_Threshold', False)
             self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'TGI_normalized', False)
         elif (self.parent.inputMode == "RedEdge NIR (Sentera NDRE)"):
+            self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI_MAPIR', False)
+            self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI_MAPIR_normalized', False)
             self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI', True)
             self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI_Agrocam', True)
             self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI_Threshold', True)
@@ -255,6 +269,8 @@ class MyViewerWidget(QWidget):
             self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'TGI_Threshold', False)
             self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'TGI_normalized', False)
         elif (self.parent.inputMode == "R G NIR"):
+            self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI_MAPIR', False)
+            self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI_MAPIR_normalized', False)
             self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI', True)
             self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI_Agrocam', True)
             self.parent.setEnabledCombobxItem(self.comboBoxATabScripts, 'NDVI_Threshold', True)
@@ -574,6 +590,7 @@ class ViSOARUIWidget(QWidget):
             visoarLog(self.visoarLogFile, 'TimeSeries')
             self.tabs.setCurrentIndex(self.NEW_TIME_SERIES_TAB )
         elif s=='AfterAskSensor':
+            self.inputMode = self.tabAskSensor.comboBoxNewTab.currentText()
             visoarLog(self.visoarLogFile, 'AfterAskSensor')
             if self.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam' or self.tabAskSensor.comboBoxNewTab.currentText() == 'MAPIR and RGB':
                 self.tabs.setCurrentIndex(self.ASKSOURCERGBNDVI_TAB)
@@ -749,7 +766,7 @@ class ViSOARUIWidget(QWidget):
                                                  self.projectInfo.projDir,
                                                  self.projectInfo.srcDir,
                                                  self.projectInfo.projDirNDVI,
-                                                 self.projectInfo.srcDirNDVI)
+                                                 self.projectInfo.srcDirNDVI, sensorMode=self.inputMode)
         # self.enableViewStitching()
         self.changeViewStitching()
         # AAG Slam removal
@@ -793,7 +810,7 @@ class ViSOARUIWidget(QWidget):
                                                              self.projectInfo.projDir,
                                                              self.projectInfo.srcDir,
                                                              self.projectInfo.projDirNDVI,
-                                                             self.projectInfo.srcDirNDVI)
+                                                             self.projectInfo.srcDirNDVI,sensorMode=self.parent.inputMode)
                 else:
                     print(self.projectInfo.cache_dir + ' MIDX already exists..')
                     buttonReply = QMessageBox.question(self, 'Already Exists',
@@ -806,7 +823,7 @@ class ViSOARUIWidget(QWidget):
                                                                  self.projectInfo.projDir,
                                                                  self.projectInfo.srcDir,
                                                                  self.projectInfo.projDirNDVI,
-                                                                 self.projectInfo.srcDirNDVI)
+                                                                 self.projectInfo.srcDirNDVI,sensorMode=self.parent.inputMode)
 
 
         # Load Load screen and enable viewer
@@ -1078,6 +1095,8 @@ class ViSOARUIWidget(QWidget):
     # //////////////////////////////////////////////////////////////////////////////
 
     def goToAnalyticsTab(self):
+        self.viewerW.setSensor(self.projectInfo.sensor)
+        self.viewerW2.setSensor(self.projectInfo.sensor)
         self.openfilenameLabel.setText("Viewing: " + self.projectInfo.projDir + "/" + self.projectInfo.projName+ " stitched "+ str(self.stitchNumImages)+" images in "+ self.stitchTime +" minutes")
         self.openfilenameLabelS.setText("Viewing: " + self.projectInfo.projDir + "/" + self.projectInfo.projName+ " stitched "+ str(self.stitchNumImages)+" images in "+ self.stitchTime +" minutes")
         print("Viewing: " + self.projectInfo.projDir + "/" + self.projectInfo.projName+ " stitched "+ str(self.stitchNumImages)+" images in "+self.stitchTime+" minutes")
@@ -1662,6 +1681,8 @@ class ViSOARUIWidget(QWidget):
                     self.stitchNumImages) + " images in " + self.stitchTime   + " minutes")
         else:
             self.openfilenameLabel.setText(os.path.join(self.projectInfo.projDir, self.projectInfo.projName))
+        self.viewerW.setSensor(self.projectInfo.sensor)
+        self.viewerW2.setSensor(self.projectInfo.sensor)
         self.tabs.setCurrentIndex(self.ANALYTICS_TAB)
 
     def goHome(self):

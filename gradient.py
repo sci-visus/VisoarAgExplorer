@@ -270,6 +270,7 @@ output = out.astype(numpy.float32)
             stop, _ = self._gradient[n]
             self._gradient[n] = stop, color
             self.gradientChanged.emit()
+            self.show()
             self.update()
 
     def chooseColorAtPosition(self, n, current_color=None):

@@ -17,11 +17,11 @@ from PyQt5.QtWidgets                  import QTableWidget,QTableWidgetItem
 from gradient import *
 
 class ViSOARGradientMapViewWidget(QDialog):
-    def __init__(self, parent,viewer,MODE):
+    def __init__(self, parent,viewer ):
         super(QDialog, self).__init__(parent)
         self.parent = parent
         self.viewer =viewer
-        self.MODE = MODE
+        #self.MODE = MODE
         self.setGeometry(30, 30, 600, 400)
 
         self.gradient = Gradient()
@@ -67,7 +67,6 @@ class ViSOARGradientMapViewWidget(QDialog):
         # self.pen.setWidth(3)  # set lineWidth
         # self.brush =  QBrush( QColor(255, 255, 255, 255))  # set fillColor
         # self.polygon = self.createPoly(8, 150, 0)  # polygon with n points, radius, angle of the first point
-
 
     def applyNewScript(self):
         MODE = self.parent.comboBoxATab.currentText()
