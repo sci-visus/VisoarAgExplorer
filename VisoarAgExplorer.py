@@ -4,6 +4,8 @@
 from VisoarSettings import *
 
 #from slam2dWidget import *
+import faulthandler;
+faulthandler.enable()
 
 from ViSOARUIWidget import *
 from slampy.utils import *

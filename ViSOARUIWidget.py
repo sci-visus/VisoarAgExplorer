@@ -107,6 +107,27 @@ class MyViewerWidget(QWidget):
         self.sublayout.addWidget(self.viewer_subwin)
         self.setLayout(self.sublayout)
 
+    def getNewImageForImageView(self):
+        imagedataFilename = self.saveScreenshot(withDate=False)
+        from PIL import Image
+        image = numpy.array(Image.open(imagedataFilename)) #.astype(numpy.float32)
+        image = numpy.swapaxes(image, 0, 1)
+        self.myGradientWidget.imv.setImage(image)
+
+    def saveScreenshot(self, withDate=True):
+        if withDate:
+            now = datetime.now()
+            date_time = now.strftime("_%Y%m%d_%H%M%S")
+        else:
+            date_time = ''
+        path = os.path.join(self.parent.projectInfo.cache_dir, 'ViSOARIDX')
+        if not os.path.exists(path):
+            os.makedirs(path)
+        fileName = os.path.join(self.parent.projectInfo.cache_dir, 'ViSOARIDX', self.parent.projectInfo.projName + date_time + '.png')
+        self.viewer.takeSnapshot(True, fileName)
+        visoarLog(self.parent.visoarLogFile, 'saveScreenshot finished: ' + fileName)
+        return fileName
+
     def setSensor(self, sensor):
         self.comboBoxATab.setCurrentText(sensor)
     # def hide(self):
@@ -160,6 +181,7 @@ class MyViewerWidget(QWidget):
         v.activateWindow()
 
     def addMyMapWidgetWindow(self, viewer):
+        self.getNewImageForImageView()
         self.myGradientWidget.show()
         self.myGradientWidget.raise_()
         self.myGradientWidget.activateWindow()
@@ -168,6 +190,8 @@ class MyViewerWidget(QWidget):
         fieldname = "output=ArrayUtils.interleave(ArrayUtils.split(voronoi())[0:3])"
         viewer.setFieldName(fieldname)
         viewer.setScriptingCode(script)
+        self.getNewImageForImageView()
+        self.myGradientWidget.update()
 
     def myinit(self):
         self.viewer.setMinimal()
@@ -392,7 +416,7 @@ class ViSOARUIWidget(QWidget):
                     '\t\t<createdAt>' + todayFormated + '</createdAt>\n' +
                     '\t\t<updatedAt>' + todayFormated + '</updatedAt>\n' +
                     '\t</project>\n' +
-                    '</data>\n')
+                    '</data>\n\n\n\n')
             f.close()
 
         if self.ADD_VIEWER:
@@ -1198,6 +1222,7 @@ class ViSOARUIWidget(QWidget):
         #if self.DEBUG:
         visoarLog(self.visoarLogFile, 'saveScreenshot finished: '+fileName)
         popUP('Snapshot Saved', 'Saved Snapshot to: \n' + fileName)
+        return fileName
 
     def mailScreenshot(self, withDate=True):
         if withDate:
@@ -1701,9 +1726,7 @@ class ViSOARUIWidget(QWidget):
         self.tabAskDest.destNewDir.setStyleSheet(GREEN_PUSH_BUTTON)
         # self.tabNewStitching.buttonAddImagesTab.setText('Choose Directory')
         # self.tabNewStitching.buttonAddImagesTab.setStyleSheet(GREEN_PUSH_BUTTON)
-
         self.tabs.setCurrentIndex(self.START_TAB)
-        self.update()
         #clear out strings:
         self.projectInfo.reset()
         self.viewer.clearAll()
@@ -1712,6 +1735,7 @@ class ViSOARUIWidget(QWidget):
         #self.tabs.setCurrentIndex(self.START_TAB)
         # projectDir is where to save the files
         # srcDir is the location of initial images
+        self.update()
 
     def startViSUSSLAM(self):
         if not self.projectInfo.srcDir:

@@ -15,6 +15,7 @@ from PyQt5.QtWidgets                  import QWidget, QMessageBox, QGroupBox, QS
 from PyQt5.QtWidgets                  import QTableWidget,QTableWidgetItem
 
 from gradient import *
+import pyqtgraph
 
 class ViSOARGradientMapViewWidget(QDialog):
     def __init__(self, parent,viewer ):
@@ -61,6 +62,9 @@ class ViSOARGradientMapViewWidget(QDialog):
 
         # self.mapPiecesLayout.addWidget(self.timeline)
 
+        self.imv = pyqtgraph.ImageView()
+
+        self.mapPiecesLayout.addWidget(self.imv)
         self.setLayout(self.mapPiecesLayout)
 
         # self.pen =  QPen( QColor(0, 0, 0))  # set lineColor

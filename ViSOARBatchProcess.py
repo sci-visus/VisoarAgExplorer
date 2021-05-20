@@ -128,7 +128,7 @@ class VisoarAgExplorerBatchProcessWidget(ViSOARUIWidget):
                     '\t\t<createdAt>'+todayFormated+'</createdAt>\n' +
                     '\t\t<updatedAt>'+todayFormated+'</updatedAt>\n' +
                     '\t</project>\n' +
-                    '</data>\n')
+                    '</data>\n\n\n')
             f.close()
 
         if self.ADD_VIEWER:
