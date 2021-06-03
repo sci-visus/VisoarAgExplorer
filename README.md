@@ -137,3 +137,21 @@ brew install exiftool zbar
 # Visus_google.py and other secrets
 Because we are enabling uploading to google, one needs a copy of the certificate validation infomation
 Ask the developers for a copy of the files
+
+#If have trouble with PyQT:
+``` 
+
+ 
+python -m pip uninstall PyQtWebEngine
+python -m pip uninstall PyQt5 
+python -m pip uninstall PyQt5-sip 
+python -m pip install PyQt5  
+python -m pip install PyQt5-sip  
+python -m pip install PyQtWebEngine
+python -m pip install PyQt5  
+python -m pip install PyQt5-sip  
+python -m pip install PyQtWebEngine
+python -m pip install --upgrade OpenVisus
+python -m OpenVisus configure 
+
+```
