@@ -1,0 +1,7 @@
+<KernelConfig>
+	<Filter>FOO</Filter>
+	<Sensor>BAR</Sensor>
+	<Lens>0</Lens>
+	<ArrayID>0</ArrayID>
+	<ArrayType>0</ArrayType>
+</KernelConfig>
