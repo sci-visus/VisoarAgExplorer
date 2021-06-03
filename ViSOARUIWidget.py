@@ -617,8 +617,11 @@ class ViSOARUIWidget(QWidget):
             self.inputMode = self.tabAskSensor.comboBoxNewTab.currentText()
             visoarLog(self.visoarLogFile, 'AfterAskSensor')
             if self.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam' or self.tabAskSensor.comboBoxNewTab.currentText() == 'MAPIR and RGB':
+                self.tabAskSource.mapirCalibrationWidget.setHidden(False)
                 self.tabs.setCurrentIndex(self.ASKSOURCERGBNDVI_TAB)
             else:
+                if (self.tabAskSensor.comboBoxNewTab.currentText() == 'MapIR only (OCNIR)'):
+                    self.tabAskSource.mapirCalibrationWidget.setHidden(False)
                 self.tabs.setCurrentIndex(self.ASKSOURCE_TAB)
             if self.BATCH_MODE:
                 self.tabAskSource.curDir2.setText(self.dir_of_rgb_source)
@@ -815,6 +818,12 @@ class ViSOARUIWidget(QWidget):
     #Part of batch processing
     def startProcessing(self):
 
+        #PreProcessing
+        #If mapIR images, use target to preprocess
+        if (self.tabAskSensor.comboBoxNewTab.currentText() == 'MAPIR and RGB') or (self.tabAskSensor.comboBoxNewTab.currentText() == 'MapIR only (OCNIR)'):
+            outdir = self.tabAskSource.mapirCalibrationWidget.calibrateMapIRImages()
+            self.projectInfo.srcDir = outdir
+
         for aSrcPath in os.listdir(self.dir_of_rgb_source):
             self.projectInfo.srcDir = os.path.join(self.dir_of_rgb_source, aSrcPath)
             if os.path.isdir(self.projectInfo.srcDir):
@@ -867,14 +876,14 @@ class ViSOARUIWidget(QWidget):
         logging.error("Exception occurred", exc_info=True)
         send_email_crash_notification(log_stream.getvalue(), logfile)
 
+
+
     def setAndRunSlam(self, image_dir, cache_dir=None, telemetry=None, plane=None, calibration=None,
                       physic_box=None):
         self.slam = None
         start = time.time()
         self.slam = Slam2D()
         self.slam.enable_svg = False
-        # self.logFile = os.path.join(cache_dir+"/~visusslam.log")
-        # self.slam_widget.redirect_log = RedirectLog(self.logFile)
 
         if (  os.path.exists(cache_dir)) and (os.path.exists(os.path.join(cache_dir, 'idx', '0000.bin'))):
             buttonReply = QMessageBox.question(self, 'Already Exists',
@@ -908,10 +917,11 @@ class ViSOARUIWidget(QWidget):
         self.stitchTime = "{:.2f}".format((end - start)/60.0)
         self.stitchNumImages = len(self.slam.images)
         self.logTab.clear()
-        f2 = open("~visusslam.log", 'r')
-        # appending the contents of the stitching log to the visoar log
-        self.visoarLogFile.write(f2.read())
-        f2.close()
+        if os.path.exists("~visusslam.log"):
+            f2 = open("~visusslam.log", 'r')
+            # appending the contents of the stitching log to the visoar log
+            self.visoarLogFile.write(f2.read())
+            f2.close()
 
         #self.setUpRClone()
         #These run functions above should return values of success.. but they don't

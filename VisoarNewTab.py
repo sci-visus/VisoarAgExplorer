@@ -14,6 +14,7 @@ from PyQt5.QtWidgets                  import QWidget, QMessageBox, QGroupBox, QS
 
 from PyQt5.QtWidgets                  import QTableWidget,QTableWidgetItem
 
+from MapIR_ImageCalibration import *
 
 import xml.etree.ElementTree as ET
 import xml.dom.minidom
@@ -208,7 +209,7 @@ class VisoarAskSource(QWidget):
         #self.parent.projectInfo.projDir = ''  # os.getcwd()
         #self.parent.projectInfo.srcDir = ''  # os.getcwd()
         self.curDir = QLabel('Image Directory: ')
-        self.curDir2 = QLabel(self.parent.projectInfo.projDir)
+        self.curDir2 = QLineEdit(self.parent.projectInfo.projDir)
         self.curDir2.setStyleSheet("""font-family: Roboto;font-style: normal;font-size: 14pt; padding:20px """)
         self.curDir.resize(280, 40)
 
@@ -226,7 +227,7 @@ class VisoarAskSource(QWidget):
         self.createErrorLabel.setStyleSheet("""color: #59040c""")
         self.sublayoutFormInputDir.addWidget(self.createErrorLabel)
 
-        self.sublayout.addLayout(self.sublayoutFormInputDir)
+
 
 
         self.buttons.home = QPushButton('', self)
@@ -251,6 +252,19 @@ class VisoarAskSource(QWidget):
         self.sublayoutLastRow.addWidget(self.buttons.home, alignment=Qt.AlignLeft)
         self.sublayoutLastRow.addStretch(100)
         self.sublayoutLastRow.addWidget(self.buttons.nextBtn, alignment=Qt.AlignRight)
+        self.sublayout.addStretch(True)
+
+        print(self.parent.tabAskSensor.comboBoxNewTab.currentText() )
+        #if sensor is MapIR, then ask for location of target
+        #if (self.parent.tabAskSensor.comboBoxNewTab.currentText() == 'MAPIR and RGB' or self.parent.tabAskSensor.comboBoxNewTab.currentText() == "MapIR only (OCNIR)"):
+
+        self.mapirCalibrationWidget =   ViSOARMapIRCalibrationWidget(self)
+        # w = QWindow.fromWinId(self.mapirCalibrationWindow.get_xid())
+        # self.mapirCalibrationWidget = QWidget.createWindowContainer(self.mapirCalibrationWindow, self)
+        self.sublayout.addWidget(self.mapirCalibrationWidget)
+        self.mapirCalibrationWidget.setHidden(True)
+
+        self.sublayout.addLayout(self.sublayoutFormInputDir)
         self.sublayout.addStretch(True)
         self.sublayout.addLayout(self.sublayoutLastRow)
 

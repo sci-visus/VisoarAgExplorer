@@ -34,9 +34,10 @@ colors = ["darkred","darkred", "gold", "yellowgreen", "darkgreen","darkgreen"]
 nodes = [0.0, 0.3, 0.4, 0.5, 0.6, 1.0]
 cmap2 = matplotlib.colors.LinearSegmentedColormap.from_list("mycmap", list(zip(nodes, colors)))
 out =  cmapN(gray)
-
-out = cv2.cvtColor(numpy.float32(out), cv2.COLOR_BGR2RGB)
-out = cv2.cvtColor(numpy.float32(out), cv2.COLOR_RGB2BGR)
+#colomapping generates RGBA, only need RGB
+out = out[...,:3]
+# out = cv2.cvtColor(numpy.float32(out), cv2.COLOR_BGR2RGB)
+# out = cv2.cvtColor(numpy.float32(out), cv2.COLOR_RGB2BGR)
 
 #output = Array.fromNumPy(out, TargetDim=pdim)
 output = out.astype(numpy.float32)
