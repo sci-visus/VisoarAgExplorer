@@ -618,10 +618,12 @@ class ViSOARUIWidget(QWidget):
             visoarLog(self.visoarLogFile, 'AfterAskSensor')
             if self.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam' or self.tabAskSensor.comboBoxNewTab.currentText() == 'MAPIR and RGB':
                 self.tabAskSource.mapirCalibrationWidget.setHidden(False)
+                self.tabAskSource.mapirCalibrationWidget.on_show()
                 self.tabs.setCurrentIndex(self.ASKSOURCERGBNDVI_TAB)
             else:
                 if (self.tabAskSensor.comboBoxNewTab.currentText() == 'MapIR only (OCNIR)'):
                     self.tabAskSource.mapirCalibrationWidget.setHidden(False)
+                    self.tabAskSource.mapirCalibrationWidget.on_show()
                 self.tabs.setCurrentIndex(self.ASKSOURCE_TAB)
             if self.BATCH_MODE:
                 self.tabAskSource.curDir2.setText(self.dir_of_rgb_source)

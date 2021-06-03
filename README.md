@@ -19,7 +19,7 @@ python -m pip install  --upgrade pip
 python -m pip install   --no-cache-dir --upgrade --force-reinstall OpenVisus
 python -m OpenVisus configure  
 
-python -m pip install  google-api-python-client oauth2client PyDrive
+python -m pip install  google-api-python-client oauth2client PyDrive opencv-contrib-python
 ```
 
 #Install OpenVisus y package:

@@ -125,6 +125,16 @@ class ViSOARMapIRCalibrationWidget(QWidget):
 
         self.setLayout(self.layout)
 
+    def on_show(self):
+        print('show')
+        self.show()
+        self.update()
+
+    def on_hide(self):
+        print('hide')
+        self.hide()
+        self.update()
+
     def preProcessMapIRImagesWithTarget(self):
         # PreProcessing
         if (self.parent.parent.tabAskSensor.comboBoxNewTab.currentText() == 'MAPIR and RGB') or (

@@ -263,6 +263,7 @@ class VisoarAskSource(QWidget):
         # self.mapirCalibrationWidget = QWidget.createWindowContainer(self.mapirCalibrationWindow, self)
         self.sublayout.addWidget(self.mapirCalibrationWidget)
         self.mapirCalibrationWidget.setHidden(True)
+        self.mapirCalibrationWidget.on_hide()
 
         self.sublayout.addLayout(self.sublayoutFormInputDir)
         self.sublayout.addStretch(True)
