@@ -30,10 +30,14 @@ python -m pip install  google-api-python-client oauth2client PyDrive opencv-cont
 
 ```
 python -m pip install --user --upgrade pip
+
+pip install --user  -r MAPIR_CameraController/requirements.txt 
+pip install --user  -r requirements.txt 
+
 python -m pip install  --user --no-cache-dir --upgrade --force-reinstall OpenVisus
 python -m OpenVisus configure  --user 
 
-python -m pip install --user google-api-python-client oauth2client PyDrive
+python -m pip install --user google-api-python-client oauth2client PyDrive opencv-contrib-python
 ```
     
 For Windows only. You need to install Visual Studio redistributable 
