@@ -15,10 +15,11 @@ VisoarAgExplorer Python Interface
 #Install for Windows:
 
 ```
-pip install --user  -r requirements.txt 
-pip install --user  -r MAPIR_CameraController/requirements.txt 
-
 python -m pip install  --upgrade pip
+
+pip install --user  -r MAPIR_CameraController/requirements.txt 
+pip install --user  -r requirements.txt 
+
 python -m pip install   --no-cache-dir --upgrade --force-reinstall OpenVisus
 python -m OpenVisus configure  
 
@@ -65,8 +66,8 @@ Install helper libraries:
 `cd` to directory where this code lives:
 
 ```
-pip install --user  -r requirements.txt 
 pip install --user  -r MAPIR_CameraController/requirements.txt 
+pip install --user  -r requirements.txt 
 
 ```
 
@@ -160,3 +161,9 @@ python -m pip install --upgrade OpenVisus
 python -m OpenVisus configure 
 
 ```
+
+#If have error:
+```error Microsoft Visual C++ 14.0 is required```
+
+ see
+https://www.scivision.dev/python-windows-visual-c-14-required

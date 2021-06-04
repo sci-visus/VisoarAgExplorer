@@ -26,7 +26,7 @@ def addLogo(app_dir):
     logo.setStyleSheet(NOBACKGROUND_PUSH_BUTTON)
     ##-- self.logo.setStyleSheet("QPushButton {border-style: outset; border-width: 0px;color:#ffffff}");
     logo.setIcon(QIcon(os.path.join(app_dir, 'icons', 'visoar_logo.png')))
-    logo.setIconSize(QSize(480, 214))
+    logo.setIconSize(QSize(240, 107))
     return logo
 
 class VisoarSlamSettingsDefault(QDialog):
