@@ -15,6 +15,9 @@ VisoarAgExplorer Python Interface
 #Install for Windows:
 
 ```
+pip install --user  -r requirements.txt 
+pip install --user  -r MAPIR_CameraController/requirements.txt 
+
 python -m pip install  --upgrade pip
 python -m pip install   --no-cache-dir --upgrade --force-reinstall OpenVisus
 python -m OpenVisus configure  
@@ -63,6 +66,8 @@ Install helper libraries:
 
 ```
 pip install --user  -r requirements.txt 
+pip install --user  -r MAPIR_CameraController/requirements.txt 
+
 ```
 
 
