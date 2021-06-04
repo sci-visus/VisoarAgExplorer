@@ -112,7 +112,7 @@ class ViSOARMapIRCalibrationWidget(QWidget):
         self.textEditLog.ensureCursorVisible()
         self.textEditLog.setLineWrapColumnOrWidth(500)
         self.textEditLog.setLineWrapMode(QTextEdit.FixedPixelWidth)
-        self.textEditLog.setFixedWidth(400)
+        self.textEditLog.setFixedWidth(800)
         self.textEditLog.setFixedHeight(150)
 
         self.layout.addLayout(self.layoutH)
