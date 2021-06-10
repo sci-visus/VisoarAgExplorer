@@ -12,13 +12,17 @@ VisoarAgExplorer Python Interface
 - For Windows:   TBP
 - For Mac: TBP
 
+- Need to address how to install necessary parts from MapIR Calibration
+  
+  -- Currently that means issues with exiftool.exe
+  
 #Install for Windows:
 
 ```
 python -m pip install  --upgrade pip
 
-pip install --user  -r MAPIR_CameraController/requirements.txt 
-pip install --user  -r requirements.txt 
+pip install  -r MAPIR_CameraController/requirements.txt 
+pip install   -r requirements.txt 
 
 python -m pip install   --no-cache-dir --upgrade --force-reinstall OpenVisus
 python -m OpenVisus configure  

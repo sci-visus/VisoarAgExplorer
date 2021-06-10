@@ -2830,6 +2830,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
         except Exception as e:
             exc_type, exc_obj,exc_tb = sys.exc_info()
             self.CalibrationLog.append(str(e) + ' Line: ' + str(exc_tb.tb_lineno))
+            self.print(self.CalibrationLog.text())
 
     def on_CalibrationGenButton_released(self):
         self.generate_calibration(self.CalibrationCameraModel, self.CalibrationQRFile, self.CalibrationFilter, self.CalibrationLens, self.qrcoeffs, qr_coeffs_index=1)
@@ -5489,6 +5490,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
     def copyExif(self, inphoto, outphoto):
         subprocess._cleanup()
         if sys.platform == "win32":
+            print('Using: {0}'.format(modpath + os.sep +r'exiftool.exe'))
             exiftool_exe = modpath + os.sep +r'exiftool.exe'
         else:
             exiftool_exe = r'exiftool'
@@ -5524,6 +5526,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
             if '' not in bandname:
 
                 if sys.platform == "win32":
+                    print('Using: {0}'.format(modpath + os.sep + r'exiftool.exe'))
                     exiftool_exe = modpath + os.sep + r'exiftool.exe'
                 else:
                     exiftool_exe = r'exiftool'
@@ -5561,6 +5564,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 if bandname[2].isdigit():
                     bandname[2] = r'F' + bandname[2]
                 if sys.platform == "win32":
+                    print('Using: {0}'.format(modpath + os.sep + r'exiftool.exe'))
                     exiftool_exe = modpath + os.sep + r'exiftool.exe'
                 else:
                     exiftool_exe = r'exiftool'
@@ -5589,6 +5593,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                     startupinfo=si).stderr.decode("utf-8")
         except Exception as e:
             if sys.platform == "win32":
+                print('Using: {0}'.format(modpath + os.sep + r'exiftool.exe'))
                 exiftool_exe = modpath + os.sep + r'exiftool.exe'
             else:
                 exiftool_exe = r'exiftool'
@@ -5613,6 +5618,7 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 # self.PreProcessLog.append(str(modpath + os.sep + r'exiftool.exe') + ' ' + inphoto + ' ' + outphoto)
                 subprocess._cleanup()
                 if sys.platform == "win32":
+                    print('Using: {0}'.format(modpath + os.sep + r'exiftool.exe'))
                     exiftool_exe = modpath + os.sep + r'exiftool.exe'
                 else:
                     exiftool_exe = r'exiftool'

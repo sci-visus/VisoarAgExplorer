@@ -113,10 +113,9 @@ class ViSOARMapIRCalibrationWidget(QWidget):
         self.textEditLog = QTextEdit()
         self.mapIRCalibrationWidget.CalibrationLog = self.textEditLog
         self.textEditLog.ensureCursorVisible()
-        self.textEditLog.setLineWrapColumnOrWidth(500)
+        self.textEditLog.setLineWrapColumnOrWidth(900)
         self.textEditLog.setLineWrapMode(QTextEdit.FixedPixelWidth)
-        # self.textEditLog.setFixedWidth(800)
-        # self.textEditLog.setFixedHeight(150)
+        self.textEditLog.setFixedWidth(800)
 
         self.layoutVTopCameraConfig.addLayout(self.layoutCameraParams)
         self.layoutVTopCameraConfig.addWidget(self.targetLabel, Qt.AlignLeft)
@@ -131,6 +130,12 @@ class ViSOARMapIRCalibrationWidget(QWidget):
         #self.layout.addWidget(self.textEditLog, Qt.AlignLeft)
 
         self.setLayout(self.layout)
+
+    def resetUIFill(self):
+        self.targetLineEdit.setText('')
+        self.targetLineEdit.setText('')
+        self.textEditLog.setText('')
+        self.on_hide()
 
     def on_show(self):
         print('show')

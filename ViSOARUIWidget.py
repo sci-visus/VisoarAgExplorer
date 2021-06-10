@@ -1736,6 +1736,8 @@ class ViSOARUIWidget(QWidget):
         self.tabAskSource.buttonAddImagesSource.setStyleSheet(GREEN_PUSH_BUTTON)
         self.tabAskDest.destNewDir.setText('Choose Directory')
         self.tabAskDest.destNewDir.setStyleSheet(GREEN_PUSH_BUTTON)
+        self.tabAskSource.mapirCalibrationWidget.resetUIFill()
+
         # self.tabNewStitching.buttonAddImagesTab.setText('Choose Directory')
         # self.tabNewStitching.buttonAddImagesTab.setStyleSheet(GREEN_PUSH_BUTTON)
         self.tabs.setCurrentIndex(self.START_TAB)
