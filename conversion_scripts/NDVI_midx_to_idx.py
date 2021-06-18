@@ -3,6 +3,7 @@ from OpenVisus.__main__ import MidxToIdx
 
 # source file
 midx="/Volumes/ViSUSAg/PeteSmallEnd/MAPIR/VisusSlamFiles/visus.midx"
+midx="/Volumes/TenGViSUSAg/2021Season/MapIR/MAPIR\ 02 5.10.21/VisusSlamFiles/visus.midx"
 
 # destination file
 idx="/Volumes/ViSUSAg/PeteSmallEnd/MAPIR/VisusSlamFiles/TestIdx/test.idx"
@@ -27,7 +28,8 @@ gray = numpy.float32(NDVI)
 cdictN = [ (0.56, 0.02 ,0.02), (0.74, 0.34 ,0.04), (0.94, 0.65 ,0.27), (0.2, 0.4 ,0.0), (0.2, 0.4 ,0.0),]
 nodesN =[0.0,0.25,0.5,0.75,1.0,]
 cmapN = matplotlib.colors.LinearSegmentedColormap.from_list("mycmap", list(zip(nodesN, cdictN)))
-out =  numpy.float32(cmapN(gray))
+#out =  numpy.float32(cmapN(gray))
+out =  numpy.uint8(cmapN(gray)*255)
 #colomapping generates RGBA, only need RGB
 out = out[...,:3]
 output=Array.fromNumPy(out,TargetDim=2)
