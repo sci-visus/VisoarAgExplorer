@@ -4,6 +4,7 @@ from OpenVisus.__main__ import MidxToIdx
 # source file
 midx="/Volumes/ViSUSAg/PeteSmallEnd/MAPIR/VisusSlamFiles/visus.midx"
 midx="/Volumes/TenGViSUSAg/2021Season/MapIR/MAPIR\ 02 5.10.21/VisusSlamFiles/visus.midx"
+midx="/Volumes/TenGViSUSAg/2021Season/MapIR/MAPIR\ 02 5.10.21/VisusSlamFiles/visus.midx"
 
 # destination file
 idx="/Volumes/ViSUSAg/PeteSmallEnd/MAPIR/VisusSlamFiles/TestIdx/test.idx"

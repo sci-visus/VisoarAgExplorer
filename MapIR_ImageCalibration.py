@@ -169,7 +169,7 @@ class ViSOARMapIRCalibrationWidget(QWidget):
         return dir
 
     def setTargetSource(self):
-        filename, filter = QFileDialog.getOpenFileName(self, "Select MapIR Target Image", "","Images (*.png *.tif *.jpg)")
+        filename, filter = QFileDialog.getOpenFileName(self, "Select MapIR Target Image", "","Images (*.png *.tif *.jpg *.jpeg)")
         self.targetLineEdit.setText(filename)
         return filename
 

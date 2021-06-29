@@ -2824,6 +2824,24 @@ class MAPIR_ProcessingDockWidget(QtWidgets.QMainWindow, FORM_CLASS):
                 qrcoeffs = self.qr_coeffs
                 self.useqr = True
 
+                self.CalibrationLog.append('calibration_camera_model')
+                self.CalibrationLog.append(calibration_camera_model.currentText())  # combobox  'Survey3'
+
+                self.CalibrationLog.append('calibration_QR_file')
+                self.CalibrationLog.append(calibration_QR_file.text())  # qlineedit  path to file
+
+                self.CalibrationLog.append('calibration_filter')
+                self.CalibrationLog.append(calibration_filter.currentText())  # combobox  'OCN'
+
+                self.CalibrationLog.append('calibration_lens')
+                self.CalibrationLog.append(calibration_lens.currentText())  # Combbox   '3.37mm (Survey3W)'
+
+                self.CalibrationLog.append('qrcoeffs')
+                self.CalibrationLog.append(str(qrcoeffs))  # []
+
+                self.CalibrationLog.append('qr_coeffs_index')
+                self.CalibrationLog.append(str(qr_coeffs_index))  # 1
+
             else:
                 self.append_please_select_a_target_image_message_to_calibration_log()
 
