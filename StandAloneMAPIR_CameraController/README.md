@@ -21,16 +21,31 @@ https://github.com/sci-visus/VisoarAgExplorer
 
 ##Commandline usage 
 ```
-python MAPIR_Camera_Control.py --target "/path/image.JPG" --path "/path/"
+python MAPIR_CalibrateImages.py --target "/path/image" --path "/path/"
  ```
  
  Optional parameters:
   ```
- usage: MAPIR_Camera_Control.py [-h] [--target TARGET] [--path PATH]
-                               [--calibration_camera_model CALIBRATION_CAMERA_MODEL like 'Survey3']
-                               [--calibration_QR_file CALIBRATION_QR_FILE]
-                               [--calibration_filter CALIBRATION_FILTER like  'OCN']
-                               [--calibration_lens CALIBRATION_LENS like '3.37mm (Survey3W)']
+ MAPIR_CalibrateImages.py [-h] [--target TARGET] [--path PATH]
+                                [--calibration_camera_model CALIBRATION_CAMERA_MODEL]
+                                [--calibration_QR_file CALIBRATION_QR_FILE]
+                                [--calibration_filter CALIBRATION_FILTER]
+                                [--calibration_lens CALIBRATION_LENS]
+
+MAPIR camera Process target and folder of images.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --target TARGET       image containing target
+  --path PATH           directory of source images
+  --calibration_camera_model CALIBRATION_CAMERA_MODEL
+                        Survey3
+  --calibration_QR_file CALIBRATION_QR_FILE
+                        same as target
+  --calibration_filter CALIBRATION_FILTER
+                        filter such as OCN
+  --calibration_lens CALIBRATION_LENS
+                        3.37mm (Survey3W)
   ```
 
 ##For usage in an App (like QT UI)

@@ -22,14 +22,24 @@ NDVI = (NDVI+1.0)/2.0
 
 gray = numpy.float32(NDVI)
 
-cdictN = [ (0.56, 0.02 ,0.02), (0.74, 0.34 ,0.04), (0.94, 0.65 ,0.27), (0.2, 0.4 ,0.0), (0.2, 0.4 ,0.0),]
+sandpt =   (255/255.0, 238/255.0, 204/255.0)
+lawngreenpt = (51/255.0, 153/255.0, 51/255.0)
+greenpt =  (0/255.0, 102/255.0, 0/255.0)
+darkgreenpt=(0, 51/255.0, 0)
+redPt =  (153/255.0, 0, 0)
+orangept = (255/255.0, 204/255.0, 128/255.0)
+
+cdictN = [ redPt, orangept,sandpt,greenpt, darkgreenpt ]
+
+#cdictN = [ (0.56, 0.02 ,0.02), (0.74, 0.34 ,0.04), (0.94, 0.65 ,0.27), (0.2, 0.4 ,0.0), (0.2, 0.4 ,0.0),]
 nodesN =[0.0,0.25,0.5,0.75,1.0,]
 cmapN = matplotlib.colors.LinearSegmentedColormap.from_list("mycmap", list(zip(nodesN, cdictN)))
 
 colors = ["darkred", "darkred", "gold", "yellowgreen", "darkgreen", "darkgreen"]
 nodes = [0.0, 0.3, 0.6, 0.7, 0.79, 1.0]
 cmap = matplotlib.colors.LinearSegmentedColormap.from_list("mycmap", list(zip(nodes, colors)))
-out = cmapN(gray)
+#out = cmapN(gray)
+out =  numpy.uint8(cmapN(gray)*255)
 #colomapping generates RGBA, only need RGB
 out = out[...,:3]
 #
@@ -37,4 +47,4 @@ out = out[...,:3]
 # out = cv2.cvtColor(numpy.float32(out), cv2.COLOR_RGB2BGR)
 
 # output = Array.fromNumPy(out, TargetDim=pdim)
-output = out.astype(numpy.float32)
+output = out.astype(numpy.uint8)
