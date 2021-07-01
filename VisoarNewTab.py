@@ -268,6 +268,7 @@ class VisoarAskSource(QWidget):
         self.sublayout.addLayout(self.sublayoutFormInputDir)
         self.sublayout.addStretch(True)
         self.sublayout.addLayout(self.sublayoutLastRow)
+        self.sublayout.addLayout(self.sublayoutLastRow)
 
         self.setLayout(self.sublayout)
 
