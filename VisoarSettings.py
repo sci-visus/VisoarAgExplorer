@@ -14,11 +14,11 @@ from OpenVisus                        import *
 from OpenVisus.gui                    import *
 from datetime import datetime
 
-DEBUG = True
+DEBUG = False
 ENABLE_SAVE_IDX = False
 
-MASTER_SCRIPT_LIST = ["Original", "OCNIR_MAPIR","TGI","TGI_normalized", "NDVI_Agrocam","NDVI", "TGI_Threshold", "NDVI_Threshold",  "Threshold"]
-EXPERIMENTAL_SCRIPT_LIST = ["Original","OCNIR_MAPIR","NDVI_Agrocam","channel_1", "channel_2", "channel_3","NDVI_Sentera", "NDRE_Sentera",  "Contour", "Count", "NDVI",
+MASTER_SCRIPT_LIST = ["Original","NDVI_MAPIR", "NDVI_MAPIR_normalized",  "TGI","TGI_normalized", "NDVI_Agrocam","NDVI", "TGI_Threshold", "NDVI_Threshold",  "Threshold"]
+EXPERIMENTAL_SCRIPT_LIST = ["Original","NDVI_MAPIR","NDVI_MAPIR_normalized","NDVI_MAPIR_normalized_Nzones","NDVI_Agrocam","channel_1", "channel_2", "channel_3","NDVI_Sentera", "NDRE_Sentera",  "Contour", "Count", "NDVI",
                             "NDVI_Threshold", "Row", "Segment", "TGI","TGI_normalized", "TGI_alone",
                             "TGI_matplotlib", "TGI_nomatplotlib", "TGI_Threshold", "Threshold"]
 
@@ -31,7 +31,7 @@ import xml.dom.minidom
 
 
 def checkForUpdates(parent, log=None):
-    print("Checking for updates")
+    log.print("Checking for updates")
     import git
     ThisDir = os.path.dirname(os.path.realpath(__file__))
     g = git.Git( ThisDir )
@@ -116,13 +116,16 @@ def getNameFromMIDX( filename):
     namestr = filesplit[0]
     ext = filesplit[1]
     if (namestr == 'google'):
-        print('{0} {1} {2}'.format(dir, namestr, ext))
+        #print('{0} {1} {2}'.format(dir, namestr, ext))
         return dir, namestr, ext
     else:
         s1, s2 = os.path.split(dir)
         s3, s4 = os.path.split(s1)
-        print('{0} {1} {2}'.format(dir, s4, ext))
+        #print('{0} {1} {2}'.format(dir, s4, ext))
         return dir, s4, ext
+
+
+
 
 class VisoarLayer():
     def __init__(self, dir,name,rowInt):
@@ -245,8 +248,7 @@ class VisoarLayerView(QDialog):
         self.ShowMapButton.append(QPushButton())
         ROW = ROW + 1
         for alayer in self.visoarLayersList:
-
-            print(alayer.name)
+            #print(alayer.name)
             widgetName = QWidget()
             nameLabel = QToolButton(widgetName)
             if (alayer.name=='google'):
@@ -317,7 +319,10 @@ class VisoarLayerView(QDialog):
         #fixview = False
         self.cam = self.viewer.getGLCamera()
         if name == 'google':
-            self.viewer.open(os.path.join(self.parent.projectInfo.cache_dir, 'visus.midx'))
+            try:
+                self.viewer.open(os.path.join(self.parent.projectInfo.cache_dir, 'visus.midx'))
+            except:
+                popUP('Error', 'Error VisoarSetting 323 loading: {0}'.format(os.path.join(self.parent.projectInfo.cache_dir, 'visus.midx')))
             # db = self.viewer.getDataset()
             # for alayer in self.visoarLayersList:
             #     if alayer.name != 'google' and db.getChild(alayer.name) and (not fixview):
@@ -332,21 +337,28 @@ class VisoarLayerView(QDialog):
                 self.ShowMapButton[ROW].setIcon(QIcon(self.hideIconGreenPath))
                 #self.HideXMLButton[ROW].setIcon(QIcon(self.hideIconGrayPath))
                 if (name != 'google'):
-                    ret1 = self.viewer.open(alayer.dir )
+                    try:
+                        ret1 = self.viewer.open(alayer.dir )
+                    except:
+                        popUP('Error', 'Error VisoarSettings 341 loading: {0}'.format(alayer.dir))
+
                 #ret2 = self.parent.viewer2.open( alayer.dir )
             else:
                 self.ShowXMLButton[ROW].setIcon(QIcon(self.hideIconGreenPath))
                 self.ShowMapButton[ROW].setIcon(QIcon(self.hideIconGreenPath))
         self.fixCamera( self.cam)
         self.update()
-        print('NYI')
+        #print('NYI')
 
     def ShowMap(self,name):
         self.cam = self.viewer.getGLCamera()
         ROW = 0
         #fixview = False
         if name == 'google':
-            self.viewer.open(os.path.join(self.parent.projectInfo.cache_dir, 'visus.midx'))
+            try:
+                self.viewer.open(os.path.join(self.parent.projectInfo.cache_dir, 'visus.midx'))
+            except:
+                popUP('Error', 'Error VisoarSettings 359 loading: {0}'.format(os.path.join(self.parent.projectInfo.cache_dir, 'visus.midx')))
             # db = self.viewer.getDataset()
             # for alayer in self.visoarLayersList:
             #     if alayer.name != 'google' and db.getChild(alayer.name) and (not fixview):
@@ -363,10 +375,14 @@ class VisoarLayerView(QDialog):
                     import re
                     fname = alayer.dir
                     newfname=re.sub('visus.midx$', 'google.midx', fname)
-                    ret1 = self.viewer.open(newfname)
-                    db = self.viewer.getDataset()
-                    box = db.getChild('visus').getDatasetBounds().toAxisAlignedBox()
-                    self.viewer.getGLCamera().guessPosition(box)
+                    try:
+                        ret1 = self.viewer.open(newfname)
+                        db = self.viewer.getDataset()
+                        box = db.getChild('visus').getDatasetBounds().toAxisAlignedBox()
+                        self.viewer.getGLCamera().guessPosition(box)
+                    except:
+                        popUP('Error', 'Error VisoarSettings 379 loading: {0}'.format(newfname))
+
             else:
                 self.ShowMapButton[ROW].setIcon(QIcon(self.hideIconGreenPath))
                 self.ShowXMLButton[ROW].setIcon(QIcon(self.hideIconGreenPath))
@@ -376,7 +392,7 @@ class VisoarLayerView(QDialog):
 
 
     def HideName(self, name):
-        print('NYI')
+        print('NYI: VisoarSettings.py HideName Function')
 
     def fixCamera(self, cam1):
         cam2 = self.viewer.getGLCamera()
@@ -409,8 +425,9 @@ class VisoarProject():
         self.cache_dir = os.path.join(self.projDir, 'VisusSlamFiles')
         self.createdAt =  ''
         self.updatedAt = ''
+        self.sensor = ''
 
-    def update(self, projName, projDir, cache_dir, srcDir, createdAt, updatedAt, projDirNDVI,srcDirNDVI):
+    def update(self, projName, projDir, cache_dir, srcDir, createdAt, updatedAt, projDirNDVI,srcDirNDVI, sensorMode='Unknown'):
         self.projDir = projDir
         self.projName = projName
         self.srcDir = srcDir
@@ -419,6 +436,7 @@ class VisoarProject():
         self.cache_dir = cache_dir
         self.createdAt = createdAt
         self.updatedAt = updatedAt
+        self.sensor = sensorMode
 
     def reset(self):
         self.projDir = ''
@@ -429,6 +447,7 @@ class VisoarProject():
         self.cache_dir = ''
         self.createdAt = ''
         self.updatedAt = ''
+        self.sensor = ''
 
 
     def doesProjectHaveLayers(self):
@@ -442,8 +461,8 @@ class VisoarProject():
             wrapperdataset = tree.getroot()
             count = 0
             for visusfile in wrapperdataset.iterfind('dataset'):
-                if visusfile.attrib['name'] == 'google':
-                    print('found google')
+                if  visusfile.attrib['name'] == 'google':
+                     print('found google')
                 else:
                     count = count + 1
             if count > 1:
@@ -453,6 +472,7 @@ class VisoarProject():
         except:
             self.parent.popUP('Does Project Have Layers',
                   'Error in Does Project Have Layers')
+            print('Error VisoarSettings.py: in Does Project Have Layers')
             return False
 
 
@@ -481,6 +501,7 @@ def pretty_print_xml_given_root(root, output_xml):
         [s for s in xml_string.splitlines() if s.strip()])  # remove the weird newline issue
     with open(output_xml, "w") as file_out:
         file_out.write(xml_string)
+        file_out.write('\n\n')
 
 def pretty_print_xml_given_file(input_xml, output_xml):
     #from xml.dom import minidom
@@ -499,9 +520,9 @@ class VisoarUserLibraryData():
         self.refreshProjectsFromXML()
         self.sortReversed = False
 
-    def createProject(self, projName, projDir,srcDir,projDirNDVI, srcDirNDVI):
+    def createProject(self, projName, projDir,srcDir,projDirNDVI, srcDirNDVI, sensorMode='Unknown'):
         tree = ET.parse(self.userFileHistory)
-        print(tree.getroot())
+        #print(tree.getroot())
         root = tree.getroot()
 
         # etree.SubElement(item, 'Date').text = '2014-01-01'
@@ -512,6 +533,7 @@ class VisoarUserLibraryData():
         ET.SubElement(element, 'srcDirNDVI').text =  srcDirNDVI
         ET.SubElement(element, 'projDirNDVI').text =  projDirNDVI
         ET.SubElement(element, 'cache_dir').text = os.path.join(projDir,'VisusSlamFiles')
+        ET.SubElement(element, 'sensor').text =  sensorMode
         from datetime import datetime
         today = datetime.now()
         todayFormated = today.strftime("%Y%m%d_%H%M%S")
@@ -569,13 +591,18 @@ class VisoarUserLibraryData():
                 # updatedAt = datetime.fromtimestamp(int(project.find('updatedAt').text)).strftime("%Y%m%d_%H%M%S")
             else:
                  updatedAt =''
-
+            if project.find('sensor') != None:
+                sensor = project.find('sensor').text
+            else:
+                sensor = 'Unknown'
 
             vProj = VisoarProject()
-            vProj.update(projName, projDir, cache_dir, srcDir,createdAt,updatedAt,projDirNDVI, srcDirNDVI)
+            vProj.update(projName, projDir, cache_dir, srcDir,createdAt,updatedAt,projDirNDVI, srcDirNDVI, sensorMode = sensor)
             self.projects.append(vProj)
 
+
     def isUniqueName(self, name):
+
         original = True
         tree = ET.ElementTree(file=self.userFileHistory)
         root = tree.getroot()
@@ -818,6 +845,8 @@ class VisoarUserLibraryData():
                 projectInfo.srcDirNDVI = project.find('srcDirNDVI').text
                 projectInfo.cache_dir = os.path.join(projectInfo.projDir, 'VisusSlamFiles')
                 projectInfo.createdAt = project.find('createdAt').text
+                if project.find('sensor') != None:
+                    projectInfo.sensor = project.find('sensor').text
 
                 today = datetime.now()
                 todayFormated = today.strftime("%Y%m%d_%H%M%S")
@@ -826,7 +855,7 @@ class VisoarUserLibraryData():
 
                 #print(projectDir)
                 return True, projectInfo
-                print('Need to run visus viewer with projDir + /VisusSlamFiles/visus.midx')
+                #print('Need to run visus viewer with projDir + /VisusSlamFiles/visus.midx')
 
         # from xml.dom import minidom
         #

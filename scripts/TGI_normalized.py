@@ -43,28 +43,19 @@ blue = img[:, :, 2]
 scaleRed = (0.39 * red)
 scaleBlue = (.61 * blue)
 TGI = green - scaleRed - scaleBlue
-#TGI = (TGI + 1.0) / 2.0
-TGI = cv2.normalize(TGI, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)  # normalize data [0,1]
+TGI = (TGI + 1.0) / 2.0
+#TGI = cv2.normalize(TGI, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)  # normalize data [0,1]
 
 #gray = cv2.cvtColor(numpy.float32(TGI), cv2.COLOR_GRAY2RGB)
 gray = numpy.float32(TGI)
 
-#cdict=[(.2, .4,0), (.2, .4,0), (.94, .83, 0), (.286,.14,.008), (.56,.019,.019)]
-#cdict = [(.56, .019, .019), (.286, .14, .008), (.94, .83, 0), (.2, .4, 0), (.2, .4, 0)]
-cdict = [ (0.56, 0.02 ,0.02), (0.74, 0.34 ,0.04), (0.94, 0.65 ,0.27), (0.2, 0.4 ,0.0), (0.2, 0.4 ,0.0),]
+colors = [(1.0, 0.97, 0.66), (0.94,0.30,0.34), (0.59, 0.98, 0.59), (0.59, 0.98, 0.79),(0.29, 0.58, 0.29)]
+nodes1 =[0.0,0.4,0.6,0.7,1.0,]
+cmap = matplotlib.colors.LinearSegmentedColormap.from_list("mycmap", list(zip(nodes1, colors )))
 
-
-cmap = matplotlib.colors.LinearSegmentedColormap.from_list(name='my_colormap', colors=cdict, N=1000)
-#
-# mapN = matplotlib.colors.LinearSegmentedColormap.from_list(name="", colors=["red","violet","blue", "yellow", "green"], N=1000)
-
-
-colors = ["red","darkorange", "gold", "lawngreen", "green","green"]
-cmap1 = matplotlib.colors.LinearSegmentedColormap.from_list("mycmap", cdict)
-nodes = [0.0, 0.2, 0.3, 0.5,0.9, 1.0]
-cmap2 = matplotlib.colors.LinearSegmentedColormap.from_list("mycmap", list(zip(nodes, colors)))
-out =  cmap2(gray)
-
+out = cmap(gray)
+#colomapping generates RGBA, only need RGB
+out = out[...,:3]
 ###############################################
 ###   To return our your output image (out) ###
 ###    convert from NumPy                   ###
@@ -72,8 +63,8 @@ out =  cmap2(gray)
 #out = cv2.cvtColor(numpy.float32(out), cv2.COLOR_RGB2BGR)
 #
 #out = cv2.cvtColor(numpy.float32(out), cv2.COLOR_RGB2BGR)
-out = cv2.cvtColor(numpy.float32(out), cv2.COLOR_BGR2RGB)
-out = cv2.cvtColor(numpy.float32(out), cv2.COLOR_RGB2BGR)
+# out = cv2.cvtColor(numpy.float32(out), cv2.COLOR_BGR2RGB)
+# out = cv2.cvtColor(numpy.float32(out), cv2.COLOR_RGB2BGR)
 
 ###############################################
 ###   To return our your output image (out) ###

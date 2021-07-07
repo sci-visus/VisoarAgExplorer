@@ -62,10 +62,12 @@ class VisoarAnalyzeTabWidget(QWidget):
 
         self.buttons.comboBoxATab = QComboBox(self)
         self.buttons.comboBoxATab.addItem("R G B")
-        self.buttons.comboBoxATab.addItem("O C NIR (MapIR)")
+        self.buttons.comboBoxATab.addItem("MapIR only (OCNIR)")
         self.buttons.comboBoxATab.addItem("R G NIR")
         self.buttons.comboBoxATab.addItem("R NIR (Sentera NDVI)")
         self.buttons.comboBoxATab.addItem("RedEdge NIR (Sentera NDRE)")
+        self.buttons.comboBoxATab.addItem("Unknown")
+
         self.buttons.comboBoxATab.setStyleSheet(MY_COMBOX)
         self.buttons.comboBoxATab.currentIndexChanged.connect(self.inputModeChangedATab)
 
@@ -380,30 +382,47 @@ class VisoarAnalyzeTabWidget(QWidget):
         self.parent.inputMode = self.buttons.comboBoxATab.currentText()
 
         if (self.parent.inputMode == "R G B"):
+            self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'NDVI_MAPIR', False)
+            self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'NDVI_MAPIR_normalized', False)
             self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'NDVI', False)
             self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'NDVI_Threshold', False)
             self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'TGI', True)
             self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'TGI_Threshold', True)
         elif (self.parent.inputMode == "R NIR (Sentera NDVI)"):
+            self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'NDVI_MAPIR', False)
+            self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'NDVI_MAPIR_normalized', False)
             self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'NDVI', True)
             self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'NDVI_Threshold', True)
             self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'TGI', False)
             self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'TGI_Threshold', False)
-        elif (self.parent.inputMode == "O C NIR (MapIR)"):
+        elif (self.parent.inputMode == "MapIR only (OCNIR)"):
+            self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'NDVI_MAPIR', True)
+            self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'NDVI_MAPIR_normalized', True)
             self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'NDVI', True)
             self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'NDVI_Threshold', True)
             self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'TGI', False)
             self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'TGI_Threshold', False)
         elif (self.parent.inputMode == "RedEdge NIR (Sentera NDRE)"):
+            self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'NDVI_MAPIR', False)
+            self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'NDVI_MAPIR_normalized', False)
             self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'NDVI', True)
             self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'NDVI_Threshold', True)
             self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'TGI', False)
             self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'TGI_Threshold', False)
         elif (self.parent.inputMode == "R G NIR"):
+            self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'NDVI_MAPIR', False)
+            self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'NDVI_MAPIR_normalized', False)
             self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'NDVI', True)
             self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'NDVI_Threshold', True)
             self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'TGI', False)
             self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'TGI_Threshold', False)
+        elif (self.parent.inputMode == "Unknown"):
+            self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'NDVI_MAPIR', True)
+            self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'NDVI_MAPIR_normalized', True)
+            self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'NDVI', True)
+            self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'NDVI_Threshold', True)
+            self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'TGI', True)
+            self.parent.setEnabledCombobxItem(self.buttons.comboBoxATabScripts, 'TGI_Threshold', True)
 
         self.parent.inputModeChanged()
 

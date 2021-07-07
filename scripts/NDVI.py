@@ -26,6 +26,8 @@ cdict = [(.2, .4, 0), (.2, .4, 0), (.94, .83, 0), (.286, .14, .008), (.56, .019,
 cmap = mpl.colors.LinearSegmentedColormap.from_list(name='my_colormap', colors=cdict, N=1000)
 
 out = cmap(gray)
+#colomapping generates RGBA, only need RGB
+out = out[...,:3]
 
 #output = Array.fromNumPy(out, TargetDim=pdim)
 output = out

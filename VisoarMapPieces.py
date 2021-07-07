@@ -15,13 +15,14 @@ from PyQt5.QtWidgets                  import QWidget, QMessageBox, QGroupBox, QS
 from PyQt5.QtWidgets                  import QTableWidget,QTableWidgetItem
 
 from gradient import *
+import pyqtgraph
 
 class ViSOARGradientMapViewWidget(QDialog):
-    def __init__(self, parent,viewer,MODE):
+    def __init__(self, parent,viewer ):
         super(QDialog, self).__init__(parent)
         self.parent = parent
         self.viewer =viewer
-        self.MODE = MODE
+        #self.MODE = MODE
         self.setGeometry(30, 30, 600, 400)
 
         self.gradient = Gradient()
@@ -61,6 +62,9 @@ class ViSOARGradientMapViewWidget(QDialog):
 
         # self.mapPiecesLayout.addWidget(self.timeline)
 
+        self.imv = pyqtgraph.ImageView()
+
+        self.mapPiecesLayout.addWidget(self.imv)
         self.setLayout(self.mapPiecesLayout)
 
         # self.pen =  QPen( QColor(0, 0, 0))  # set lineColor
@@ -68,13 +72,27 @@ class ViSOARGradientMapViewWidget(QDialog):
         # self.brush =  QBrush( QColor(255, 255, 255, 255))  # set fillColor
         # self.polygon = self.createPoly(8, 150, 0)  # polygon with n points, radius, angle of the first point
 
-
     def applyNewScript(self):
-        MODE="NDVI"
-        if (MODE == "RGB"):
+        MODE = self.parent.comboBoxATab.currentText()
+        if MODE == 'R G B':
             script = self.gradient.makeNewScriptRGB()
+        elif MODE == 'R NIR (Sentera NDVI)':
+            script = self.gradient.makeNewScriptMAPIR()
+            print('Error applyNewScript: NOT YET IMPLEMENTED: Sentera script')
+        elif MODE == 'MapIR only (OCNIR)':
+            script = self.gradient.makeNewScriptMAPIR()
+        elif MODE == 'RedEdge NIR (Sentera NDRE)':
+            script = self.gradient.makeNewScriptMAPIR()
+            print('Error applyNewScript: NOT YET IMPLEMENTED:RedEdge script')
         else:
-            script = self.gradient.makeNewScriptAgrocam()
+            script = self.gradient.makeNewScriptRGB()
+        #MODE="NDVI"
+        # if (MODE == "RGB"):
+        #     script = self.gradient.makeNewScriptRGB()
+        # elif (MODE == 'AGROCAM'):
+        #     script = self.gradient.makeNewScriptAgrocam()
+        # else:
+        #     script = self.gradient.makeNewScriptMAPIR()
 
         self.parent.runThisScript(script, self.viewer)
 

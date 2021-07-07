@@ -42,6 +42,48 @@ import visus_google
 DEBUG = False
 FOR_WESTON = True
 
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
+import logging
+from io import StringIO
+import smtplib
+def send_email_crash_notification(crash_message, fileToAttach=None):
+    email = 'dronepilot@visus.net'
+    send_to_email = 'amy@visus.net'
+    subject = 'ViSOAR Ag Explorer Python application CRASHED!'
+    msg = MIMEMultipart()
+    msg['From'] = email
+    msg['To'] = send_to_email
+    msg['Subject'] = subject
+    message = crash_message
+    msg.attach(MIMEText(message, 'plain'))
+
+    if fileToAttach:
+        # open the file to be sent
+        filename = fileToAttach
+        attachment = open(fileToAttach, "rb")
+
+        # instance of MIMEBase and named as p
+        p = MIMEBase('application', 'octet-stream')
+
+        # To change the payload into encoded form
+        p.set_payload((attachment).read())
+
+        # encode into base64
+        encoders.encode_base64(p)
+
+        p.add_header('Content-Disposition', "attachment; filename= %s" % filename)
+
+        # attach the instance 'p' to instance 'msg'
+        msg.attach(p)
+
+    # Send the message via SMTP server.
+    send_message_to_google(msg, email, False)
+    print('email sent to ' + str(send_to_email))
+    return True
+
 
 class VisoarImageMailer(QDialog):
 

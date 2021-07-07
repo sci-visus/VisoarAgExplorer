@@ -128,7 +128,7 @@ class VisoarAgExplorerBatchProcessWidget(ViSOARUIWidget):
                     '\t\t<createdAt>'+todayFormated+'</createdAt>\n' +
                     '\t\t<updatedAt>'+todayFormated+'</updatedAt>\n' +
                     '\t</project>\n' +
-                    '</data>\n')
+                    '</data>\n\n\n')
             f.close()
 
         if self.ADD_VIEWER:
@@ -315,7 +315,7 @@ class VisoarAgExplorerBatchProcessWidget(ViSOARUIWidget):
         # implement next button on stacked view, s = current tab, need to move to what comes next
         if s == 'AfterAskSensor':
             print('AfterAskSensor')
-            if self.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam':
+            if (self.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam') or (self.tabAskSensor.comboBoxNewTab.currentText() == 'MAPIR and RGB'):
                 self.tabs.setCurrentIndex(self.ASKSOURCERGBNDVI_TAB)
             else:
                 self.tabs.setCurrentIndex(self.ASKSOURCE_TAB)
@@ -323,7 +323,7 @@ class VisoarAgExplorerBatchProcessWidget(ViSOARUIWidget):
             self.tabAskDest.destNametextbox.setText(self.dir_of_result)
         elif s == 'AfterAskSource':
             self.dir_of_rgb_source =  self.tabAskSource.curDir2.text()
-            if self.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam':
+            if self.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam' or (self.tabAskSensor.comboBoxNewTab.currentText() == 'MAPIR and RGB'):
                 self.dir_of_nir_source = self.tabAskSource.curDir2.text()
                 print('AfterAskSource')
                 if (not self.dir_of_rgb_source.strip()) or (not self.dir_of_nir_source ):
@@ -358,7 +358,7 @@ class VisoarAgExplorerBatchProcessWidget(ViSOARUIWidget):
             self.tabs.setCurrentIndex(self.LOG_TAB)
             self.update()
 
-            if self.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam':
+            if self.tabAskSensor.comboBoxNewTab.currentText() == 'Agrocam' or (self.tabAskSensor.comboBoxNewTab.currentText() == 'MAPIR and RGB'):
                 self.dir_of_result = self.destNametextbox
                 # self.projectInfo.projDir = self.projectInfo.srcDir
                 # self.projectInfo.projDirNDVI = self.projectInfo.srcDirNDVI
@@ -398,9 +398,20 @@ class VisoarAgExplorerBatchProcessWidget(ViSOARUIWidget):
                                                              self.projectInfo.projDir,
                                                              self.projectInfo.srcDir,
                                                              self.projectInfo.projDirNDVI,
-                                                             self.projectInfo.srcDirNDVI)
+                                                             self.projectInfo.srcDirNDVI, sensorMode=self.inputMode)
                 else:
                     print(self.projectInfo.cache_dir+' MIDX already exists..')
+                    buttonReply = QMessageBox.question(self, 'Already Exists',
+                                                       "MIDX already exists, would you like to restitch it?",
+                                                       QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+                    if buttonReply == QMessageBox.Yes:
+                        self.setAndRunSlam(self.projectInfo.srcDir, cache_dir=self.projectInfo.cache_dir)
+
+                        self.visoarUserLibraryData.createProject(self.projectInfo.projName,
+                                                                 self.projectInfo.projDir,
+                                                                 self.projectInfo.srcDir,
+                                                                 self.projectInfo.projDirNDVI,
+                                                                 self.projectInfo.srcDirNDVI, sensorMode=self.inputMode)
 
         #Load Load screen and enable viewer
         self.tabViewer.buttons.comboBoxATab.setCurrentIndex(self.tabAskSensor.comboBoxNewTab.currentIndex())
@@ -423,6 +434,7 @@ class VisoarAgExplorerBatchProcessWidget(ViSOARUIWidget):
                           physic_box=None):
         self.slam.setImageDirectory(image_dir,  cache_dir= cache_dir, telemetry=telemetry, plane=plane, calibration=calibration, physic_box=physic_box)
         retSlamSetup = self.slam_widget.run(self.slam)
+        self.slam_widget.onRunClicked()
         retSlamRan = self.slam_widget.slam.run()
         self.setUpRClone()
 

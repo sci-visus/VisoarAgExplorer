@@ -12,24 +12,36 @@ VisoarAgExplorer Python Interface
 - For Windows:   TBP
 - For Mac: TBP
 
+- Need to address how to install necessary parts from MapIR Calibration
+  
+  -- Currently that means issues with exiftool.exe
+  
 #Install for Windows:
 
 ```
 python -m pip install  --upgrade pip
+
+pip install  -r MAPIR_CameraController/requirements.txt 
+pip install   -r requirements.txt 
+
 python -m pip install   --no-cache-dir --upgrade --force-reinstall OpenVisus
 python -m OpenVisus configure  
 
-python -m pip install  google-api-python-client oauth2client PyDrive
+python -m pip install  google-api-python-client oauth2client PyDrive opencv-contrib-python
 ```
 
 #Install OpenVisus y package:
 
 ```
 python -m pip install --user --upgrade pip
+
+pip install --user  -r MAPIR_CameraController/requirements.txt 
+pip install --user  -r requirements.txt 
+
 python -m pip install  --user --no-cache-dir --upgrade --force-reinstall OpenVisus
 python -m OpenVisus configure  --user 
 
-python -m pip install --user google-api-python-client oauth2client PyDrive
+python -m pip install --user google-api-python-client oauth2client PyDrive opencv-contrib-python
 ```
     
 For Windows only. You need to install Visual Studio redistributable 
@@ -62,7 +74,9 @@ Install helper libraries:
 `cd` to directory where this code lives:
 
 ```
+pip install --user  -r MAPIR_CameraController/requirements.txt 
 pip install --user  -r requirements.txt 
+
 ```
 
 
@@ -137,3 +151,27 @@ brew install exiftool zbar
 # Visus_google.py and other secrets
 Because we are enabling uploading to google, one needs a copy of the certificate validation infomation
 Ask the developers for a copy of the files
+
+#If have trouble with PyQT:
+``` 
+
+ 
+python -m pip uninstall PyQtWebEngine
+python -m pip uninstall PyQt5 
+python -m pip uninstall PyQt5-sip 
+python -m pip install PyQt5  
+python -m pip install PyQt5-sip  
+python -m pip install PyQtWebEngine
+python -m pip install PyQt5  
+python -m pip install PyQt5-sip  
+python -m pip install PyQtWebEngine
+python -m pip install --upgrade OpenVisus
+python -m OpenVisus configure 
+
+```
+
+#If have error:
+```error Microsoft Visual C++ 14.0 is required```
+
+ see
+https://www.scivision.dev/python-windows-visual-c-14-required

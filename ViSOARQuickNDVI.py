@@ -39,7 +39,8 @@ class ViSOARNDVIImageWidget(QWidget):
 
 
         self.main_layout.addLayout(self.hlayout([
-            self.createButton('NDVI (for NIR ONLY)', callback=self.computeNDVIAgrocam),
+            self.createButton('NDVI (MAPIR)', callback=self.computeNDVIMAPIR),
+            self.createButton('NDVI (AGROCAM)', callback=self.computeNDVIAgrocam),
             self.createButton('TGI (for RGB )', callback=self.computeTGI),
             self.createButton('Email Images', callback=self.mailScreenshot),
         ]))
@@ -166,6 +167,31 @@ class ViSOARNDVIImageWidget(QWidget):
             NDVI_d[NDVI_d == 0] = 0.01
             NDVI = NDVI_u / NDVI_d
             NDVI = (1+NDVI)/2
+
+            #NDVI = cv2.normalize(NDVI, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)  # normalize data [0,1]
+            #gray = numpy.float32(NDVI)
+            gray = NDVI
+
+            out = self.applyMapping(gray)
+            self.setOutImage(out)
+            self.update()
+
+    def computeNDVIMAPIR(self):
+        self.MODE = 'NDVI'
+
+        img = self.readImgFromDir( )
+
+
+        if img is not None:
+            orange = img[:, :, 0]
+            cyan = img[:, :, 1]
+            NIR = img[:, :, 2]
+
+            NDVI_u = (NIR - orange)
+            NDVI_d = (NIR + orange)
+            NDVI_d[NDVI_d == 0] = 0.01
+            NDVI = NDVI_u / NDVI_d
+            NDVI = (1.0+NDVI)/2.0
 
             #NDVI = cv2.normalize(NDVI, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)  # normalize data [0,1]
             #gray = numpy.float32(NDVI)

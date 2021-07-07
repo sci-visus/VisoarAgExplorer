@@ -135,7 +135,23 @@ class VisoarMoveDataWidget(QWidget):
 		self.buttons.append(button)		
 		
 		return widget
-		
+
+	def setBackUpDir(self):
+		dir = str(
+			QFileDialog.getExistingDirectory(self, "Select Parent Directory"))
+		self.backup_dir.setText(dir)
+		self.update()
+
+	def setLocalDir(self):
+		localDir = str(
+			QFileDialog.getExistingDirectory(self, "Select Parent Directory"))
+		self.src_dir.setText(localDir)
+		if ("mapir" in localDir.lower()  ):
+			self.bucket_name.setText("/visoar_files_mapir")
+		else:
+			self.bucket_name.setText("/visoar_files_rgb")
+
+		self.update()
 	# createCopyFilesToGoogleWidget
 	def createCopyFilesToGoogleWidget(self):
 		
@@ -146,27 +162,31 @@ class VisoarMoveDataWidget(QWidget):
 		widget.setLayout(sub)
 		
 		sub.addWidget(QLabel("Local directory"),0,0)
-		src_dir=QLineEdit()
-		src_dir.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-		src_dir.setText(LOCAL_DIR)
+		self.src_dir=QLineEdit()
+		self.srcDirAsk= QPushButton(". . .")
+		self.srcDirAsk.clicked.connect(self.setLocalDir)
+		self.src_dir.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+		self.src_dir.setText(LOCAL_DIR)
 		clean=QCheckBox("Clean")
 		clean.setChecked(False)
-		sub.addLayout(self.hlayout([src_dir,clean]),0,1)
+		sub.addLayout(self.hlayout([self.src_dir,self.srcDirAsk,clean]),0,1)
 		
 		sub.addWidget(QLabel("Google Destination"),1,0)
-		bucket_name=QLineEdit()
-		bucket_name.setText("/visoar_files")
-		sub.addWidget(bucket_name,1,1)
+		self.bucket_name=QLineEdit()
+		self.bucket_name.setText("/visoar_files")
+		sub.addWidget(self.bucket_name,1,1)
 		
 		sub.addWidget(QLabel("Backup"),2,0)
-		backup_dir=QLineEdit()
-		backup_dir.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-		backup_dir.setText("{}/visoar_files".format(drives[-1]))
+		self.backup_dir=QLineEdit()
+		self.backup_dir.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+		self.backup_dir.setText("{}/visoar_files".format(drives[-1]))
+		self.backup_dirAsk = QPushButton(". . .")
+		self.backup_dirAsk.clicked.connect(self.setBackUpDir)
 		backup_enabled=QCheckBox("Enabled")
-		backup_enabled.setChecked(True)
-		backup_enabled.toggled.connect(lambda: backup_dir.setEnabled(backup_enabled.isChecked()))  
+		backup_enabled.setChecked(False)
+		backup_enabled.toggled.connect(lambda: self.backup_dir.setEnabled(backup_enabled.isChecked()))
 		
-		sub.addLayout(self.hlayout([backup_dir,backup_enabled]),2,1)
+		sub.addLayout(self.hlayout([self.backup_dir,self.backup_dirAsk,backup_enabled]),2,1)
 		
 		# createCopyFilesToGoogleWidget
 		def onRun(src_dir, bucket_name, backup_dir, clean):
@@ -190,8 +210,8 @@ class VisoarMoveDataWidget(QWidget):
 			self.runSyncInBackground(sync)	
 					
 		button=self.createButton('Run',callback=lambda : onRun(
-			src_dir.text(), 
-			bucket_name.text(), 
+			self.src_dir.text(),
+			self.bucket_name.text(),
 			backup_dir.text() if backup_enabled.isChecked() else None,  
 			clean.isChecked()))
 			

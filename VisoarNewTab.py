@@ -14,6 +14,7 @@ from PyQt5.QtWidgets                  import QWidget, QMessageBox, QGroupBox, QS
 
 from PyQt5.QtWidgets                  import QTableWidget,QTableWidgetItem
 
+from MapIR_ImageCalibration import *
 
 import xml.etree.ElementTree as ET
 import xml.dom.minidom
@@ -25,7 +26,7 @@ def addLogo(app_dir):
     logo.setStyleSheet(NOBACKGROUND_PUSH_BUTTON)
     ##-- self.logo.setStyleSheet("QPushButton {border-style: outset; border-width: 0px;color:#ffffff}");
     logo.setIcon(QIcon(os.path.join(app_dir, 'icons', 'visoar_logo.png')))
-    logo.setIconSize(QSize(480, 214))
+    logo.setIconSize(QSize(240, 107))
     return logo
 
 class VisoarSlamSettingsDefault(QDialog):
@@ -130,11 +131,14 @@ class VisoarAskSensor(QWidget):
 
         self.comboBoxNewTab = QComboBox(self)
         self.comboBoxNewTab.addItem("R G B")
-        self.comboBoxNewTab.addItem("O C NIR (MapIR)")
+        self.comboBoxNewTab.addItem("MAPIR and RGB")
         self.comboBoxNewTab.addItem("Agrocam")
+        self.comboBoxNewTab.addItem("MapIR only (OCNIR)")
         self.comboBoxNewTab.addItem("R G NIR")
         self.comboBoxNewTab.addItem("R NIR (Sentera NDVI)")
         self.comboBoxNewTab.addItem("RedEdge NIR (Sentera NDRE)")
+        self.comboBoxNewTab.addItem("Unknown")
+
         self.comboBoxNewTab.setStyleSheet(MY_COMBOX)
         self.comboBoxNewTab.currentIndexChanged.connect(lambda: self.parent.setSensor(self.comboBoxNewTab.currentText()))
         self.comboBoxNewTab.setFixedSize(100, 40)
@@ -205,7 +209,7 @@ class VisoarAskSource(QWidget):
         #self.parent.projectInfo.projDir = ''  # os.getcwd()
         #self.parent.projectInfo.srcDir = ''  # os.getcwd()
         self.curDir = QLabel('Image Directory: ')
-        self.curDir2 = QLabel(self.parent.projectInfo.projDir)
+        self.curDir2 = QLineEdit(self.parent.projectInfo.projDir)
         self.curDir2.setStyleSheet("""font-family: Roboto;font-style: normal;font-size: 14pt; padding:20px """)
         self.curDir.resize(280, 40)
 
@@ -223,7 +227,7 @@ class VisoarAskSource(QWidget):
         self.createErrorLabel.setStyleSheet("""color: #59040c""")
         self.sublayoutFormInputDir.addWidget(self.createErrorLabel)
 
-        self.sublayout.addLayout(self.sublayoutFormInputDir)
+
 
 
         self.buttons.home = QPushButton('', self)
@@ -249,6 +253,21 @@ class VisoarAskSource(QWidget):
         self.sublayoutLastRow.addStretch(100)
         self.sublayoutLastRow.addWidget(self.buttons.nextBtn, alignment=Qt.AlignRight)
         self.sublayout.addStretch(True)
+
+        print(self.parent.tabAskSensor.comboBoxNewTab.currentText() )
+        #if sensor is MapIR, then ask for location of target
+        #if (self.parent.tabAskSensor.comboBoxNewTab.currentText() == 'MAPIR and RGB' or self.parent.tabAskSensor.comboBoxNewTab.currentText() == "MapIR only (OCNIR)"):
+
+        self.mapirCalibrationWidget =   ViSOARMapIRCalibrationWidget(self)
+        # w = QWindow.fromWinId(self.mapirCalibrationWindow.get_xid())
+        # self.mapirCalibrationWidget = QWidget.createWindowContainer(self.mapirCalibrationWindow, self)
+        self.sublayout.addWidget(self.mapirCalibrationWidget)
+        self.mapirCalibrationWidget.setHidden(True)
+        self.mapirCalibrationWidget.on_hide()
+
+        self.sublayout.addLayout(self.sublayoutFormInputDir)
+        self.sublayout.addStretch(True)
+        self.sublayout.addLayout(self.sublayoutLastRow)
         self.sublayout.addLayout(self.sublayoutLastRow)
 
         self.setLayout(self.sublayout)
@@ -365,7 +384,7 @@ class VisoarAskSourceRGBNDVI(QWidget):
 
 
     def next(self):
-        if (self.OPT_FOR_ACCEPT_ALL):
+        if (not self.OPT_FOR_ACCEPT_ALL):
             self.matchWidget.renameFilesRGBNDVI(  self.parent.projectInfo.srcDir, self.parent.projectInfo.srcDirNDVI)
         self.parent.next("AfterAskSource")
 
@@ -628,10 +647,11 @@ class VisoarNewTabWidget(QWidget):
 
         self.comboBoxNewTab = QComboBox(self)
         self.comboBoxNewTab.addItem("R G B")
-        self.comboBoxNewTab.addItem("O C NIR (MapIR)")
+        self.comboBoxNewTab.addItem("MapIR only (OCNIR)")
         self.comboBoxNewTab.addItem("R G NIR")
         self.comboBoxNewTab.addItem("R NIR (Sentera NDVI)")
         self.comboBoxNewTab.addItem("RedEdge NIR (Sentera NDRE)")
+        self.comboBoxNewTab.addItem("Unknown")
         self.comboBoxNewTab.setStyleSheet(MY_COMBOX)
         self.comboBoxNewTab.currentIndexChanged.connect(self.inputModeChangedNewTab)
         self.comboBoxNewTab.setFixedSize(100, 40)
@@ -882,12 +902,22 @@ class VisoarNewTabWidget(QWidget):
 
             if self.DEBUG:
                 print('DEBUG: createProject: read userFileHistory')
-            self.parent.visoarUserLibraryData.createProject(self.parent.projectInfo.projName,self.parent.projectInfo.projDir,self.parent.projectInfo.srcDir,self.parent.projectInfo.projDirNDVI,self.parent.projectInfo.srcDirNDVI)
+            self.parent.visoarUserLibraryData.createProject(self.parent.projectInfo.projName,self.parent.projectInfo.projDir,self.parent.projectInfo.srcDir,self.parent.projectInfo.projDirNDVI,self.parent.projectInfo.srcDirNDVI, sensorMode=self.parent.inputMode)
             print('Change tabs')
-            # Check to see if midx files exists, if it does, go to Analytics
             if self.stitchAlreadyDone():
-                self.parent.enableViewStitching()
-                self.parent.goToAnalyticsTab()
+                # Check to see if midx files exists, if it does, go to Analytics
+                buttonReply = QMessageBox.question(self, 'Already Exists',
+                                                   "MIDX already exists, would you like to restitch it?",
+                                                   QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+                if buttonReply == QMessageBox.Yes:
+                    self.parent.enableViewStitching()
+                    self.parent.changeViewStitching()
+                    print("Note to self, taking out slam default changes")
+                    #                self.parent.slam_widget.setDefaults(generate_bbox=self.parent.generate_bbox,color_matching=self.parent.color_matching,blending_exp=self.parent.blending_exp)
+                    self.parent.startViSUSSLAM()
+                else:
+                    self.parent.enableViewStitching()
+                    self.parent.goToAnalyticsTab()
             else:
                 self.parent.enableViewStitching()
                 self.parent.changeViewStitching()

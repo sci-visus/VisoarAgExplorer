@@ -241,6 +241,7 @@ QMessageBox {
 QMessageBox QLabel {
     color: #045951;
     background-color: #ffffff;
+    min-width: 800px;
 }
 
 QRadioButton {
@@ -402,18 +403,19 @@ font-style: normal;
 font-size: 14pt; 
 background-color: #ffffff; 
 color: #045951;
+margin: 5px;
 QMessageBox QLabel {
     color: #045951;
     background-color: white; 
 }
 QMessageBox QPushButton {
-    max-width:300px;
     border-radius: 7;
     border-style: outset; 
     border-width: 1px;
     color: #045951;
     background-color: #ffffff; 
     padding: 10px 10px 10px 10px;
+    margin: 5px;
 }
 QMessageBox::question QLabel,
 QMessageBox::warning QLabel,
@@ -433,7 +435,6 @@ QLabel {
     font: 20pt Roboto
 }
 QPushButton {
-    width:250px;
     border-radius: 7;
     border-style: outset;
     border-width: 0px;

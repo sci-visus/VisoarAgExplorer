@@ -86,23 +86,21 @@ blue = img[:, :, 2]
 scaleRed = (0.39 * red)
 scaleBlue = (.61 * blue)
 TGI = green - scaleRed - scaleBlue
-#TGI = (TGI+1.0)/2.0
-TGI = cv2.normalize(TGI, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)  # normalize data [0,1]
+TGI = (TGI+1.0)/2.0
+#TGI = cv2.normalize(TGI, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)  # normalize data [0,1]
 
 gray = numpy.float32(TGI)
 """
         scriptEnd = """
-cmap = matplotlib.colors.LinearSegmentedColormap.from_list(name='my_colormap', colors=cdict, N=1000)
-
-cmap2 = matplotlib.colors.LinearSegmentedColormap.from_list("mycmap", list(zip(nodes, cdict)))
-out = cmap2(TGI)
+cmap = matplotlib.colors.LinearSegmentedColormap.from_list("mycmap", list(zip(nodes, cdict)))
+out = cmap(TGI)
 #out = cmap(gray)
 out = cv2.cvtColor(numpy.float32(out), cv2.COLOR_BGR2RGB)
 out = cv2.cvtColor(numpy.float32(out), cv2.COLOR_RGB2BGR)
 output = out.astype(numpy.float32)
 """.strip()
-        print(script + colorstr+"\n"+ nodesStr+"\n" + scriptEnd)
-        return script + colorstr+"\n" + nodesStr+"\n" + scriptEnd
+        print(script + "\n"+colorstr+"\n"+ nodesStr+"\n" + scriptEnd)
+        return script+ "\n"+ colorstr+"\n" + nodesStr+"\n" + scriptEnd
 
     def makeNewScriptAgrocam(self):
         nodes, nodesStr, c1, colorstr = self.getColors()
@@ -117,6 +115,7 @@ blue = img[:, :, 2]
 
 NDVI_u = (NIR - blue)
 NDVI_d = (NIR + blue)
+NDVI_d[NDVI_d == 0] = 0.01
 NDVI = NDVI_u / NDVI_d
 gray = numpy.float32(NDVI)
 """
@@ -130,8 +129,39 @@ out = cv2.cvtColor(numpy.float32(out), cv2.COLOR_BGR2RGB)
 out = cv2.cvtColor(numpy.float32(out), cv2.COLOR_RGB2BGR)
 output = out.astype(numpy.float32)
 """.strip()
-        print(script + colorstr + "\n" + nodesStr + "\n" + scriptEnd)
-        return script + colorstr + "\n" + nodesStr + "\n" + scriptEnd
+        print(script + "\n"+colorstr + "\n" + nodesStr + "\n" + scriptEnd)
+        return script + "\n"+colorstr + "\n" + nodesStr + "\n" + scriptEnd
+
+    def makeNewScriptMAPIR(self):
+            nodes, nodesStr, c1, colorstr = self.getColors()
+            print(colorstr)
+            script = """
+import cv2, numpy
+import matplotlib  
+img = input.astype(numpy.float32)
+orange = img[:, :, 0]
+cyan = img[:, :, 1]
+NIR = img[:, :, 2]
+
+NDVI_u = (NIR - orange)
+NDVI_d = (NIR + orange)
+NDVI_d[NDVI_d == 0] = 0.01
+NDVI = NDVI_u / NDVI_d
+NDVI = cv2.normalize(NDVI, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)  # normalize data [0,1]
+gray = numpy.float32(NDVI)
+    """
+            scriptEnd = """
+cmap = matplotlib.colors.LinearSegmentedColormap.from_list(name='my_colormap', colors=cdict, N=1000)
+
+cmap2 = matplotlib.colors.LinearSegmentedColormap.from_list("mycmap", list(zip(nodes, cdict)))
+#out = cmap2(NDVI)
+out = cmap2(gray)
+out = cv2.cvtColor(numpy.float32(out), cv2.COLOR_BGR2RGB)
+out = cv2.cvtColor(numpy.float32(out), cv2.COLOR_RGB2BGR)
+output = out.astype(numpy.float32)
+    """.strip()
+            print(script + "\n"+colorstr + "\n" + nodesStr + "\n" + scriptEnd)
+            return script + "\n"+colorstr + "\n" + nodesStr + "\n" + scriptEnd
 
     def paintEvent(self, e):
         painter = QtGui.QPainter(self)
@@ -240,6 +270,7 @@ output = out.astype(numpy.float32)
             stop, _ = self._gradient[n]
             self._gradient[n] = stop, color
             self.gradientChanged.emit()
+            self.show()
             self.update()
 
     def chooseColorAtPosition(self, n, current_color=None):

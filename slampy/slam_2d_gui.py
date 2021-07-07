@@ -19,6 +19,7 @@ class GuiRedirectLog(QtCore.QObject):
 	# constructor
 	def __init__(self, filename="~visusslam.log", ):
 		super().__init__()
+		print('Writing log to: {0}/{1}'.format(os.getcwd(), filename))
 		self.log=open(filename,'w')
 		self.callback=None
 		self.messages=[]
@@ -89,7 +90,6 @@ class Slam2DWidget(QWidget):
 
 	# createGui
 	def createGui(self):
-		
 		# create widgets
 		self.viewer=Viewer()
 		self.viewer.setMinimal()
@@ -207,7 +207,7 @@ class Slam2DWidget(QWidget):
 			
 		if self.show_annotations:
 			db=self.viewer.getDataset()
-			db.setEnableAnnotations(False)
+			db.setEnableAnnotations(False)  #This crashes on my mac
 
 		# focus on slam dataset (not google world)
 		if self.zoom_on_dataset:
