@@ -387,7 +387,10 @@ class ImageProvider:
 
 	# guessPlane
 	def guessPlane(self):
-		return 0.0
+		
+		
+		# return 0.0
+		
 		img=self.images[0]
 
 		# could be I have some images on the floor (i.e. panels)
