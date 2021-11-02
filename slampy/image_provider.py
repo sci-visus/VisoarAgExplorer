@@ -699,9 +699,9 @@ class ImageProvider:
 		return [cv2.remap(single, self.xmap, self.ymap, cv2.INTER_LINEAR) for single in multi]
 
 	# alignImage
-	def alignImage(self,multi):
+	def alignImage(self, multi, capture):
 		if self.multi_sensor_alignment is None: return multi
-		return self.multi_sensor_alignment.doAlign(multi)
+		return self.multi_sensor_alignment.doAlign(multi, capture)
 
 	# mirrorY
 	def mirrorY(self,multi):

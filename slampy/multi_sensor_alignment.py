@@ -144,9 +144,15 @@ class MultiSensorAlignment:
 			open(filename,"wb"))	
 
 	# warpPerspective
-	def warpPerspective(self,single,C):
+	def warpPerspective(self, single, C, capture_warp_matrices = None):
 		W,H=self.cropped_dimensions[2],self.cropped_dimensions[3]
-		return cv2.warpPerspective(single, self.warp_matrices[C], (W,H), flags=cv2.INTER_LANCZOS4)
+
+		if capture_warp_matrices is None:
+			return cv2.warpPerspective(single, self.warp_matrices[C], (W,H), flags=cv2.INTER_LANCZOS4)
+		else: 
+			return cv2.warpPerspective(single, capture_warp_matrices[C], (W,H), flags=cv2.INTER_LANCZOS4 + cv2.WARP_INVERSE_MAP)
+		
+
 
 	# debugAlignment
 	def debugAlignment(self,multi,filename_template):
@@ -158,6 +164,20 @@ class MultiSensorAlignment:
 					InterleaveChannels([self.warpPerspective(multi[I], I),self.warpPerspective(multi[J], J)]))	
 
 	# doAlign
-	def doAlign(self,  multi):
-		return [self.warpPerspective(multi[C],C) for C in range(len(multi))]
+	def doAlign(self,  multi, capture = None):
+		
+		if capture is None:
+			return [
+					self.warpPerspective(multi[C], C)
+					for C in range(len(multi))
+			]
+		else:
+			# if capture is not None, it's a micasense imagee
+			# we'll want to use the special micasense warp matrices
+			capture_warp_matrices = capture.get_warp_matrices()
+
+			return [
+					self.warpPerspective(multi[C], C, capture_warp_matrices) 
+					for C in range(len(multi))
+			]
 

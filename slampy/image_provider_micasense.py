@@ -13,6 +13,7 @@ import micasense.image
 import micasense.imageutils
 import micasense.panel 
 import micasense.capture 
+import numpy as np
 
 from slampy.image_provider import *
 
@@ -36,8 +37,10 @@ class ImageProviderRedEdge(ImageProvider):
 			return ""
 
 		# todo _6.tif  LWIR _6 which has a different resolution 
-		if (v[-1])=="6":
-			return ""
+		# we're resizing the thermal to match the other images properly now, 
+		# so we can include it 
+		# if (v[-1])=="6":
+		# 	return ""
 
 		return v[-2]
 	
@@ -92,6 +95,6 @@ class ImageProviderRedEdge(ImageProvider):
 		multi = self.mirrorY(multi)
 		multi = self.swapRedAndBlue(multi)
 		multi = self.undistortImage(multi)
-		multi = self.alignImage(multi)
+		multi = self.alignImage(multi, capture)
 		multi=[single for single in multi if single.shape==multi[0].shape]
 		return multi
