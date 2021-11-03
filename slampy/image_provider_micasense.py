@@ -95,6 +95,8 @@ class ImageProviderRedEdge(ImageProvider):
 		multi = self.mirrorY(multi)
 		multi = self.swapRedAndBlue(multi)
 		multi = self.undistortImage(multi)
+
 		multi = self.alignImage(multi, capture)
+
 		multi=[single for single in multi if single.shape==multi[0].shape]
 		return multi

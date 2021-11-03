@@ -203,6 +203,7 @@ class Slam2D(Slam):
 		array=Array.fromNumPy(self.generateImage(self.provider.images[0]),TargetDim=2) 
 		self.width=array.getWidth()
 		self.height=array.getHeight()
+
 		self.dtype=array.dtype
 		self.calibration=self.provider.calibration
 		self.physic_box=physic_box
@@ -434,8 +435,15 @@ class Slam2D(Slam):
 			cstring(self.calibration.f),cstring(self.calibration.cx),cstring(self.calibration.cy)))
 		lines.append("")
 
-		# this is the default field
-		lines.append("<field name='blend'><code>output=voronoi()</code></field>")
+		if (isinstance(self.provider, ImageProviderRedEdge)):
+			# if we're using a micasense camera, create a field for each band
+			for n in range(0, len(self.images[0].filenames)):
+				lines.append(f"<field name='band{n}'><code>output=voronoi()[{n}]</code></field>")
+			
+		else: 
+			# this is the default field
+			lines.append("<field name='blend'><code>output=voronoi()</code></field>")
+
 		lines.append("")
 
 		# how to go from logic_box (i.e. pixel) -> physic box ([0,1]*[0,1])
@@ -608,6 +616,8 @@ class Slam2D(Slam):
 				else:
 					color_matching_ref = full
 
+			dataset_start = time.time()
+
 			dataset = LoadDataset(idx_filename)
 			
 			# slow: first write then compress
@@ -617,6 +627,10 @@ class Slam2D(Slam):
 			# fast: compress in-place
 			comp=["lz4"]#,"jpg-JPEG_QUALITYGOOD-JPEG_SUBSAMPLING_420-JPEG_OPTIMIZE" ,"jpg-JPEG_QUALITYGOOD-JPEG_SUBSAMPLING_420-JPEG_OPTIMIZE","jpg-JPEG_QUALITYGOOD-JPEG_SUBSAMPLING_420-JPEG_OPTIMIZE"]
 			dataset.compressDataset(comp,Array.fromNumPy(full,TargetDim=2, bShareMem=True)) # write zipped full 
+
+			dataset_end = time.time()
+
+			print(f"dataset write time in ms: {(dataset_end - dataset_start) * 1000}")
 
 			energy=ConvertImageToGrayScale(full)
 			energy=ResizeImage(energy, self.energy_size)
