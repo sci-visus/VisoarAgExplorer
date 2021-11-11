@@ -202,12 +202,12 @@ class MyViewerWidget(QWidget):
         self.viewer_subwin = sip.wrapinstance(FromCppQtWidget(self.viewer.c_ptr()), QtWidgets.QMainWindow)
 
     def addScriptActionCombobox(self, cbox):
-
-        for item in self.parent.scriptNames:
-            cbox.addItem(item)
-        cbox.setToolTip('Available scripts')
-        cbox.setStyleSheet(MY_COMBOX)
-        cbox.currentIndexChanged.connect(partial(self.loadScript, cbox))
+        if (self.parent.scriptNames):
+            for item in self.parent.scriptNames:
+                cbox.addItem(item)
+            cbox.setToolTip('Available scripts')
+            cbox.setStyleSheet(MY_COMBOX)
+            cbox.currentIndexChanged.connect(partial(self.loadScript, cbox))
 
     def loadScript(self, cbox):
         print('FUNCTION  Load Script...')

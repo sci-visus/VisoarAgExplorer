@@ -1,37 +1,4 @@
-import sys, os
-
-import xml.etree.ElementTree as ET
-import xml.dom.minidom
-
-from functools import partial
-
-
-from OpenVisus                        import *
-from OpenVisus.gui                    import *
-
-
-
-#from VisusGuiPy                       import *
-#from VisusAppKitPy                    import *
-#from OpenVisus.PyUtils                import *
-
-##from Slam.GuiUtils                    import *
-#from Slam.GoogleMaps                  import *
-#from Slam.ImageProvider               import *
-#from Slam.ExtractKeyPoints            import *
-#from Slam.FindMatches                 import *
-#from Slam.GuiUtils                    import *
-##from Slam.Slam2D                   	  import Slam2D
-
-
-from PyQt5.QtGui 					  import QFont
-from PyQt5.QtCore                     import QUrl, Qt, QSize, QDir, QRect
-from PyQt5.QtWidgets                  import QApplication, QHBoxLayout, QLineEdit,QLabel, QLineEdit, QTextEdit, QGridLayout
-from PyQt5.QtWidgets                  import QMainWindow, QPushButton, QVBoxLayout,QSplashScreen,QProxyStyle, QStyle, QAbstractButton
-from PyQt5.QtWidgets                  import QWidget
-from PyQt5.QtWebEngineWidgets         import QWebEngineView	
-from PyQt5.QtWidgets                  import QTableWidget,QTableWidgetItem
-
+from VisoarSettings import *
 
 #from slam2dWidget 				import *
 
@@ -40,6 +7,8 @@ from lookAndFeel  				import *
 
 from pathlib import Path
 from datetime import datetime
+from ViSOARUIWidget import *
+from slampy.utils import *
 
 
 # IMPORTANT for WIndows
@@ -54,6 +23,7 @@ from datetime import datetime
 class StartWindow(QMainWindow):
 	def __init__(self):
 		super().__init__()
+		self.scriptNames = MASTER_SCRIPT_LIST
 		self.setWindowTitle('ViSOAR Ag Explorer Prototype')
 		
 		self.setMinimumSize(QSize(600, 600))  
@@ -63,22 +33,28 @@ class StartWindow(QMainWindow):
 		self.central_widget = QFrame()
 		self.central_widget.setFrameShape(QFrame.NoFrame)
 
-		self.viewer=Viewer()
-		#self.viewer.hide()
-		self.viewer.setMinimal()
+		self.viewerW = MyViewerWidget(self)
 
-		self.slam_widget = Slam2DWidgetForVisoar(self)
+		self.viewer = self.viewerW.viewer  # MyViewer()
+
+		# self.viewer.hide()
+		self.viewer.setMinimal()
+		self.viewer_subwin = self.viewerW.viewer_subwin
+
+		self.slam_widget = Slam2DWidgetForVisoar()
+		self.slam = Slam2D()
+		# self.redirect_log.setCallback(self.slam.printLog)
+		print("Log from ViSOARUIWidget....")
+		self.slam.enable_svg = False
 		self.slam_widget.setStyleSheet(LOOK_AND_FEEL)
 		self.slam_widget.progress_bar.bar.setStyleSheet(PROGRESSBAR_LOOK_AND_FEEL)
 		self.slam_widget.progress_bar.bar.setMinimumWidth(300)
-		self.slam = Slam2D()
-		self.slam_widget.slam = self.slam
+ 		#self.slam_widget.slam = self.slam
 
 		#self.tab_widget = MyTabWidget(self)
 		#self.setCentralWidget(self.tab_widget)
 		#self.setCentralWidget(self.slam_widget)
 
-		viewer_subwin = sip.wrapinstance(FromCppQtWidget(self.viewer.c_ptr()), QtWidgets.QMainWindow)	
 		#self.setCentralWidget(viewer_subwin )
 		self.setCentralWidget(self.slam_widget )
 
@@ -94,6 +70,10 @@ class StartWindow(QMainWindow):
 			"Current Tab Index: ");
 
 
+	def setEnabledCombobxItem(self, cbox, itemName, enabled):
+		itemNumber = self.scriptNames.index(itemName)
+		cbox.model().item(itemNumber).setEnabled(enabled)
+
 
 # //////////////////////////////////////////////////////////////////////////////
 
@@ -103,19 +83,27 @@ class StartWindow(QMainWindow):
 # //////////////////////////////////////////////
 def Main(argv):
 	SetCommandLine("__main__")
-	GuiModule.createApplication()
+	app = QApplication(sys.argv)
+	app.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+	app.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+
+	app.setStyle("Fusion")
+
+	#GuiModule.createApplication()
 	GuiModule.attach()  	
 
 
 	window = StartWindow()
 
-	window.show()	 
+	window.show()
 
-	GuiModule.execApplication()
+	app.exec()
+
+	#GuiModule.execApplication()
 	#viewer=None  
 	GuiModule.detach()
 	print("All done")
-	sys.exit(0)	
+	#sys.exit(0)
 
 # //////////////////////////////////////////////
 if __name__ == '__main__':
