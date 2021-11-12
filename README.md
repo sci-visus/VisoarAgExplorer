@@ -63,6 +63,8 @@ pip install git+https://github.com/smarnach/pyexiftool.git#egg=pyexiftool
 
 ```
 
+If you have errors with packages but you've already installed them, try a -force-reinstall
+
 
 FOR MACOS ONLY, you may need to solve conflicts between Qt embedded in opencv2 and PyQt5:
 
