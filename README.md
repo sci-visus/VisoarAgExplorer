@@ -50,6 +50,20 @@ For Windows only. You need to install Visual Studio redistributable
 http://download.microsoft.com/download/c/c/2/cc2df5f8-4454-44b4-802d-5ea68d086676/vcredist_x64.exe.
 ```
 
+You may need to put the path for the repository in your PATH
+
+If you have errors with hidraw, download the release and put it in the environment variable path
+```
+https://github.com/libusb/hidapi/releases
+```
+
+If you have an error about exiftool:
+```
+pip install git+https://github.com/smarnach/pyexiftool.git#egg=pyexiftool
+
+```
+
+
 FOR MACOS ONLY, you may need to solve conflicts between Qt embedded in opencv2 and PyQt5:
 
 ```
