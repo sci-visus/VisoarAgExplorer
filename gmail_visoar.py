@@ -12,13 +12,13 @@ import base64
 # import imaplib
 # import json
 
-from email.mime.image import MIMEImage
+#from email.mime.image import MIMEImage
 # from email.mime.multipart import MIMEMultipart
 # import lxml.html
 # from email import encoders
 # from email.mime.base import MIMEBase
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+# from email.mime.multipart import MIMEMultipart
+# from email.mime.text import MIMEText
 
 
 #from PyQt5.QtGui                      import QFont
@@ -42,10 +42,12 @@ import visus_google
 DEBUG = False
 FOR_WESTON = True
 
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from email.mime.base import MIMEBase
-from email import encoders
+from email.message import EmailMessage
+#
+# from email.mime.text import MIMEText
+# from email.mime.multipart import MIMEMultipart
+# from email.mime.base import MIMEBase
+# from email import encoders
 import logging
 from io import StringIO
 import smtplib
@@ -53,31 +55,20 @@ def send_email_crash_notification(crash_message, fileToAttach=None):
     email = 'dronepilot@visus.net'
     send_to_email = 'amy@visus.net'
     subject = 'ViSOAR Ag Explorer Python application CRASHED!'
-    msg = MIMEMultipart()
+    msg = EmailMessage()
     msg['From'] = email
     msg['To'] = send_to_email
     msg['Subject'] = subject
     message = crash_message
-    msg.attach(MIMEText(message, 'plain'))
+    msg.set_content( message )
 
     if fileToAttach:
-        # open the file to be sent
-        filename = fileToAttach
-        attachment = open(fileToAttach, "rb")
-
-        # instance of MIMEBase and named as p
-        p = MIMEBase('application', 'octet-stream')
-
-        # To change the payload into encoded form
-        p.set_payload((attachment).read())
-
-        # encode into base64
-        encoders.encode_base64(p)
-
-        p.add_header('Content-Disposition', "attachment; filename= %s" % filename)
-
-        # attach the instance 'p' to instance 'msg'
-        msg.attach(p)
+        with open(fileToAttach, 'rb') as ap:
+            import mimetypes
+            mime_typeT, _ = mimetypes.guess_type(fileToAttach)
+            mime_type, mime_subtype = mime_typeT.split('/', 1)
+            msg.add_attachment(ap.read(), maintype=mime_type, subtype=mime_subtype,
+                                filename = os.path.basename(fileToAttach))
 
     # Send the message via SMTP server.
     send_message_to_google(msg, email, False)
@@ -232,29 +223,34 @@ class VisoarImageMailer(QDialog):
         note = self.NoteTextbox.toPlainText()
 
         # Create a multipart message and set headers
-        message = MIMEMultipart('mixed')
+        message = EmailMessage()
         message["From"] = fromEmail
         message["To"] = toEmail
         message["Subject"] = subject
         message["Bcc"] = 'dronepilot@visus.net'  # Recommended for mass emails
 
         # Add body to email
-        message.attach(MIMEText(note, "plain"))
+        message.set_content( note )
+
+
 
         if type(self.imgWPath) == str:
-            filename = self.imgWPath  # In same directory as script
-
-            fp = open(filename, 'rb')
-            msg_att = MIMEImage(fp.read() )
-            fp.close()
-            message.attach(msg_att)
+            fileToAttach = self.imgWPath
+            with open(fileToAttach, 'rb') as ap:
+                import mimetypes
+                mime_typeT, _ = mimetypes.guess_type(fileToAttach)
+                mime_type, mime_subtype = mime_typeT.split('/', 1)
+                message.add_attachment(ap.read(), maintype=mime_type, subtype=mime_subtype,
+                                   filename=os.path.basename(fileToAttach))
         else:
             #assume it is an array
-            for filename in self.imgWPath:
-                fp = open(filename, 'rb')
-                msg_att = MIMEImage(fp.read())
-                fp.close()
-                message.attach(msg_att)
+            for fileToAttach in self.imgWPath:
+                with open(fileToAttach, 'rb') as ap:
+                    import mimetypes
+                    mime_typeT, _ = mimetypes.guess_type(fileToAttach)
+                    mime_type, mime_subtype = mime_typeT.split('/', 1)
+                    message.add_attachment(ap.read(), maintype=mime_type, subtype=mime_subtype,
+                                           filename=os.path.basename(fileToAttach))
 
         #text = message.as_string()
         ret = send_message_to_google(message, fromEmail, False)
@@ -276,9 +272,10 @@ def send_message_to_google(message, sender, exception):
     # A service object is created based on the credentials which can queried to make API calls to GMAIL.
     store = file.Storage('token.json')
     creds = store.get()
+    print(os.getcwd())
     if not creds or creds.invalid:
         try:
-            flow = client.flow_from_clientsecrets('client_secret_credentials.json', SCOPES)
+            flow = client.flow_from_clientsecrets('./client_secret_credentials.json', SCOPES)
         except Exception as e:
             print("flow: An error occurred: {}".format(e))
         try:
@@ -296,6 +293,6 @@ def send_message_to_google(message, sender, exception):
         #try to move token.json and rerun this function
         if not exception:
             import shutil
-            shutil.move('token.json', 'token.json.bk')
+            shutil.move('./token.json', './token.json.bk')
             send_message_to_google(message, sender, True)
         raise e

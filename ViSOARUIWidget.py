@@ -232,7 +232,11 @@ class MyViewerWidget(QWidget):
             scriptName = 'NDRE_Sentera'
         else:
             scriptName = cbox.currentText()
-        script = getTextFromScript(os.path.join(self.parent.app_dir, 'scripts', scriptName + '.py'))
+        script = None
+        try:
+            script = getTextFromScript(os.path.join(self.parent.app_dir, 'scripts', scriptName + '.py'))
+        except:
+            print('Failed to get to script')
         print('\tGot script content is: ')
         print(script)
         if script:
@@ -371,7 +375,7 @@ class ViSOARUIWidget(QWidget):
 
         self.inputMode = "R G B"
         self.projectInfo = VisoarProject()
-        self.userFileHistory = os.path.join(os.getcwd(), 'userFileHistory.xml')
+        self.userFileHistory = os.path.join(os.getcwd(), './userFileHistory.xml')
         self.generate_bbox = False
         self.color_matching = False
         self.blending_exp = "output=voronoi()"

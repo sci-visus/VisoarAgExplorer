@@ -128,6 +128,8 @@ Send bug requests to `Amy@visus.net`
 ```
 pip freeze > requirements.txt
 ```
+### build with pyinstaller:
+pyinstaller --onefile --windowed --runtime-tmpdir /Users/amygooch/temp/pyinstaller --exclude-module matplotlib VisoarAgExplorer.spec
 
 
 ### New Laptop Install:
@@ -144,6 +146,15 @@ may have to:
 python -m pip install  --user --upgrade pip setuptools # IMPORTANT (!)
 python -m pip uninstall pymap3d 
 python -m pip install  --user --no-cache-dir --upgrade --force-reinstall pymap3d
+
+python3 -m pip install --upgrade pip
+python3 -m pip install --upgrade OpenVisus
+python3 -m OpenVisus configure 
+
+python3 -m pip install pyqtgraph
+python3 -m pip install pillow
+python3 -m pip install --user  -r requirements.txt 
+python3 -m pip install bitstring
 ```
 
 
