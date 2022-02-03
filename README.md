@@ -21,7 +21,7 @@ VisoarAgExplorer Python Interface
 ```
 python -m pip install  --upgrade pip
 
-pip install  -r MAPIR_CameraController/requirements.txt 
+pip install  -r StandAloneMAPIR_CameraController/requirements.txt 
 pip install   -r requirements.txt 
 
 python -m pip install   --no-cache-dir --upgrade --force-reinstall OpenVisus
@@ -35,7 +35,7 @@ python -m pip install  google-api-python-client oauth2client PyDrive opencv-cont
 ```
 python -m pip install --user --upgrade pip
 
-pip install --user  -r MAPIR_CameraController/requirements.txt 
+pip install --user  -r StandAloneMAPIR_CameraController/requirements.txt 
 pip install --user  -r requirements.txt 
 
 python -m pip install  --user --no-cache-dir --upgrade --force-reinstall OpenVisus
@@ -90,7 +90,7 @@ Install helper libraries:
 `cd` to directory where this code lives:
 
 ```
-pip install --user  -r MAPIR_CameraController/requirements.txt 
+pip install --user  -r StandAloneMAPIR_CameraController/requirements.txt 
 pip install --user  -r requirements.txt 
 
 ```
