@@ -378,8 +378,10 @@ class ImageProvider:
 			old_alt=img.alt
 			img.alt-=value	
 			print("\t",img.filenames[0],"GPS Corrected","Altitude",old_alt,"to ",img.alt)
-			if img.alt<1.0: 
+			if img.alt<1.0:
 				print("dropping",img.filenames[0], "because too low")
+			elif "target" in img.filenames[0]:
+				print('dropping',img.filenames[0], "because it is the target image")
 			else:
 				good.append(img)
 

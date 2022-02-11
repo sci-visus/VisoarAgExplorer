@@ -41,6 +41,7 @@ class MyViewerWidget(QWidget):
         self.parent = parent
         self.setStyleSheet(LOOK_AND_FEEL)
         self.viewer = MyViewer()
+        self.viewer.setMinimal()
         self.toolbar = QHBoxLayout()
         self.sublayout = QVBoxLayout()
         self.myGradientWidget = ViSOARGradientMapViewWidget(self, self.viewer )
@@ -109,10 +110,11 @@ class MyViewerWidget(QWidget):
 
     def getNewImageForImageView(self):
         imagedataFilename = self.saveScreenshot(withDate=False)
-        from PIL import Image
-        image = numpy.array(Image.open(imagedataFilename)) #.astype(numpy.float32)
-        image = numpy.swapaxes(image, 0, 1)
-        self.myGradientWidget.imv.setImage(image)
+        if (self.myGradientWidget.SHOW_HISTOGRAM):
+            from PIL import Image
+            image = numpy.array(Image.open(imagedataFilename)) #.astype(numpy.float32)
+            image = numpy.swapaxes(image, 0, 1)
+            self.myGradientWidget.imv.setImage(image)
 
     def saveScreenshot(self, withDate=True):
         if withDate:
@@ -147,7 +149,8 @@ class MyViewerWidget(QWidget):
         if len(self.parent.visoarLayerList) > 0:
             for alayer in self.parent.visoarLayerList:
                 # for all layers not google should do a union of all boxes
-                if alayer.name != 'google' and db.getChild(alayer.name):
+                dbc = db.getChild(alayer.name)
+                if alayer.name != 'google' and dbc:
                     db2 = self.viewer2.getDataset()
                     # try:
                     #     if db:
@@ -161,18 +164,18 @@ class MyViewerWidget(QWidget):
                     self.viewer2.getGLCamera().guessPosition(box)
                     return
 
-        elif db.getChild("visus"):
-            #db2 = self.viewer2.getDataset()
-            # Causes a crash
-            # db.setEnableAnnotations(False)
-            # if (db2):
-            #     db2.setEnableAnnotations(False)
-            box = db.getChild("visus").getDatasetBounds().toAxisAlignedBox()
-            self.viewer.getGLCamera().guessPosition(box)
-            #self.viewer2.getGLCamera().guessPosition(box)
-        else:
-            self.viewer.guessGLCameraPosition()
-            #self.viewer2.guessGLCameraPosition()
+                elif db.getChild("visus"):
+                    #db2 = self.viewer2.getDataset()
+                    # Causes a crash
+                    # db.setEnableAnnotations(False)
+                    # if (db2):
+                    #     db2.setEnableAnnotations(False)
+                    box = db.getChild("visus").getDatasetBounds().toAxisAlignedBox()
+                    self.viewer.getGLCamera().guessPosition(box)
+                    #self.viewer2.getGLCamera().guessPosition(box)
+                else:
+                    self.viewer.guessGLCameraPosition()
+                    #self.viewer2.guessGLCameraPosition()
 
     def openLayersWindow(self):
         v = VisoarLayerView(self.parent, self.parent.visoarLayerList, self.viewer)

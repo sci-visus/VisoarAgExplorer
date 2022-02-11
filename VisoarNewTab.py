@@ -199,9 +199,9 @@ class VisoarAskSource(QWidget):
         self.sublayout.addStretch(True)
 
         self.buttonAddImagesSource = QPushButton('Add Images', self)
+        self.buttonAddImagesSource.setStyleSheet(GREEN_PUSH_SM_BUTTON)
         self.buttonAddImagesSource.resize(180, 40)
         self.buttonAddImagesSource.clicked.connect(self.parent.addImages)
-        self.buttonAddImagesSource.setStyleSheet(GREEN_PUSH_BUTTON)
         self.buttonAddImagesSource.setToolTip('Specify directory of image for stitching')
 
 
@@ -211,7 +211,7 @@ class VisoarAskSource(QWidget):
         self.curDir = QLabel('Image Directory: ')
         self.curDir2 = QLineEdit(self.parent.projectInfo.projDir)
         self.curDir2.setStyleSheet("""font-family: Roboto;font-style: normal;font-size: 14pt; padding:20px """)
-        self.curDir.resize(280, 40)
+        self.curDir2.resize(380, 40)
 
 
         self.sublayoutFormInputDir = QHBoxLayout()

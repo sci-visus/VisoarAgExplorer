@@ -31,6 +31,8 @@ import xml.etree.ElementTree as ET
 import xml.dom.minidom
 
 
+
+
 def checkForUpdates(parent, log=None):
     if log:
         log.print("Checking for updates")

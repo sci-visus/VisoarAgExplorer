@@ -275,7 +275,7 @@ def send_message_to_google(message, sender, exception):
     print(os.getcwd())
     if not creds or creds.invalid:
         try:
-            flow = client.flow_from_clientsecrets('./client_secret_credentials.json', SCOPES)
+            flow = client.flow_from_clientsecrets('client_secret_credentials.json', SCOPES)
         except Exception as e:
             print("flow: An error occurred: {}".format(e))
         try:
@@ -293,6 +293,6 @@ def send_message_to_google(message, sender, exception):
         #try to move token.json and rerun this function
         if not exception:
             import shutil
-            shutil.move('./token.json', './token.json.bk')
+            shutil.move('token.json', 'token.json.bk')
             send_message_to_google(message, sender, True)
         raise e
