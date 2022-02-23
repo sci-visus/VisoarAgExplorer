@@ -16,6 +16,7 @@ added_files = [
     ( 'scripts\\*.py', 'scripts' ),
     ( '*.py', '.' ),
 	('icons\\*', 'icons'),
+	('data', '.')
 ]
 
 dlls = [('LIBPQ.dll','C:\\Program Files\\PostgreSQL\\14\\bin\\libpq.dll','BINARY'),

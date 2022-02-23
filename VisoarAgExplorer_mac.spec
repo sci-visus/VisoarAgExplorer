@@ -14,6 +14,7 @@ added_files = [
     ( 'scripts/*.py', 'scripts' ),
     ( '*.py', '.' ),
 	('icons/*', 'icons'),
+	('data', '.')
 ]
 
 
