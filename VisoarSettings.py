@@ -8,6 +8,8 @@ from os import path
 import platform, subprocess, glob
 from functools import partial
 
+import PyQt5.QtWidgets as QtWidgets
+
 from PyQt5.QtWidgets                  import QScrollArea, QToolButton
 from PyQt5.QtWebEngineWidgets         import QWebEngineView
 from OpenVisus                        import *
