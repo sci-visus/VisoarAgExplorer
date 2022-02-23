@@ -2,7 +2,11 @@
 
 
 block_cipher = None
+import os
+import ntpath
+import PyQt5
 
+qtpath = os.path.join(ntpath.dirname(PyQt5.__file__), 'Qt', 'bin')
 
 pf_foldr=' c:\\users\\drone\\appdata\\local\\packages\\pythonsoftwarefoundation.python.3.8_qbz5n2kfra8p0\\localcache\\local-packages\\python38\\site-packages'
 pyqtPath = pf_foldr+'\\PyQt5\\Qt5\\bin\\'
@@ -46,7 +50,7 @@ mybinaries=[('C:\\Program Files\\PostgreSQL\\14\\bin\\libpq.dll','platforms\\lib
 (visusPath+'VisusNodes.dll','platforms\\VisusNodes.dll'),]
 
 a = Analysis(['VisoarAgExplorer.py'],
-             pathex=['C:\\Program Files\\PostgreSQL\\14\\bin', 'C:\\tools\\tmp', pf_foldr+'\\OpenVisus\\bin', pyqtPath, relDir+'StandAloneMAPIR_CameraController',relDir+'slampy', relDir+'scripts', relDir+'slampy\\micasense',pf_foldr+'\\OpenVisus', relDir,pf_foldr],
+             pathex=['C:\\Program Files\\PostgreSQL\\14\\bin', 'C:\\tools\\tmp', pf_foldr+'\\OpenVisus\\bin', pyqtPath, relDir+'StandAloneMAPIR_CameraController',relDir+'slampy', relDir+'scripts', relDir+'slampy\\micasense',pf_foldr+'\\OpenVisus', relDir,pf_foldr,qtpath],
              binaries=[],
              datas=added_files,
              hiddenimports=['PyQt5','PyQt5.QtWidgets','PyQt5.QtGui','PyQt5.QtCore'],
