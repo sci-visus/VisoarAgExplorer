@@ -7,8 +7,8 @@ import ntpath
 import PyQt5
 
 qtpath = os.path.join(ntpath.dirname(PyQt5.__file__), 'Qt', 'bin')
-
-pf_foldr=' c:\\users\\drone\\appdata\\local\\packages\\pythonsoftwarefoundation.python.3.8_qbz5n2kfra8p0\\localcache\\local-packages\\python38\\site-packages'
+#pf_foldr=' c:\\users\\drone\\appdata\\local\\packages\\pythonsoftwarefoundation.python.3.8_qbz5n2kfra8p0\\localcache\\local-packages\\python38\\site-packages'
+pf_foldr='C:\\Program Files\\Python38\\Lib\\site-packages'
 pyqtPath = pf_foldr+'\\PyQt5\\Qt5\\bin\\'
 visusPath = pf_foldr+'\\OpenVisus\\bin\\'
 relDir = 'C:\\tools\\VisoarAgExplorer\\'
