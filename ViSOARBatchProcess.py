@@ -137,7 +137,7 @@ class VisoarAgExplorerBatchProcessWidget(ViSOARUIWidget):
             self.viewer = self.viewerW.viewer  # MyViewer()
             self.viewer2 = self.viewerW2.viewer  # MyViewer()
 
-            # self.viewer.hide()
+            #self.viewer.hide()
             self.viewer.setMinimal()
             self.viewer2.setMinimal()
 

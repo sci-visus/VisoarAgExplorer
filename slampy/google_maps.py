@@ -4,7 +4,8 @@ import json
 
 # TODO: remove this
 # https://console.cloud.google.com/google/maps-apis/apis/maps-embed-backend.googleapis.com/credentials?folder=&organizationId=&project=visus-1536564808849&duration=PT1H
-GoogleAPIKey="AIzaSyCdew7ZMCDW_1xoi69Xv_LsVC45aJd-8Ds"
+# This stopped working Feb 9 2022   GoogleAPIKey="AIzaSyCdew7ZMCDW_1xoi69Xv_LsVC45aJd-8Ds"
+GoogleAPIKey="AIzaSyD9JbGeuRtZ55gt-etBwU95n2DO6FCOzms"
 
 # ////////////////////////////////////////////////////////////////////////////
 # see https://github.com/vgm64/gmplot

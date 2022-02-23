@@ -53,6 +53,7 @@ http://download.microsoft.com/download/c/c/2/cc2df5f8-4454-44b4-802d-5ea68d08667
 You may need to put the path for the repository in your PATH
 
 If you have errors with hidraw, download the release and put it in the environment variable path
+* On Windows, I had to put the dll in the same directory as the python executable *
 ```
 https://github.com/libusb/hidapi/releases
 ```
