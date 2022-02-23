@@ -126,10 +126,13 @@ Send bug requests to `Amy@visus.net`
 # DEVELOPER only
 
 ```
+
 pip freeze > requirements.txt
 ```
 ### build with pyinstaller:
 pyinstaller --onefile --windowed --runtime-tmpdir /Users/amygooch/temp/pyinstaller --exclude-module matplotlib VisoarAgExplorer.spec
+  
+pyinstaller.exe --windowed --runtime-tmpdir C:\tools\tmp --clean -noconfirm --exclude-module matplotlib VisoarAgExplorer_win.spec
 
 
 ### New Laptop Install:

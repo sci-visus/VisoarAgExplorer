@@ -5,27 +5,28 @@ block_cipher = None
 
 
 
-pf_foldr='/Users/amygooch/.pyenv/versions/3.8.8/lib/python3.8/site-packages'
+pf_foldr=' c:\\users\\drone\\appdata\\local\\packages\\pythonsoftwarefoundation.python.3.8_qbz5n2kfra8p0\\localcache\\local-packages\\python38\\site-packages'
+
+relDir = 'C:\\tools\\VisoarAgExplorer\\'
 added_files = [
     ( 'token.json', '.' ),
     ( 'userFileHistory.xml', '.' ),
     ( 'client_secret_credentials.json', '.' ),
     ( 'README.md', '.' ),
-    ( 'scripts/*.py', 'scripts' ),
+    ( 'scripts\\*.py', 'scripts' ),
     ( '*.py', '.' ),
-	('icons/*', 'icons'),
+	('icons\\*', 'icons'),
 ]
 
 
 a = Analysis(['VisoarAgExplorer.py'],
-             pathex=['/Users/amygooch/GIT/ViSOARAgExplorer_SCI/StandAloneMAPIR_CameraController','/Users/amygooch/GIT/ViSOARAgExplorer_SCI/slampy/', '/Users/amygooch/GIT/ViSOARAgExplorer_SCI/scripts', '/Users/amygooch/GIT/ViSOARAgExplorer_SCI/slampy/micasense','/Users/amygooch/.pyenv/versions/3.8.8/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages/OpenVisus'],
-             binaries=[('/Users/amygooch/.pyenv/versions/3.8.8/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages/OpenVisus/_VisusDataflowPy.so', 'platforms/_VisusDataflowPy.so'), 
-('/Users/amygooch/.pyenv/versions/3.8.8/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages/OpenVisus/_VisusDbPy.so', 'platforms/_VisusDbPy.so'), 
-('/Users/amygooch/.pyenv/versions/3.8.8/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages/OpenVisus/_VisusGuiPy.so', 'platforms/_VisusGuiPy.so'),
-('/Users/amygooch/.pyenv/versions/3.8.8/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages/OpenVisus/_VisusKernelPy.so', 'platforms/_VisusKernelPy.so'),
-('/Users/amygooch/.pyenv/versions/3.8.8/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages/OpenVisus/_VisusNodesPy.so', 'platforms/_VisusNodesPy.so'),
-('/Users/amygooch/GIT/VisoarAgExplorerMay/myenv/lib/python3.6/site-packages/PyQt5/Qt/plugins/platforms/libqcocoa.dylib', 'platforms/libqcocoa.dylib')],
-             datas=added_files,  
+             pathex=[relDir+'StandAloneMAPIR_CameraController',relDir+'slampy\\', relDir+'scripts', relDir+'slampy\\micasense',pf_foldr+'\\OpenVisus', relDir,pf_foldr],
+             binaries=[(pf_foldr+'\\OpenVisus\\_VisusDataflowPy.so', 'platforms\\_VisusDataflowPy.so'),
+(pf_foldr+'\\OpenVisus\\_VisusDbPy.so', 'platforms\\_VisusDbPy.so'),
+(pf_foldr+'\\OpenVisus\\_VisusGuiPy.so', 'platforms\\_VisusGuiPy.so'),
+(pf_foldr+'\\OpenVisus\\_VisusKernelPy.so', 'platforms\\_VisusKernelPy.so'),
+(pf_foldr+'\\OpenVisus\\_VisusNodesPy.so', 'platforms\\_VisusNodesPy.so') ],
+             datas=added_files,
              hiddenimports=['PyQt5','PyQt5.QtWidgets','PyQt5.QtGui','PyQt5.QtCore'],
              hookspath=[],
              hooksconfig={},
@@ -39,9 +40,14 @@ a = Analysis(['VisoarAgExplorer.py'],
 pyz = PYZ(a.pure, a.zipped_data,
              cipher=block_cipher)
 
+
+
 exe = EXE(pyz,
-          a.scripts, 
-          [('v', None, 'OPTION')],
+          a.scripts,
+            a.binaries,
+               a.zipfiles,
+               a.datas,
+               [],
           exclude_binaries=True,
           name='VisoarAgExplorer',
           debug=False,
@@ -54,10 +60,8 @@ exe = EXE(pyz,
           codesign_identity=None,
           entitlements_file=None )
 
- 
-a.binaries += [ ('cocoa', '/Users/amygooch/GIT/VisoarAgExplorerMay/myenv/lib/python3.6/site-packages/PyQt5/Qt/plugins/platforms/libqcocoa.dylib', 'BINARY' ) ]
-a.binaries += [ ('libqcocoa', '/Users/amygooch/GIT/VisoarAgExplorerMay/myenv/lib/python3.6/site-packages/PyQt5/Qt/plugins/platforms/libqcocoa.dylib', 'BINARY' ) ]
-a.binaries += [ ('libqcocoa.dylib', '/Users/amygooch/GIT/VisoarAgExplorerMay/myenv/lib/python3.6/site-packages/PyQt5/Qt/plugins/platforms/libqcocoa.dylib', 'BINARY' ) ]
+
+
 
 coll = COLLECT(exe,
                a.binaries,
@@ -67,10 +71,3 @@ coll = COLLECT(exe,
                upx=True,
                upx_exclude=[],
                name='VisoarAgExplorer')
-
-
-app = BUNDLE(coll,
-         name='VisoarAgExplorer.app',
-         icon='icons/visoareye.ico',
-         bundle_identifier=None)
-
