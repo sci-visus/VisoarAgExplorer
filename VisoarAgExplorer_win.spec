@@ -27,6 +27,7 @@ dlls = [('LIBPQ.dll','C:\\Program Files\\PostgreSQL\\14\\bin\\libpq.dll','BINARY
 ('Qt5MultimediaQuick.dll',pyqtPath+'Qt5MultimediaQuick.dll','BINARY'),
 ('Qt53DQuickScene2D.dll',pyqtPath+'Qt53DQuickScene2D.dll','BINARY'),
 ('Qt53DCore.dll',pyqtPath+'Qt53DCore.dll','BINARY'),
+('QtCore.dll',pf_foldr+'\\PyQt5\\'+'QtCore.dll','BINARY'),
 ('Qt53DRender.dll',pyqtPath+'Qt53DRender.dll','BINARY'),
 ('Qt53DInput.dll',pyqtPath+'Qt53DInput.dll','BINARY'),
 ('Qt53DLogic.dll',pyqtPath+'Qt53DLogic.dll','BINARY'),
