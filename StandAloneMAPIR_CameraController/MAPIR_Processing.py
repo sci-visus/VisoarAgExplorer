@@ -783,7 +783,7 @@ class MAPIR_ProcessingCLI( ):
                     else:
                         threshcounter += 17
 
-                if len(self.coords) is not 3:
+                if len(self.coords) != 3:
                     self.CalibrationLog_append("Could not find MAPIR ground target.")
                     #QtWidgets.QApplication.processEvents()
                     return
