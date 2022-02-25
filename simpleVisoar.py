@@ -49,13 +49,7 @@ class StartWindow(QMainWindow):
 		self.slam_widget.setStyleSheet(LOOK_AND_FEEL)
 		self.slam_widget.progress_bar.bar.setStyleSheet(PROGRESSBAR_LOOK_AND_FEEL)
 		self.slam_widget.progress_bar.bar.setMinimumWidth(300)
- 		#self.slam_widget.slam = self.slam
 
-		#self.tab_widget = MyTabWidget(self)
-		#self.setCentralWidget(self.tab_widget)
-		#self.setCentralWidget(self.slam_widget)
-
-		#self.setCentralWidget(viewer_subwin )
 		self.setCentralWidget(self.slam_widget )
 
 

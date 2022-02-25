@@ -1,16 +1,12 @@
 # -*- mode: python ; coding: utf-8 -*-
 
-
 block_cipher = None
-import os
-import ntpath
-import PyQt5
 
-qtpath = os.path.join(ntpath.dirname(PyQt5.__file__), 'Qt', 'bin')
 #pf_foldr=' c:\\users\\drone\\appdata\\local\\packages\\pythonsoftwarefoundation.python.3.8_qbz5n2kfra8p0\\localcache\\local-packages\\python38\\site-packages'
 pf_foldr='C:\\Program Files\\Python38\\Lib\\site-packages'
 pyqtPath = pf_foldr+'\\PyQt5\\Qt5\\bin\\'
-visusPath = pf_foldr+'\\OpenVisus\\bin\\'
+pyqtPath2 = pf_foldr+'\\PyQt5\\'
+visusPath = pf_foldr+'\\OpenVisus\\'
 relDir = 'C:\\tools\\VisoarAgExplorer\\'
 added_files = [
     ( 'token.json', '.' ),
@@ -18,41 +14,27 @@ added_files = [
     ( 'client_secret_credentials.json', '.' ),
     ( 'README.md', '.' ),
     ( 'scripts\\*.py', 'scripts' ),
+    ( 'slampy\\*', 'slampy' ),
     ( '*.py', '.' ),
 	('icons\\*', 'icons'),
 	('data', '.')
 ]
 
-dlls = [('LIBPQ.dll','C:\\Program Files\\PostgreSQL\\14\\bin\\libpq.dll','BINARY'),
-('Qt5MultimediaQuick.dll',pyqtPath+'Qt5MultimediaQuick.dll','BINARY'),
-('Qt53DQuickScene2D.dll',pyqtPath+'Qt53DQuickScene2D.dll','BINARY'),
-('Qt53DCore.dll',pyqtPath+'Qt53DCore.dll','BINARY'),
-('QtCore.dll',pf_foldr+'\\PyQt5\\'+'QtCore.dll','BINARY'),
-('Qt53DRender.dll',pyqtPath+'Qt53DRender.dll','BINARY'),
-('Qt53DInput.dll',pyqtPath+'Qt53DInput.dll','BINARY'),
-('Qt53DLogic.dll',pyqtPath+'Qt53DLogic.dll','BINARY'),
-('Qt53DCore.dll',pyqtPath+'Qt53DCore.dll','BINARY'),
-('Qt53DAnimation.dll',pyqtPath+'Qt53DAnimation.dll','BINARY'),
-('VisusGui.dll',visusPath+'VisusGui.dll','BINARY'),
-('VisusKernel.dll',visusPath+'VisusKernel.dll','BINARY'),
-('VisusDataflow.dll',visusPath+'VisusDataflow.dll','BINARY'),
-('VisusKernel.dll',visusPath+'VisusKernel.dll','BINARY'),
-('VisusDataflow.dll',visusPath+'VisusDataflow.dll','BINARY'),
-('VisusDb.dll',visusPath+'VisusDb.dll','BINARY'),
-('VisusNodes.dll',visusPath+'VisusNodes.dll','BINARY'),]
-
-mybinaries=[('C:\\Program Files\\PostgreSQL\\14\\bin\\libpq.dll','platforms\\libpq.dll'),
-(visusPath+'VisusGui.dll' ,'platforms\\VisusGui.dll'),
-(visusPath+'VisusKernel.dll' ,'platforms\\VisusKernel.dll'),
-(visusPath+'VisusDataflow.dll','platforms\\VisusDataflow.dll'),
-(visusPath+'VisusKernel.dll','platforms\\VisusKernel.dll' ),
-(visusPath+'VisusDataflow.dll','platforms\\VisusDataflow.dll' ),
-(visusPath+'VisusDb.dll','platforms\\VisusDb.dll' ),
-(visusPath+'VisusNodes.dll','platforms\\VisusNodes.dll'),]
+mybinaries2=[('C:\\Program Files\\PostgreSQL\\14\\bin\\libpq.dll','.'),
+('C:\\Program Files\\Python38\\Lib\\site-packages\\pyzbar\\libiconv.dll', '.'),
+('C:\\Program Files\\Python38\\Lib\\site-packages\\pyzbar\\libzbar-64.dll', '.'),
+('C:\\Program Files\\Python38\\hidapi.dll', '.'),
+(visusPath+'bin\\VisusGui.dll' ,'OpenVisus\\bin\\'),
+(visusPath+'bin\\VisusKernel.dll' ,'OpenVisus\\bin\\'),
+(visusPath+'bin\\VisusDataflow.dll','OpenVisus\\bin\\'),
+(visusPath+'bin\\VisusKernel.dll','OpenVisus\\bin\\'),
+(visusPath+'bin\\VisusDataflow.dll','OpenVisus\\bin\\' ),
+(visusPath+'bin\\VisusDb.dll','OpenVisus\\bin\\' ),
+(visusPath+'bin\\VisusNodes.dll','OpenVisus\\bin\\'),]
 
 a = Analysis(['VisoarAgExplorer.py'],
-             pathex=['C:\\Program Files\\PostgreSQL\\14\\bin', 'C:\\tools\\tmp', pf_foldr+'\\OpenVisus\\bin', pyqtPath, relDir+'StandAloneMAPIR_CameraController',relDir+'slampy', relDir+'scripts', relDir+'slampy\\micasense',pf_foldr+'\\OpenVisus', relDir,pf_foldr,qtpath],
-             binaries=[],
+             pathex=[visusPath,visusPath+'bin\\',pyqtPath2,'C:\\Program Files\\PostgreSQL\\14\\bin', relDir+'StandAloneMAPIR_CameraController',relDir+'slampy', relDir+'scripts', relDir+'slampy\\micasense\\',],
+             binaries=mybinaries2,
              datas=added_files,
              hiddenimports=['PyQt5','PyQt5.QtWidgets','PyQt5.QtGui','PyQt5.QtCore'],
              hookspath=[],
@@ -63,6 +45,8 @@ a = Analysis(['VisoarAgExplorer.py'],
              win_private_assemblies=False,
              cipher=block_cipher,
              noarchive=False)
+
+#             pathex=[pyqtPath2,'C:\\Program Files\\PostgreSQL\\14\\bin', 'C:\\tools\\tmp', pf_foldr+'\\OpenVisus\\bin\\', pyqtPath, relDir+'StandAloneMAPIR_CameraController',relDir+'slampy', relDir+'scripts', relDir+'slampy\\micasense\\',pf_foldr+'\\OpenVisus\\', relDir,pf_foldr],
 
 pyz = PYZ(a.pure, a.zipped_data,
              cipher=block_cipher)
@@ -84,14 +68,10 @@ exe = EXE(pyz,
           codesign_identity=None,
           entitlements_file=None )
 
-
-
-
 coll = COLLECT(exe,
-                a.binaries+dlls,
+                a.binaries,
                 a.zipfiles,
                 a.datas,
          name='VisoarAgExplorer.app',
          icon='icons\\visoareye.ico',
          bundle_identifier=None)
-

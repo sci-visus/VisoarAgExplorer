@@ -63,6 +63,7 @@ def send_email_crash_notification(crash_message, fileToAttach=None):
     msg.set_content( message )
 
     if fileToAttach:
+        print(fileToAttach)
         with open(fileToAttach, 'rb') as ap:
             import mimetypes
             mime_typeT, _ = mimetypes.guess_type(fileToAttach)

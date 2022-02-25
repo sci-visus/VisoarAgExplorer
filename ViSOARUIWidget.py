@@ -918,6 +918,12 @@ class ViSOARUIWidget(QWidget):
                 self.slam_widget.slam = self.slam
         else:
             try:
+                print(image_dir)
+                print(cache_dir)
+                print(telemetry)
+                print(plane)
+                print(calibration)
+                print(physic_box)
                 self.slam.setImageDirectory(image_dir=image_dir, cache_dir=cache_dir, telemetry=telemetry, plane=plane,
                                             calibration=calibration, physic_box=physic_box)
                 # Here we could ask whether you want to restitch or use old stitch
