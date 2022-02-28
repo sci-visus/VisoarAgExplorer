@@ -130,20 +130,6 @@ Send bug requests to `Amy@visus.net`
 
 pip freeze > requirements.txt
 ```
-### build with pyinstaller:
-#### May need these extra installs
-'''
-python -m pip install ipython tornado pycairo wxtools ipykernel lxml
-'''
-#### May need to delete some PyQT libraries (QtQuick, QtMultimedia, until errors on dlls go away)
-#### May need to install : https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
-
-pyinstaller --onefile --windowed --runtime-tmpdir /Users/amygooch/temp/pyinstaller --exclude-module matplotlib VisoarAgExplorer.spec
-  
-pyinstaller.exe --windowed --runtime-tmpdir C:\tools\tmp --clean -noconfirm --exclude-module matplotlib VisoarAgExplorer_win.spec
-
- 
- 
 
 ### New Laptop Install:
 
@@ -215,3 +201,23 @@ python -m OpenVisus configure
 
  see
 https://www.scivision.dev/python-windows-visual-c-14-required
+
+### build with pyinstaller:
+#### May need these extra installs
+```
+python -m pip install ipython tornado pycairo wxtools ipykernel lxml
+```
+#### May need to delete some PyQT libraries (QtQuick, QtMultimedia, until errors on dlls go away)
+#### May need to install : https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
+```
+pyinstaller --onefile --windowed --runtime-tmpdir /Users/amygooch/temp/pyinstaller --exclude-module matplotlib VisoarAgExplorer.spec
+  
+pyinstaller.exe --windowed --runtime-tmpdir C:\tools\tmp --clean -noconfirm --exclude-module matplotlib VisoarAgExplorer_win.spec
+```
+ #### Windows, build installer:
+ download Inno Setup: https://jrsoftware.org/isdl.php
+ 
+ Example:
+ https://www.youtube.com/watch?v=jPnl5-bQGHI
+ 
+
