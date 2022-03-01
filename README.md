@@ -212,7 +212,7 @@ python -m pip install ipython tornado pycairo wxtools ipykernel lxml
 ```
 pyinstaller --onefile --windowed --runtime-tmpdir /Users/amygooch/temp/pyinstaller --exclude-module matplotlib VisoarAgExplorer.spec
   
-pyinstaller.exe --windowed --runtime-tmpdir C:\tools\tmp --clean -noconfirm --exclude-module matplotlib VisoarAgExplorer_win.spec
+pyinstaller.exe --windowed --runtime-tmpdir C:\tools\tmp --clean --noconfirm --exclude-module matplotlib VisoarAgExplorer_win.spec
 ```
  #### Windows, build installer:
  download Inno Setup: https://jrsoftware.org/isdl.php
