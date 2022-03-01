@@ -17,6 +17,8 @@ added_files = [
 	('data', '.')
 ]
 
+# myexcludes = [numpy,matplotlib,opencv,cv2,scipy,skimage]
+myexcludes = [  ]
 
 a = Analysis(['VisoarAgExplorer.py'],
              pathex=['/Users/amygooch/GIT/ViSOARAgExplorer_SCI/StandAloneMAPIR_CameraController','/Users/amygooch/GIT/ViSOARAgExplorer_SCI/slampy/', '/Users/amygooch/GIT/ViSOARAgExplorer_SCI/scripts', '/Users/amygooch/GIT/ViSOARAgExplorer_SCI/slampy/micasense','/Users/amygooch/.pyenv/versions/3.8.8/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages/OpenVisus'],
