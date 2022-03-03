@@ -210,7 +210,7 @@ python -m pip install ipython tornado pycairo wxPython wxtools ipykernel lxml
 #### May need to delete some PyQT libraries (QtQuick, QtMultimedia, until errors on dlls go away)
 #### May need to install : https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
 ```
-pyinstaller --onedir--runtime-tmpdir /Users/amygooch/temp/pyinstaller --exclude-module matplotlib VisoarAgExplorer.spec
+pyinstaller --onedir --runtime-tmpdir /Users/amygooch/temp/pyinstaller --exclude-module matplotlib VisoarAgExplorer.spec
   
 pyinstaller.exe --windowed --runtime-tmpdir C:\tools\tmp --clean --noconfirm --exclude-module matplotlib VisoarAgExplorer_win.spec
 ```
