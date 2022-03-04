@@ -3,7 +3,7 @@ from PyQt5.QtWebEngineWidgets import QWebEngineView
 
 from OpenVisus.gui import *
 
-from PyQt5           import * 
+
 from PyQt5.QtCore    import *
 from PyQt5.QtWidgets import *
 

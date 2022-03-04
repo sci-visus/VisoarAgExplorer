@@ -16,13 +16,13 @@ VisoarAgExplorer Python Interface
   
   -- Currently that means issues with exiftool.exe
   
-#Install for Windows:
+#Install for global:
 
 ```
 python -m pip install  --upgrade pip
 
-pip install  -r StandAloneMAPIR_CameraController/requirements.txt 
-pip install   -r requirements.txt 
+python -m pip install  -r StandAloneMAPIR_CameraController/requirements.txt 
+python -m pip install   -r requirements.txt 
 
 python -m pip install   --no-cache-dir --upgrade --force-reinstall OpenVisus
 python -m OpenVisus configure  
@@ -30,13 +30,13 @@ python -m OpenVisus configure
 python -m pip install  google-api-python-client oauth2client PyDrive opencv-contrib-python
 ```
 
-#Install OpenVisus y package:
+#Install for user:
 
 ```
 python -m pip install --user --upgrade pip
 
-pip install --user  -r StandAloneMAPIR_CameraController/requirements.txt 
-pip install --user  -r requirements.txt 
+python -m pip install --user  -r StandAloneMAPIR_CameraController/requirements.txt 
+python -m pip install --user  -r requirements.txt 
 
 python -m pip install  --user --no-cache-dir --upgrade --force-reinstall OpenVisus
 python -m OpenVisus configure  --user 
@@ -71,7 +71,7 @@ FOR MACOS ONLY, you may need to solve conflicts between Qt embedded in opencv2 a
 
 ```
 python -m pip uninstall -y opencv-python opencv-contrib-python opencv-python-headless opencv-contrib-python-headless
-python -m pip install   --user     opencv-python-headless opencv-contrib-python-headless 
+python -m pip install opencv-python-headless opencv-contrib-python-headless 
 ```
 
 
@@ -91,8 +91,8 @@ Install helper libraries:
 `cd` to directory where this code lives:
 
 ```
-pip install --user  -r StandAloneMAPIR_CameraController/requirements.txt 
-pip install --user  -r requirements.txt 
+pip install   -r StandAloneMAPIR_CameraController/requirements.txt 
+pip install   -r requirements.txt 
 
 ```
 
@@ -142,9 +142,9 @@ You will need to:
 may have to:
 
 ```
-python -m pip install  --user --upgrade pip setuptools # IMPORTANT (!)
+python -m pip install --upgrade pip setuptools # IMPORTANT (!)
 python -m pip uninstall pymap3d 
-python -m pip install  --user --no-cache-dir --upgrade --force-reinstall pymap3d
+python -m pip install --no-cache-dir --upgrade --force-reinstall pymap3d
 
 python3 -m pip install --upgrade pip
 python3 -m pip install --upgrade OpenVisus
@@ -152,7 +152,7 @@ python3 -m OpenVisus configure
 
 python3 -m pip install pyqtgraph
 python3 -m pip install pillow
-python3 -m pip install --user  -r requirements.txt 
+python3 -m pip install   -r requirements.txt 
 python3 -m pip install bitstring
 ```
 
@@ -205,12 +205,12 @@ https://www.scivision.dev/python-windows-visual-c-14-required
 ### build with pyinstaller:
 #### May need these extra installs
 ```
-python -m pip install ipython tornado pycairo wxtools ipykernel lxml
+python -m pip install ipython tornado pycairo wxPython wxtools ipykernel lxml
 ```
 #### May need to delete some PyQT libraries (QtQuick, QtMultimedia, until errors on dlls go away)
 #### May need to install : https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
 ```
-pyinstaller --onefile --windowed --runtime-tmpdir /Users/amygooch/temp/pyinstaller --exclude-module matplotlib VisoarAgExplorer.spec
+pyinstaller --onedir --runtime-tmpdir /Users/amygooch/temp/pyinstaller --exclude-module matplotlib VisoarAgExplorer.spec
   
 pyinstaller.exe --windowed --runtime-tmpdir C:\tools\tmp --clean --noconfirm --exclude-module matplotlib VisoarAgExplorer_win.spec
 ```
@@ -220,4 +220,8 @@ pyinstaller.exe --windowed --runtime-tmpdir C:\tools\tmp --clean --noconfirm --e
  Example:
  https://www.youtube.com/watch?v=jPnl5-bQGHI
  
+#### On Mac, build disk image:
+Tutorial : https://www.pythonguis.com/tutorials/packaging-pyqt5-applications-pyinstaller-macos-dmg/
+
+brew install create-dmg
 
