@@ -12,12 +12,15 @@ added_files = [
     ( 'token.json', '.' ),
     ( 'userFileHistory.xml', '.' ),
     ( 'client_secret_credentials.json', '.' ),
+    ( 'client_settings.yaml', '.' ),
     ( 'README.md', '.' ),
+    ( 'Roboto-Regular.ttf', '.' ),
     ( 'scripts\\*.py', 'scripts' ),
     ( 'slampy\\*', 'slampy' ),
     ( '*.py', '.' ),
 	('icons\\*', 'icons'),
-	('data', '.')
+	('data\\*', '.'),
+	('StandAloneMAPIR_CameraController\\*','StandAloneMAPIR_CameraController')
 ]
 
 mybinaries2=[('C:\\Program Files\\PostgreSQL\\14\\bin\\libpq.dll','.'),
@@ -33,10 +36,10 @@ mybinaries2=[('C:\\Program Files\\PostgreSQL\\14\\bin\\libpq.dll','.'),
 (visusPath+'bin\\VisusNodes.dll','OpenVisus\\bin\\'),]
 
 a = Analysis(['VisoarAgExplorer.py'],
-             pathex=[visusPath,visusPath+'bin\\',pf_foldr+'\\google-api-python-client',pyqtPath2,'C:\\Program Files\\PostgreSQL\\14\\bin', relDir+'StandAloneMAPIR_CameraController',relDir+'slampy', relDir+'scripts', relDir+'slampy\\micasense\\',],
+             pathex=[visusPath,visusPath+'bin\\',pyqtPath2,'C:\\Program Files\\PostgreSQL\\14\\bin', relDir+'StandAloneMAPIR_CameraController',relDir+'slampy', relDir+'scripts', relDir+'slampy\\micasense\\',],
              binaries=mybinaries2,
              datas=added_files,
-             hiddenimports=['PyQt5','PyQt5.QtWidgets','PyQt5.QtGui','PyQt5.QtCore','googleapiclient',],
+             hiddenimports=['PyQt5','PyQt5.QtWidgets','PyQt5.QtGui','PyQt5.QtCore', ],
              hookspath=[],
              hooksconfig={},
              runtime_hooks=[],
