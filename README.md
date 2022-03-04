@@ -153,7 +153,7 @@ python3 -m OpenVisus configure
 python3 -m pip install pyqtgraph
 python3 -m pip install pillow
 python3 -m pip install   -r requirements.txt 
-python3 -m pip install bitstring
+python3 -m pip install bitstring beautifulsoup4
 ```
 
 
@@ -213,6 +213,9 @@ python -m pip install ipython tornado pycairo wxPython wxtools ipykernel lxml
 pyinstaller --onedir --runtime-tmpdir /Users/amygooch/temp/pyinstaller --exclude-module matplotlib VisoarAgExplorer.spec
   
 pyinstaller.exe --windowed --runtime-tmpdir C:\tools\tmp --clean --noconfirm --exclude-module matplotlib VisoarAgExplorer_win.spec
+
+pyinstaller.exe --windowed --runtime-tmpdir C:\tools\tmp --clean --noconfirm --exclude-module matplotlib --exclude-module google-api-python-client VisoarAgExplorer_win.spec
+
 ```
  #### Windows, build installer:
  download Inno Setup: https://jrsoftware.org/isdl.php

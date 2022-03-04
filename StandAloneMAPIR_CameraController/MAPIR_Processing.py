@@ -86,10 +86,12 @@ from ExifUtils import *
 
 
 modpath = os.path.dirname(os.path.realpath(__file__))
+print(modpath)
 
-if not os.path.exists(modpath + os.sep + "instring.txt"):
-    istr = open(modpath + os.sep + "instring.txt", "w")
-    istr.close()
+#AAG: comment out this... 3.04.2022.. not sure why its here..
+# if not os.path.exists(modpath + os.sep + "instring.txt"):
+#    istr = open(modpath + os.sep + "instring.txt", "w")
+#    istr.close()
 
 def dir_path(string):
     if os.path.isdir(string):
