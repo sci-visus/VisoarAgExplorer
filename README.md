@@ -220,4 +220,8 @@ pyinstaller.exe --windowed --runtime-tmpdir C:\tools\tmp --clean --noconfirm --e
  Example:
  https://www.youtube.com/watch?v=jPnl5-bQGHI
  
+#### On Mac, build disk image:
+Tutorial : https://www.pythonguis.com/tutorials/packaging-pyqt5-applications-pyinstaller-macos-dmg/
+
+brew install create-dmg
 

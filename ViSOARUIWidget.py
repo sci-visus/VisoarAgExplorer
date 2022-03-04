@@ -405,7 +405,7 @@ class ViSOARUIWidget(QWidget):
         self.DEBUG = True
         self.ADD_VIEWER = True  # Flag for removing viewers for testing
         self.visoarLogFilePath = os.path.join(os.getcwd(), "~visoarLog.txt")
-        self.visoarLogFile = open(self.visoarLogFilePath, "w")
+        self.visoarLogFile = open(self.visoarLogFilePath, "w+")
         print(os.path.join(os.getcwd(), "~visoarLog.txt"))
         visoarLog(self.visoarLogFile, 'Start Log: ')
 
