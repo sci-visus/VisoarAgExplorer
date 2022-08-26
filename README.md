@@ -205,7 +205,7 @@ https://www.scivision.dev/python-windows-visual-c-14-required
 ### build with pyinstaller:
 #### May need these extra installs
 ```
-python -m pip install ipython tornado pycairo wxPython wxtools ipykernel lxml
+python -m pip install ipython tornado pycairo wxPython wxtools ipykernel lxml beautifulsoup4
 ```
 #### May need to delete some PyQT libraries (QtQuick, QtMultimedia, until errors on dlls go away)
 #### May need to install : https://www.enterprisedb.com/downloads/postgres-postgresql-downloads

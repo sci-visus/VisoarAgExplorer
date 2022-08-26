@@ -1,4 +1,16 @@
 import sys, os
+from OpenVisus                        import *
+
+from PyQt5.QtWidgets     import QApplication
+from PyQt5.QtWebEngineWidgets         import QWebEngineView
+from OpenVisus.gui import PyViewer, GuiModule
+
+#from OpenVisus.gui       import *
+
+import sys
+# sys.exit(0)
+
+import os
 import os.path
 
 from pathlib import Path
@@ -8,14 +20,19 @@ from os import path
 import platform, subprocess, glob
 from functools import partial
 
+
+
+
+
 import PyQt5.QtCore as QtCore
 import PyQt5.QtWidgets as QtWidgets
 
 from PyQt5.QtWidgets                  import QScrollArea, QToolButton
-from PyQt5.QtWebEngineWidgets         import QWebEngineView
-from OpenVisus                        import *
-from OpenVisus.VisusKernelPy                        import *
-from OpenVisus.gui                    import *
+#from qtpy.QtWebEngineWidgets         import QWebEngineView
+#
+# from OpenVisus.VisusKernelPy                        import *
+#from OpenVisus.gui                    import *
+
 from datetime import datetime
 
 DEBUG = False

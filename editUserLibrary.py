@@ -12,7 +12,7 @@ from PyQt5.QtCore                     import QUrl, Qt, QSize, QDir, QRect
 from PyQt5.QtWidgets                  import QApplication, QHBoxLayout, QLineEdit,QLabel, QLineEdit, QTextEdit, QGridLayout
 from PyQt5.QtWidgets                  import QMainWindow, QPushButton, QVBoxLayout,QSplashScreen,QProxyStyle, QStyle, QAbstractButton
 from PyQt5.QtWidgets                  import QWidget, QMessageBox, QGroupBox, QShortcut,QSizePolicy,QPlainTextEdit,QDialog, QFileDialog
-from PyQt5.QtWebEngineWidgets         import QWebEngineView
+#from PyQt5.QtWebEngineWidgets         import QWebEngineView
 from PyQt5.QtWidgets                  import QTableWidget,QTableWidgetItem
 
 

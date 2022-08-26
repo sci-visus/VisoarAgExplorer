@@ -1,10 +1,10 @@
 
 from VisoarSettings import *
 
-from PyQt5.QtWebEngineWidgets         import QWebEngineView
-
-from OpenVisus                        import *
-from OpenVisus.gui                    import *
+#from PyQt5.QtWebEngineWidgets         import QWebEngineView
+#
+# from OpenVisus                        import *
+# from OpenVisus.gui                    import *
 
 from PyQt5.QtGui 					  import QFont,QPainter,QPen
 from PyQt5.QtCore                     import QUrl, Qt, QSize, QDir, QRect

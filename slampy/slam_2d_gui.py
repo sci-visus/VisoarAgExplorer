@@ -1,8 +1,8 @@
 # this must appear before creating the qapp
-from PyQt5.QtWebEngineWidgets import QWebEngineView
+#from PyQt5.QtWebEngineWidgets import QWebEngineView
 
-from OpenVisus.gui import *
-
+# from OpenVisus.gui import *
+from OpenVisus.gui import PyViewer, GuiModule
 
 from PyQt5.QtCore    import *
 from PyQt5.QtWidgets import *
@@ -91,7 +91,7 @@ class Slam2DWidget(QWidget):
 	# createGui
 	def createGui(self):
 		# create widgets
-		self.viewer=Viewer()
+		self.viewer=PyViewer()
 		self.viewer.setMinimal()
 		viewer_subwin = sip.wrapinstance(FromCppQtWidget(self.viewer.c_ptr()), QtWidgets.QMainWindow)	
 

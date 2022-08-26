@@ -168,7 +168,7 @@ class Slam2D(Slam):
 		self.physic_box         = None 
 
 		self.enable_svg              = True
-		self.enable_color_matching   = False
+		self.enable_color_matching   = True
 		self.do_bundle_adjustment    = True
 		
 	# setImageDirectory

@@ -1,6 +1,6 @@
 from VisoarSettings             import *
 from datetime import datetime
-from PyQt5.QtWebEngineWidgets         import QWebEngineView
+#from PyQt5.QtWebEngineWidgets         import QWebEngineView
 
 from OpenVisus                        import *
 from OpenVisus.gui                    import *

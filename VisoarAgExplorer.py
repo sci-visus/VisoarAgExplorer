@@ -1,9 +1,15 @@
 #import sys, os
 #sys.path.append('/Users/amygooch/.pyenv/versions/3.6.8/lib/python3.6/site-packages')
 
+#import sys
+#sys.exit(0)
+
+
 from VisoarSettings import *
 
 #from slam2dWidget import *
+
+
 import faulthandler;
 faulthandler.enable()
 
@@ -60,6 +66,7 @@ class VisoarAgExplorer(QMainWindow):
         self.setWindowTitle('ViSOAR Ag Explorer Prototype')
         # print('OpenCV version:  ')
         # print(cv2.__version__)
+        self.setGeometry(0, 0, 1000, 800)
         self.setMinimumSize(QSize(600, 800))
         self.setStyleSheet(LOOK_AND_FEEL)
         #self.showMaximized()
@@ -123,11 +130,10 @@ class VisoarAgExplorer(QMainWindow):
 
 # //////////////////////////////////////////////
 def Main( app):
+
     SetCommandLine("__main__")
     LogFile(Utils.NormalizePath(os.path.join(LOCAL_DIR, T1.strftime("%Y%m%d.%H%M%S") + ".visoar.sync.log")))
-
-    app.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
-    app.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+   # app = QApplication(theargv)
 
     app.setStyle("Fusion")
 
@@ -185,7 +191,7 @@ def Main( app):
         if DEBUG:
             print('Main after splash init')
 
-    if True:
+    if False:
         print('Setting Fonts.... ' + str(QDir("Roboto")))
         dir_ = QDir("Roboto")
         _id = QFontDatabase.addApplicationFont("./Roboto-Regular.ttf")
@@ -233,9 +239,42 @@ def Main( app):
 
 # //////////////////////////////////////////////
 if __name__ == '__main__':
+
+    # if hasattr(Qt, 'AA_EnableHighDpiScaling'):
+    #     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+    # if hasattr(Qt, 'AA_UseHighDpiPixmaps'):
+    #     QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+    #
+
+    # try:
+    #     format = QtGui.QSurfaceFormat()
+    #     format.setSamples(4)
+    #     format.setMajorVersion(4)
+    #     format.setMinorVersion(1)
+    #     #format.setProfile(QtGui.QSurfaceFormat.CoreProfile)
+    #
+    #     format.setProfile(QtGui.QSurfaceFormat.CompatibilityProfile)
+    #     # now set the depth buffer to 24 bits
+    #     format.setDepthBufferSize(24)
+    #     # set that as the default format for all windows
+    #     QtGui.QSurfaceFormat.setDefaultFormat(format)
+    # except:
+    #     print('could not change qt format')
+
+    # try:
+    #     format = QtGui.QSurfaceFormat();
+    #     format.setDepthBufferSize(24);
+    #     format.setStencilBufferSize(8);
+    #     format.setVersion(4, 1);
+    #     #format.setProfile(QtGui.QSurfaceFormat.CoreProfile);
+    #     QSurfaceFormat.setDefaultFormat(format);
+    # except:
+    #     print('could not change qt format')
+
     app = QApplication(sys.argv)
     try:
-        Main( app)
+
+        Main( app )
     except:
         print('dumping IO due to exception')
         log_stream = StringIO()

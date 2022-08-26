@@ -77,9 +77,14 @@ class StartWindow(QMainWindow):
 # //////////////////////////////////////////////
 def Main(argv):
 	SetCommandLine("__main__")
+	if hasattr(Qt, 'AA_EnableHighDpiScaling'):
+		QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+	if hasattr(Qt, 'AA_UseHighDpiPixmaps'):
+		QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+
 	app = QApplication(sys.argv)
-	app.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
-	app.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+	# app.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+	# app.setAttribute(Qt.AA_EnableHighDpiScaling, True)
 
 	app.setStyle("Fusion")
 

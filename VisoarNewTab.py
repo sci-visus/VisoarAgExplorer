@@ -1,10 +1,10 @@
 from VisoarSettings             import *
 from datetime import datetime
 
-from PyQt5.QtWebEngineWidgets         import QWebEngineView
+#from PyQt5.QtWebEngineWidgets         import QWebEngineView
 
-from OpenVisus                        import *
-from OpenVisus.gui                    import *
+# from OpenVisus                        import *
+# from OpenVisus.gui                    import *
 
 from PyQt5.QtGui 					  import QFont
 from PyQt5.QtCore                     import QUrl, Qt, QSize, QDir, QRect

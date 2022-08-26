@@ -6,11 +6,12 @@ import threading
 import time
 
 # this must appear before creating the qapp
-from PyQt5.QtWebEngineWidgets import QWebEngineView
+#from PyQt5.QtWebEngineWidgets import QWebEngineView
 
 from OpenVisus                        import *
-from OpenVisus.gui                    import *
-
+# from OpenVisus.gui                    import *
+from OpenVisus.gui    import PyViewer, GuiModule
+#
 
 
 from slampy.extract_keypoints import *
@@ -36,7 +37,7 @@ from PyQt5.QtCore                     import QUrl, Qt, QSize, QDir, QRect
 from PyQt5.QtWidgets                  import QApplication, QHBoxLayout, QLineEdit,QLabel, QLineEdit, QTextEdit, QGridLayout
 from PyQt5.QtWidgets                  import QMainWindow, QPushButton, QVBoxLayout,QSplashScreen,QProxyStyle, QStyle, QAbstractButton
 from PyQt5.QtWidgets                  import QWidget
-from PyQt5.QtWebEngineWidgets         import QWebEngineView	
+#from PyQt5.QtWebEngineWidgets         import QWebEngineView
 from PyQt5.QtWidgets                  import QTableWidget,QTableWidgetItem
 
 

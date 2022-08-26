@@ -1,17 +1,18 @@
 from VisoarSettings             import *
 from datetime import datetime
-from PyQt5.QtWebEngineWidgets         import QWebEngineView
+#from PyQt5.QtWebEngineWidgets         import QWebEngineView
 
-from OpenVisus                        import *
-from OpenVisus.gui                    import *
+#from OpenVisus                        import *
+#from OpenVisus.gui                    import *
 
 from PyQt5.QtGui                      import QFont
 from PyQt5.QtCore                     import QUrl, Qt, QSize, QDir, QRect
 from PyQt5.QtWidgets                  import QApplication, QHBoxLayout, QLineEdit,QLabel, QLineEdit, QTextEdit, QGridLayout
 from PyQt5.QtWidgets                  import QMainWindow, QPushButton, QVBoxLayout,QSplashScreen,QProxyStyle, QStyle, QAbstractButton
 from PyQt5.QtWidgets                  import QWidget, QMessageBox, QGroupBox, QShortcut,QSizePolicy,QPlainTextEdit,QDialog, QFileDialog
-
+# /Users/amygooch/.pyenv/versions/3.8.8/lib/python3.8/site-packages/PyQt5/Qt/lib/QtOpenGL.framework/Versions/5/QtOpenGL
 from PyQt5.QtWidgets                  import QTableWidget,QTableWidgetItem
+from PyQt5.QtOpenGL import *
 
 from editUserLibrary			    import *
 from VisoarStartTab			        import *
@@ -312,7 +313,7 @@ class MyViewerWidget(QWidget):
         #self.parent.inputModeChanged()
 
 
-class MyViewer(Viewer):
+class MyViewer(PyViewer):
     # constructor
     def __init__(self, name="", url=""):
         super(MyViewer, self).__init__()
