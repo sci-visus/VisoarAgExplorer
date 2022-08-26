@@ -182,9 +182,8 @@ Ask the developers for a copy of the files
 ``` 
 
  
-python -m pip uninstall PyQtWebEngine
-python -m pip uninstall PyQt5 
-python -m pip uninstall PyQt5-sip 
+python -m pip uninstall -y PyQtWebEngine PyQt5 PyQt5-sip 
+ 
 python -m pip install PyQt5  
 python -m pip install PyQt5-sip  
 python -m pip install PyQtWebEngine
