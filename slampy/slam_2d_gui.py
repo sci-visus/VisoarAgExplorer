@@ -255,7 +255,7 @@ class Slam2DWidget(QWidget):
 			scriptToChange = soup.script
 			# GOOGLE API KEY, if it changes, can use this to fix old files..
 			scriptToChange[
-				"src"] = u"https://maps.googleapis.com/maps/api/js?libraries=visualization&key=AIzaSyBSEW6Qkk4BLRweoafVfSd48HmbLU04Xw0"
+				"src"] = u"https://maps.googleapis.com/maps/api/js?libraries=visualization&key=AIzaSyDmbEL1uORNe-Ga828Tbi-lh0F0iQQbP18"
 
 			f2 = codecs.open(htmlFile, 'w', 'utf-8')
 			f2.write(str(soup))
