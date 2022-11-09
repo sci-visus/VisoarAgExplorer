@@ -391,7 +391,7 @@ class ImageProvider:
 	def guessPlane(self):
 		
 		
-		# return 0.0
+		return 0.0
 		
 		img=self.images[0]
 
