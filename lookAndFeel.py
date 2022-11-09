@@ -579,6 +579,24 @@ GREEN_PUSH_BUTTON = """QPushButton {
 		}""".strip()
 
 
+GREEN_PUSH_SM_BUTTON = """QPushButton {
+			border-radius: 7;
+			border-style: outset; 
+			border-width: 0px;
+			color: #ffffff;
+			background-color: #045951;
+			padding-left: 40px;
+			padding-right: 40px;
+			padding-top: 10px;
+			padding-bottom: 10px;
+			text-align:center
+		}
+		QPushButton:pressed { 
+			background-color:  #e6e6e6
+
+		}""".strip()
+
+
 GRAY_PUSH_BUTTON = """QPushButton {
 			max-width:300px;
 			border-radius: 7;

@@ -3,7 +3,7 @@ from PyQt5.QtWebEngineWidgets import QWebEngineView
 
 from OpenVisus.gui import *
 
-from PyQt5           import * 
+
 from PyQt5.QtCore    import *
 from PyQt5.QtWidgets import *
 
@@ -235,7 +235,32 @@ class Slam2DWidget(QWidget):
 
 		filename=os.path.join(self.slam.cache_dir,"slam.html")
 		SaveTextDocument(filename,content)
-		self.google_maps.load(QUrl.fromLocalFile(filename))	
+		self.fixAPIKey(filename)
+		self.google_maps.load(QUrl.fromLocalFile(filename))
+
+	# if Google API KEY is changes, then this function can fix slam.html
+	def fixAPIKey(self, htmlFile):
+		#from __future__ import division, unicode_literals
+		import codecs
+		from bs4 import BeautifulSoup
+		if (htmlFile):
+			#htmlFile = "/Volumes/TenGigaViSUSAg/2021Season/MapIR/20210527_MAPIR_02/Calibrated_4/VisusSlamFiles/slamcopy.html"
+			import shutil
+			shutil.copyfile(htmlFile, htmlFile + ".bk")
+
+			f = codecs.open(htmlFile + ".bk", 'r', 'utf-8')
+			contents = f.read()
+
+			soup = BeautifulSoup(contents, 'lxml')
+			scriptToChange = soup.script
+			# GOOGLE API KEY, if it changes, can use this to fix old files..
+			scriptToChange[
+				"src"] = u"https://maps.googleapis.com/maps/api/js?libraries=visualization&key=AIzaSyD9JbGeuRtZ55gt-etBwU95n2DO6FCOzms"
+
+			f2 = codecs.open(htmlFile, 'w', 'utf-8')
+			f2.write(str(soup))
+			f2.close()
+			f.close()
 
 	# rim
 	def run(self,slam):

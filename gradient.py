@@ -180,7 +180,7 @@ output = out.astype(numpy.float32)
 
         pen = QtGui.QPen()
 
-        y = painter.device().height() / 2
+        y = painter.device().height() / 2 +20  #(added this 20 pix offset to center boxes and handles, but need to fix interaction to be offset too )
 
 
         # Draw the stop handles.
@@ -191,7 +191,7 @@ output = out.astype(numpy.float32)
 
             painter.drawLine(xStart, y - self._handle_h, xStart, y + self._handle_h)
 
-            pen.setColor(QtGui.QColor('red'))
+            pen.setColor(QtGui.QColor('black'))
             painter.setPen(pen)
 
             rect = QtCore.QRect(
@@ -203,7 +203,8 @@ output = out.astype(numpy.float32)
             painter.drawRect(rect)
 
             #Add tick marks to line
-            painter.setBrush(Qt.black)
+            painter.setBrush(Qt.white)
+            painter.setBrush(QColor(255, 255, 255, 128))
             painter.setPen(QPen(Qt.black, 2, Qt.SolidLine))
             painter.drawLine(xStart, 0, xStart, 20)
 
@@ -283,7 +284,7 @@ output = out.astype(numpy.float32)
 
     def _find_stop_handle_for_event(self, e, to_exclude=None):
         width = self.width() -( self.MARGIN_SPACE/2)
-        height = self.height()
+        height = self.height()+20  #Added 20 for the offset to move it to the middle
         midpoint = height / 2
 
         # Are we inside a stop point? First check y.

@@ -450,8 +450,10 @@ class VisoarAnalyzeTabWidget(QWidget):
         # if False:
         print('FUNCTION: RunScript : ' + name)
         #self.parent.app_dir = os.getcwd()
-        script = getTextFromScript(os.path.join(self.parent.app_dir, 'scripts', name + '.py'))
-
+        try:
+            script = getTextFromScript(os.path.join(self.parent.app_dir, 'scripts', name + '.py'))
+        except:
+            print('ERROR: script not found')
         #self.parent.viewer.setScriptingCode(script)
         self.parent.viewer2.setScriptingCode(script)
 

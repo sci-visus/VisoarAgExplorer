@@ -23,7 +23,7 @@ class ViSOARGradientMapViewWidget(QDialog):
         self.parent = parent
         self.viewer =viewer
         #self.MODE = MODE
-        self.setGeometry(30, 30, 600, 400)
+        self.setGeometry(30, 30, 600, 200)
 
         self.gradient = Gradient()
         # self.gradient.setGradient([(1, QColor.fromRgbF(0, .4, 0.2)),
@@ -61,10 +61,10 @@ class ViSOARGradientMapViewWidget(QDialog):
         self.mapPiecesLayout.addWidget(self.outputGradient)
 
         # self.mapPiecesLayout.addWidget(self.timeline)
-
-        self.imv = pyqtgraph.ImageView()
-
-        self.mapPiecesLayout.addWidget(self.imv)
+        self.SHOW_HISTOGRAM = False
+        if (self.SHOW_HISTOGRAM):
+            self.imv = pyqtgraph.ImageView()
+            self.mapPiecesLayout.addWidget(self.imv)
         self.setLayout(self.mapPiecesLayout)
 
         # self.pen =  QPen( QColor(0, 0, 0))  # set lineColor

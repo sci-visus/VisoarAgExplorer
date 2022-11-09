@@ -26,7 +26,8 @@ else:
 
 T1=datetime.datetime.now()
 
-
+if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+    os.chdir(sys._MEIPASS)
 
 
 # IMPORTANT for WIndows
@@ -121,10 +122,10 @@ class VisoarAgExplorer(QMainWindow):
 # //////////////////////////////////////////////////////////////////////////////
 
 # //////////////////////////////////////////////
-def Main(argv):
+def Main( app):
     SetCommandLine("__main__")
     LogFile(Utils.NormalizePath(os.path.join(LOCAL_DIR, T1.strftime("%Y%m%d.%H%M%S") + ".visoar.sync.log")))
-    app = QApplication(sys.argv)
+
     app.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
     app.setAttribute(Qt.AA_EnableHighDpiScaling, True)
 
@@ -232,8 +233,9 @@ def Main(argv):
 
 # //////////////////////////////////////////////
 if __name__ == '__main__':
+    app = QApplication(sys.argv)
     try:
-        Main(sys.argv)
+        Main( app)
     except:
         print('dumping IO due to exception')
         log_stream = StringIO()

@@ -8,9 +8,13 @@ from os import path
 import platform, subprocess, glob
 from functools import partial
 
+import PyQt5.QtCore as QtCore
+import PyQt5.QtWidgets as QtWidgets
+
 from PyQt5.QtWidgets                  import QScrollArea, QToolButton
 from PyQt5.QtWebEngineWidgets         import QWebEngineView
 from OpenVisus                        import *
+from OpenVisus.VisusKernelPy                        import *
 from OpenVisus.gui                    import *
 from datetime import datetime
 
@@ -30,8 +34,11 @@ import xml.etree.ElementTree as ET
 import xml.dom.minidom
 
 
+
+
 def checkForUpdates(parent, log=None):
-    log.print("Checking for updates")
+    if log:
+        log.print("Checking for updates")
     import git
     ThisDir = os.path.dirname(os.path.realpath(__file__))
     g = git.Git( ThisDir )

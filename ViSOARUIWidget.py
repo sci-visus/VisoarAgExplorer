@@ -41,6 +41,7 @@ class MyViewerWidget(QWidget):
         self.parent = parent
         self.setStyleSheet(LOOK_AND_FEEL)
         self.viewer = MyViewer()
+        self.viewer.setMinimal()
         self.toolbar = QHBoxLayout()
         self.sublayout = QVBoxLayout()
         self.myGradientWidget = ViSOARGradientMapViewWidget(self, self.viewer )
@@ -109,10 +110,11 @@ class MyViewerWidget(QWidget):
 
     def getNewImageForImageView(self):
         imagedataFilename = self.saveScreenshot(withDate=False)
-        from PIL import Image
-        image = numpy.array(Image.open(imagedataFilename)) #.astype(numpy.float32)
-        image = numpy.swapaxes(image, 0, 1)
-        self.myGradientWidget.imv.setImage(image)
+        if (self.myGradientWidget.SHOW_HISTOGRAM):
+            from PIL import Image
+            image = numpy.array(Image.open(imagedataFilename)) #.astype(numpy.float32)
+            image = numpy.swapaxes(image, 0, 1)
+            self.myGradientWidget.imv.setImage(image)
 
     def saveScreenshot(self, withDate=True):
         if withDate:
@@ -147,7 +149,8 @@ class MyViewerWidget(QWidget):
         if len(self.parent.visoarLayerList) > 0:
             for alayer in self.parent.visoarLayerList:
                 # for all layers not google should do a union of all boxes
-                if alayer.name != 'google' and db.getChild(alayer.name):
+                dbc = db.getChild(alayer.name)
+                if alayer.name != 'google' and dbc:
                     db2 = self.viewer2.getDataset()
                     # try:
                     #     if db:
@@ -161,18 +164,18 @@ class MyViewerWidget(QWidget):
                     self.viewer2.getGLCamera().guessPosition(box)
                     return
 
-        elif db.getChild("visus"):
-            #db2 = self.viewer2.getDataset()
-            # Causes a crash
-            # db.setEnableAnnotations(False)
-            # if (db2):
-            #     db2.setEnableAnnotations(False)
-            box = db.getChild("visus").getDatasetBounds().toAxisAlignedBox()
-            self.viewer.getGLCamera().guessPosition(box)
-            #self.viewer2.getGLCamera().guessPosition(box)
-        else:
-            self.viewer.guessGLCameraPosition()
-            #self.viewer2.guessGLCameraPosition()
+                elif db.getChild("visus"):
+                    #db2 = self.viewer2.getDataset()
+                    # Causes a crash
+                    # db.setEnableAnnotations(False)
+                    # if (db2):
+                    #     db2.setEnableAnnotations(False)
+                    box = db.getChild("visus").getDatasetBounds().toAxisAlignedBox()
+                    self.viewer.getGLCamera().guessPosition(box)
+                    #self.viewer2.getGLCamera().guessPosition(box)
+                else:
+                    self.viewer.guessGLCameraPosition()
+                    #self.viewer2.guessGLCameraPosition()
 
     def openLayersWindow(self):
         v = VisoarLayerView(self.parent, self.parent.visoarLayerList, self.viewer)
@@ -202,12 +205,12 @@ class MyViewerWidget(QWidget):
         self.viewer_subwin = sip.wrapinstance(FromCppQtWidget(self.viewer.c_ptr()), QtWidgets.QMainWindow)
 
     def addScriptActionCombobox(self, cbox):
-
-        for item in self.parent.scriptNames:
-            cbox.addItem(item)
-        cbox.setToolTip('Available scripts')
-        cbox.setStyleSheet(MY_COMBOX)
-        cbox.currentIndexChanged.connect(partial(self.loadScript, cbox))
+        if (self.parent.scriptNames):
+            for item in self.parent.scriptNames:
+                cbox.addItem(item)
+            cbox.setToolTip('Available scripts')
+            cbox.setStyleSheet(MY_COMBOX)
+            cbox.currentIndexChanged.connect(partial(self.loadScript, cbox))
 
     def loadScript(self, cbox):
         print('FUNCTION  Load Script...')
@@ -232,7 +235,11 @@ class MyViewerWidget(QWidget):
             scriptName = 'NDRE_Sentera'
         else:
             scriptName = cbox.currentText()
-        script = getTextFromScript(os.path.join(self.parent.app_dir, 'scripts', scriptName + '.py'))
+        script = None
+        try:
+            script = getTextFromScript(os.path.join(self.parent.app_dir, 'scripts', scriptName + '.py'))
+        except:
+            print('Failed to get to script')
         print('\tGot script content is: ')
         print(script)
         if script:
@@ -371,7 +378,7 @@ class ViSOARUIWidget(QWidget):
 
         self.inputMode = "R G B"
         self.projectInfo = VisoarProject()
-        self.userFileHistory = os.path.join(os.getcwd(), 'userFileHistory.xml')
+        self.userFileHistory = os.path.join(os.getcwd(), './userFileHistory.xml')
         self.generate_bbox = False
         self.color_matching = False
         self.blending_exp = "output=voronoi()"
@@ -398,7 +405,7 @@ class ViSOARUIWidget(QWidget):
         self.DEBUG = True
         self.ADD_VIEWER = True  # Flag for removing viewers for testing
         self.visoarLogFilePath = os.path.join(os.getcwd(), "~visoarLog.txt")
-        self.visoarLogFile = open(self.visoarLogFilePath, "w")
+        self.visoarLogFile = open(self.visoarLogFilePath, "w+")
         print(os.path.join(os.getcwd(), "~visoarLog.txt"))
         visoarLog(self.visoarLogFile, 'Start Log: ')
 
@@ -911,6 +918,12 @@ class ViSOARUIWidget(QWidget):
                 self.slam_widget.slam = self.slam
         else:
             try:
+                print(image_dir)
+                print(cache_dir)
+                print(telemetry)
+                print(plane)
+                print(calibration)
+                print(physic_box)
                 self.slam.setImageDirectory(image_dir=image_dir, cache_dir=cache_dir, telemetry=telemetry, plane=plane,
                                             calibration=calibration, physic_box=physic_box)
                 # Here we could ask whether you want to restitch or use old stitch
